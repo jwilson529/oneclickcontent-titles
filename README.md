@@ -2,130 +2,142 @@
 
 ![Plugin Banner](assets/banner-772x250.png)
 
-**OneClickContent - Titles: Generate SEO-Optimized Titles with OpenAI. Bring your own OpenAI API key.**
+**OneClickContent - Titles: Generate SEO-Optimized Titles with OpenAI and Google Gemini. Bring your own API keys.**
 
 ## Description
 
-OneClickContent - Titles is an AI-powered plugin that helps you create SEO-friendly titles for your WordPress posts. With just one click, you can generate multiple engaging, keyword-rich titles, tailored to improve your content’s search engine performance and capture your audience’s attention.
+OneClickContent - Titles is an AI-powered WordPress plugin that simplifies creating SEO-friendly titles. With one click, generate up to five engaging, keyword-rich titles designed to boost your content’s search engine performance and grab readers’ attention. This update introduces **Google Gemini** as a new AI provider alongside OpenAI, with a streamlined interface and enhanced stability.
 
-Whether you're a content creator, marketer, or website owner, OneClickContent - Titles simplifies the process of crafting compelling titles that drive traffic and engagement.
+Ideal for content creators, marketers, and website owners, this plugin makes title crafting quick and effective.
 
 ### Important Information
 
-OneClickContent - Titles uses the OpenAI API to generate titles. By using this plugin, your data will be sent to OpenAI's servers for processing. By installing and using this plugin, you agree to OpenAI's [Terms of Use](https://openai.com/terms) and [Privacy Policy](https://openai.com/privacy).
+OneClickContent - Titles uses OpenAI and Google Gemini APIs to generate titles. Your content will be sent to the chosen provider’s servers for processing. By using this plugin, you agree to their terms and policies:
+- OpenAI: [Terms of Use](https://openai.com/terms) and [Privacy Policy](https://openai.com/privacy)
+- Google Gemini: [Terms of Service](https://cloud.google.com/terms) and [Privacy Policy](https://policies.google.com/privacy)
 
 ### API Endpoints Used
 
-- **https://api.openai.com/v1/threads**: Used to create threads for generating titles.
-- **https://api.openai.com/v1/threads/{thread_id}/messages**: Used to manage messages within the AI assistant.
-- **https://api.openai.com/v1/threads/{thread_id}/runs**: Used to execute and run the assistant for title generation.
-- **https://api.openai.com/v1/models**: Used to retrieve available models and verify the API key.
+- **OpenAI**: `https://api.openai.com/v1/completions` or `https://api.openai.com/v1/chat/completions` - Powers title generation with standard models.
+- **Google Gemini**: `https://generativelanguage.googleapis.com/v1beta/models` - Drives title generation with Google’s AI.
 
 ### Features
 
-- **AI-Powered Title Generation**: Instantly generate up to five SEO-optimized titles for any post using AI.
-- **Multiple Title Styles**: Choose from various styles such as How-To, Listicle, News Headline, and more to match the tone of your content.
-- **Customizable Post Types**: Select which post types the title generator should apply to.
-- **Seamless Integration**: Appears directly in the post editor for quick and easy access.
-- **Improve SEO and Engagement**: Enhance your content's SEO by providing search engines with optimized titles, and increase user engagement with compelling headlines.
+- **Dual AI Providers**: Generate titles with OpenAI or the new **Google Gemini** (new in this release!).
+- **AI-Powered Titles**: Instantly create up to five SEO-optimized titles tailored to your content.
+- **Variety of Styles**: Pick from How-To, Listicle, Question, and more to match your post’s tone.
+- **Simplified Interface**: A cleaner, more intuitive design for effortless use.
+- **Custom Post Types**: Choose which post types (e.g., posts, pages) to enable via settings.
+- **Editor Integration**: Works seamlessly in Classic and Block Editors.
+- **SEO & Engagement Boost**: Optimize titles for search visibility and reader interest.
 
 ## Requirements
 
 - WordPress 5.0 or higher
 - PHP 7.2 or higher
-- An active OpenAI API key (sign up at [OpenAI](https://openai.com/))
-- Awareness of potential costs associated with using the OpenAI API
+- API keys for OpenAI and/or Google Gemini ([OpenAI](https://openai.com/), [Google Cloud](https://cloud.google.com/gemini))
+- Awareness of API usage costs
 
 ## Installation
 
-1. Upload the plugin files to the `/wp-content/plugins/oneclickcontent-titles` directory.
-2. Activate the plugin through the 'Plugins' screen in WordPress.
-3. Navigate to **Settings -> OneClickContent - Titles** to configure the plugin.
-4. Enter your OpenAI API key. (If you don't have one, sign up at [OpenAI](https://openai.com/))
+1. Upload the plugin files to `/wp-content/plugins/oneclickcontent-titles`.
+2. Activate via the 'Plugins' screen in WordPress.
+3. Go to **Settings -> OneClickContent - Titles** to configure.
+4. Enter your OpenAI and/or Google Gemini API keys.
 
 ## Important Note
 
-You must use your own OpenAI API key to authenticate and use the AI-driven features of this plugin. Please be aware of the associated costs when using the OpenAI API.
+You’ll need your own API keys for OpenAI and/or Google Gemini to unlock AI features. Costs vary by usage—check pricing at OpenAI and Google Cloud.
 
 ## Getting Started
 
-After installation and activation:
-
-1. Go to the OneClickContent - Titles settings page and enter your OpenAI API key.
-2. Select the post types you want the plugin to be active on.
-3. Create or edit a post/page.
-4. Use the "Generate Titles" button in the editor sidebar to produce AI-generated titles.
-5. Choose your preferred title and publish or update your content.
+1. After activation, visit **Settings -> OneClickContent - Titles**.
+2. Input your OpenAI and/or Google Gemini API keys.
+3. Select your preferred AI provider and post types.
+4. Open a post or page in the editor.
+5. Click "Generate Titles" to get AI-crafted options.
+6. Choose a title and publish!
 
 ## Privacy
 
-OneClickContent - Titles respects your privacy. The plugin only sends necessary content to OpenAI's servers to generate titles. No personal or sensitive information is transmitted. However, please be aware that the content you choose to process will be sent to OpenAI. We recommend reviewing OpenAI's privacy policy for more details on their data handling practices.
+Your privacy matters. OneClickContent - Titles sends only post content to OpenAI or Google Gemini for title generation—no personal data is shared. Review their privacy policies:
+- [OpenAI Privacy Policy](https://openai.com/privacy)
+- [Google Privacy Policy](https://policies.google.com/privacy)
 
 ## Frequently Asked Questions
 
 ### How does OneClickContent - Titles generate titles?
 
-OneClickContent - Titles uses advanced AI algorithms via the OpenAI API to analyze your post content and generate up to five SEO-optimized titles. These titles are designed to be engaging and keyword-rich, helping improve your content's visibility and performance.
+It leverages OpenAI or Google Gemini’s AI to analyze your content and produce up to five SEO-optimized, engaging titles.
 
-### Can I customize the style of the generated titles?
+### What’s new with Google Gemini?
 
-Yes! You can choose from various styles such as How-To, Listicle, News Headline, and more, directly within the post editor.
+Version 1.1.0 adds **Google Gemini** as an AI provider, offering a powerful alternative to OpenAI for title generation.
 
-### What happens if I don't provide an API key?
+### Can I switch between OpenAI and Google Gemini?
 
-The plugin requires an OpenAI API key to function. Without it, the AI-driven title generation features will not be available. Ensure you have an active OpenAI account and understand the associated costs before using the plugin.
+Absolutely! The updated settings let you configure and choose your provider—use one or both with valid API keys.
 
-### How secure is the data transmitted to OpenAI?
+### Why switch from OpenAI Assistants API?
 
-Data security is a priority. The plugin only transmits the necessary content to OpenAI's servers to generate titles. No other information is shared. Please review OpenAI's [Privacy Policy](https://openai.com/privacy) for more details on how they handle data.
+We moved to OpenAI’s standard models for better stability and simpler integration, improving overall performance.
 
-### Are there any costs associated with using OneClickContent - Titles?
+### What if I don’t add API keys?
 
-While the OneClickContent - Titles plugin itself is free, it relies on the OpenAI API, which is a paid service. The cost will depend on your usage and OpenAI's current pricing model. We recommend reviewing OpenAI's pricing details and monitoring your API usage to manage costs effectively.
+You need at least one API key (OpenAI or Google Gemini) for title generation. Without them, the feature won’t work.
 
-### How can I get support if I run into issues?
+### Are there costs involved?
 
-If you encounter any issues or have questions about using OneClickContent - Titles, you can get support through the [WordPress support forums](https://wordpress.org/support/plugin/oneclickcontent-titles) or by visiting the [official website](https://github.com/jwilson529/occ-titles).
+The plugin is free, but OpenAI and Google Gemini APIs have usage fees. Review their pricing to manage costs.
+
+### Where can I get support?
+
+Contact us via [WordPress forums](https://wordpress.org/support/plugin/oneclickcontent-titles) or [GitHub](https://github.com/jwilson529/occ-titles).
 
 ## Screenshots
 
-1. ![Title Generation Interface](assets/OneClickContentTitles-Block.png)  
-   *Easily generate SEO-optimized titles directly within the post editor.*
+1. ![Simplified Title Generation](assets/OneClickContentTitles-Block.png)  
+   *Generate titles with a cleaner interface in the Block Editor.*
 
-2. ![Classic And Block Editor](assets/OneClickContentTitles.png)  
-   *Choose from various styles to match the tone and purpose of your content.*
+2. ![Classic and Block Support](assets/OneClickContentTitles.png)  
+   *Style options in both editors.*
 
-3. ![Settings Screen](assets/OneClickContentTitles-Settings.png)  
-   *The settings page where you can configure your API key and post type options.*
+3. ![Updated Settings Screen](assets/OneClickContentTitles-Settings.png)  
+   *Configure API keys and providers easily.*
 
 ## Changelog
 
+### 1.1.0
+- **New Feature**: Added Google Gemini as an AI provider.
+- **Major Change**: Switched from OpenAI Assistants API to standard models.
+- **UI Update**: Simplified interface for better usability.
+- **Settings Revamp**: Updated to support dual providers and post types.
+- **Stability**: Improved reliability with streamlined AI calls.
+
 ### 1.0.3
-* Improved error handling for API key validation and response errors.
-* Enhanced spinner functionality to display title tips during processing.
-* Added visual and UI improvements for better user experience.
-* Minor bug fixes and stability improvements.
+- Enhanced error handling for API validation.
+- Added title tips in the spinner.
+- Minor UI and bug fixes.
 
 ### 1.0.2
-* Initial release of the plugin in the WP Directory.
+- Initial WordPress Directory release.
 
 ### 1.0.0
-* Initial release of the plugin.
+- Initial release.
 
 ## Upgrade Notice
 
-### 1.0.3
-* This update improves error handling and UI features, ensuring smoother title generation and better feedback on issues. Please update to benefit from these enhancements.
+### 1.1.0
+Upgrade for Google Gemini support, a simpler interface, and improved stability with OpenAI’s standard models. Add your Gemini API key to try it!
 
 ## Future Plans
 
-We're continuously working to enhance OneClickContent - Titles. Some features we're considering for future updates include:
+- More AI providers (e.g., Grok, if available).
+- Enhanced style options.
+- Title performance insights.
 
-- Additional title styles and customization options.
-- Integration with more AI providers.
-
-Stay tuned for these exciting updates!
+Follow updates on [GitHub](https://github.com/jwilson529/occ-titles)!
 
 ## License
 
-This plugin is licensed under the GPLv2 or later.
+Licensed under GPLv2 or later.
