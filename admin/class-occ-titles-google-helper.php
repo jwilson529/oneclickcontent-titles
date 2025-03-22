@@ -1,6 +1,6 @@
 <?php
 /**
- * OpenAI Helper class file for OneClickContent Titles plugin.
+ * Google Gemini Helper class file for OneClickContent Titles plugin.
  *
  * @package    Occ_Titles
  * @subpackage Occ_Titles/admin
@@ -8,9 +8,9 @@
  */
 
 /**
- * The admin-specific functionality of the plugin concerning OpenAI.
+ * The admin-specific functionality of the plugin concerning Google Gemini.
  *
- * Provides methods for interacting with the OpenAI API.
+ * Provides methods for interacting with the Google Gemini API.
  *
  * @link       https://oneclickcontent.com
  * @since      1.0.0
@@ -18,21 +18,20 @@
  * @package    Occ_Titles
  * @subpackage Occ_Titles/admin
  */
-class Occ_Titles_OpenAI_Helper {
+class Occ_Titles_Google_Helper {
 
 	/**
-	 * Generate titles using the OpenAI API.
+	 * Generate titles using the Google Gemini API (unchanged for now).
 	 *
 	 * @since  1.0.0
-	 * @param  string $api_key The OpenAI API key.
+	 * @param  string $api_key The Google Gemini API key.
 	 * @param  string $content The content to generate titles for.
 	 * @param  string $style   Optional style for the titles.
 	 * @return array|string    Array of titles if successful, error message if failed.
 	 */
-	public function generate_titles_openai( $api_key, $content, $style = '' ) {
-		$model = get_option( 'occ_titles_openai_model', 'gpt-4o-mini' );
+	public function generate_titles_google( $api_key, $content, $style = '' ) {
+		$model = get_option( 'occ_titles_google_model', 'gemini-1.5-flash' ); // Default Gemini model.
 
-		// Build the system instruction.
 		$system_instruction  = 'You are an SEO expert and content writer. Your task is to generate exactly five SEO-optimized titles for the provided content. ';
 		$system_instruction .= 'Each title should be engaging, include relevant keywords, and be between 50-60 characters long. ';
 		$system_instruction .= 'Additionally, analyze the sentiment of each title (Positive, Negative, or Neutral).';
@@ -53,44 +52,34 @@ class Occ_Titles_OpenAI_Helper {
 		$system_instruction .= "  { \"index\": 5, \"text\": \"Title 5 content\", \"style\": \"Style\", \"sentiment\": \"Sentiment\", \"keywords\": [\"keyword1\", \"keyword2\"] }\n";
 		$system_instruction .= ']';
 
-		// Set the endpoint for chat completions.
-		$endpoint = 'https://api.openai.com/v1/chat/completions';
-
-		// Build the messages array.
-		$messages = array(
-			array(
-				'role'    => 'system',
-				'content' => $system_instruction,
-			),
-			array(
-				'role'    => 'user',
-				'content' => "Here is the content:\n" . $content,
-			),
-		);
+		$endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$api_key}";
 
 		$body = wp_json_encode(
 			array(
-				'model'       => $model,
-				'messages'    => $messages,
-				'max_tokens'  => 2000,
-				'temperature' => 0.7,
+				'contents'         => array(
+					array(
+						'parts' => array(
+							array(
+								'text' => $system_instruction . "\n\nHere is the content:\n" . $content,
+							),
+						),
+					),
+				),
+				'generationConfig' => array(
+					'temperature'     => 0.7,
+					'maxOutputTokens' => 2000,
+				),
 			)
 		);
 
 		$args = array(
 			'headers' => array(
-				'Content-Type'  => 'application/json',
-				'Authorization' => 'Bearer ' . $api_key,
+				'Content-Type' => 'application/json',
 			),
 			'body'    => $body,
+			'method'  => 'POST',
 			'timeout' => 120,
 		);
-
-		// Remove the logging of request args entirely.
-		$args_log = $args;
-		if ( isset( $args_log['headers']['Authorization'] ) ) {
-			$args_log['headers']['Authorization'] = '[REDACTED]';
-		}
 
 		$response = wp_remote_post( $endpoint, $args );
 
@@ -103,11 +92,9 @@ class Occ_Titles_OpenAI_Helper {
 
 		$decoded = json_decode( $response_body, true );
 
-		// Check for the expected response from chat completions.
-		if ( isset( $decoded['choices'][0]['message']['content'] ) ) {
-			$json_text = trim( $decoded['choices'][0]['message']['content'] );
+		if ( isset( $decoded['candidates'][0]['content']['parts'][0]['text'] ) ) {
+			$json_text = trim( $decoded['candidates'][0]['content']['parts'][0]['text'] );
 
-			// Remove markdown code fences if present.
 			if ( strpos( $json_text, '```' ) === 0 ) {
 				$json_text = trim( preg_replace( '/^```(?:json)?(.*?)```$/s', '$1', $json_text ) );
 			}
@@ -125,62 +112,82 @@ class Occ_Titles_OpenAI_Helper {
 	}
 
 	/**
-	 * Validates the OpenAI API key and fetches models for completions.
+	 * Validates the Google Gemini API key with a simple "Hello" request.
 	 *
 	 * @since  1.0.0
 	 * @param  string $api_key The API key to validate.
-	 * @return array|bool      List of models if successful, false otherwise.
+	 * @return bool            True if the key is valid (successful response), false otherwise.
 	 */
-	public static function validate_openai_api_key( $api_key ) {
+	public static function validate_google_api_key( $api_key ) {
 		if ( empty( $api_key ) ) {
 			return false;
 		}
 
-		$response = wp_remote_get(
-			'https://api.openai.com/v1/models',
+		// Use a basic model for validation (e.g., gemini-1.5-flash).
+		$model    = 'gemini-1.5-flash';
+		$endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$api_key}";
+
+		// Simple "Hello" prompt.
+		$body = wp_json_encode(
 			array(
-				'headers' => array(
-					'Content-Type'  => 'application/json',
-					'Authorization' => 'Bearer ' . $api_key,
+				'contents'         => array(
+					array(
+						'parts' => array(
+							array(
+								'text' => 'Say "Hello, Gemini!"',
+							),
+						),
+					),
+				),
+				'generationConfig' => array(
+					'maxOutputTokens' => 50,
 				),
 			)
 		);
+
+		$args = array(
+			'headers' => array(
+				'Content-Type' => 'application/json',
+			),
+			'body'    => $body,
+			'method'  => 'POST',
+			'timeout' => 30,
+		);
+
+		$response = wp_remote_post( $endpoint, $args );
 
 		if ( is_wp_error( $response ) ) {
 			return false;
 		}
 
-		$body = wp_remote_retrieve_body( $response );
-		$data = json_decode( $body, true );
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$response_body = wp_remote_retrieve_body( $response );
 
-		if ( isset( $data['data'] ) && is_array( $data['data'] ) ) {
-			return array_map(
-				function ( $model ) {
-					return $model['id'];
-				},
-				$data['data']
-			);
+		$decoded = json_decode( $response_body, true );
+
+		// Check for a successful response (200 OK and content present).
+		if ( 200 === $response_code && isset( $decoded['candidates'][0]['content']['parts'][0]['text'] ) ) {
+			return true; // Key is valid if we get any response text.
 		}
 
 		return false;
 	}
 
 	/**
-	 * AJAX handler for validating the OpenAI API key.
+	 * AJAX handler for validating the Google Gemini API key.
 	 *
 	 * @since 1.0.0
 	 */
-	public function occ_titles_ajax_validate_openai_api_key() {
+	public function occ_titles_ajax_validate_google_api_key() {
 		check_ajax_referer( 'occ_titles_ajax_nonce', 'nonce' );
 
-		$api_key = isset( $_POST['api_key'] ) ? sanitize_text_field( wp_unslash( $_POST['api_key'] ) ) : '';
-		$models  = self::validate_openai_api_key( $api_key );
+		$api_key  = isset( $_POST['api_key'] ) ? sanitize_text_field( wp_unslash( $_POST['api_key'] ) ) : '';
+		$is_valid = self::validate_google_api_key( $api_key );
 
-		if ( $models ) {
+		if ( $is_valid ) {
 			wp_send_json_success(
 				array(
 					'message' => __( 'API key is valid.', 'oneclickcontent-titles' ),
-					'models'  => $models,
 				)
 			);
 		} else {

@@ -113,7 +113,7 @@ class Occ_Titles_Admin {
 	 */
 	public function enqueue_styles() {
 		$screen              = get_current_screen();
-		$selected_post_types = get_option( 'occ_titles_post_types', array() );
+		$selected_post_types = (array) get_option( 'occ_titles_post_types', array() );
 
 		if ( 'post' === $screen->base && in_array( $screen->post_type, $selected_post_types, true ) && ! wp_should_load_block_editor_scripts_and_styles() ) {
 			wp_enqueue_style(
@@ -135,14 +135,17 @@ class Occ_Titles_Admin {
 	}
 
 	/**
-	 * Register the JavaScript for the admin area.
+	 * Enqueue admin scripts for the plugin.
+	 *
+	 * Loads the settings script on all admin pages and conditionally enqueues
+	 * additional scripts on selected post type edit pages or the plugin's
+	 * settings page. Localized data is provided for AJAX functionality.
 	 *
 	 * @since 1.0.0
-	 * @return void
 	 */
 	public function enqueue_scripts() {
 		$screen              = get_current_screen(); // Get current screen object.
-		$selected_post_types = get_option( 'occ_titles_post_types', array() );
+		$selected_post_types = (array) get_option( 'occ_titles_post_types', array() );
 
 		// Enqueue the settings script on all admin pages.
 		wp_enqueue_script(
@@ -156,17 +159,9 @@ class Occ_Titles_Admin {
 		// Enqueue scripts on the selected post type edit pages.
 		if ( 'post' === $screen->base && in_array( $screen->post_type, $selected_post_types, true ) ) {
 			wp_enqueue_script(
-				'occ-titles-utils',
-				plugin_dir_url( __FILE__ ) . 'js/occ-titles-utils.js',
-				array( 'jquery' ),
-				$this->version,
-				true
-			);
-
-			wp_enqueue_script(
 				'occ-titles-admin',
 				plugin_dir_url( __FILE__ ) . 'js/occ-titles-admin.js',
-				array( 'jquery', 'occ-titles-utils', 'occ-titles-settings' ),
+				array( 'jquery', 'occ-titles-settings' ),
 				$this->version,
 				true
 			);
@@ -204,7 +199,6 @@ class Occ_Titles_Admin {
 			);
 		}
 	}
-
 	/**
 	 * Enqueue block editor styles.
 	 *
@@ -223,7 +217,7 @@ class Occ_Titles_Admin {
 
 
 	/**
-	 * Handle the AJAX request to generate titles using OpenAI.
+	 * Handle the AJAX request to generate titles.
 	 *
 	 * @since 1.0.0
 	 * @return void
@@ -234,44 +228,45 @@ class Occ_Titles_Admin {
 			wp_send_json_error( array( 'message' => __( 'Nonce verification failed.', 'oneclickcontent-titles' ) ) );
 		}
 
-		// Verify the user has the appropriate capability.
+		// Verify the user has permission.
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'oneclickcontent-titles' ) ) );
 		}
 
-		// Sanitize and get incoming data.
-		$content      = isset( $_POST['content'] ) ? sanitize_text_field( wp_unslash( $_POST['content'] ) ) : '';
-		$style        = isset( $_POST['style'] ) ? sanitize_text_field( wp_unslash( $_POST['style'] ) ) : '';
-		$api_key      = get_option( 'occ_titles_openai_api_key' );
-		$assistant_id = get_option( 'occ_titles_assistant_id' );
+		// Get and sanitize incoming data.
+		$content = isset( $_POST['content'] ) ? sanitize_text_field( wp_unslash( $_POST['content'] ) ) : '';
+		$style   = isset( $_POST['style'] ) ? sanitize_text_field( wp_unslash( $_POST['style'] ) ) : '';
 
-		// Check for missing data.
-		if ( empty( $content ) || empty( $api_key ) || empty( $assistant_id ) ) {
-			wp_send_json_error( array( 'message' => __( 'Missing data.', 'oneclickcontent-titles' ) ) );
+		if ( empty( $content ) ) {
+			wp_send_json_error( array( 'message' => __( 'Missing content.', 'oneclickcontent-titles' ) ) );
 		}
 
-		// Modify the query with the selected style, if provided.
-		$query = $content;
-		if ( ! empty( $style ) ) {
-			$query .= "\n\nStyle: " . ucfirst( $style );
+		// Determine which AI provider to use.
+		$provider = get_option( 'occ_titles_ai_provider', 'openai' );
+
+		if ( 'openai' === $provider ) {
+			$api_key = get_option( 'occ_titles_openai_api_key' );
+			if ( empty( $api_key ) ) {
+				wp_send_json_error( array( 'message' => __( 'Missing OpenAI API key.', 'oneclickcontent-titles' ) ) );
+			}
+			$helper = new Occ_Titles_OpenAI_Helper();
+			$result = $helper->generate_titles_openai( $api_key, $content, $style );
+		} elseif ( 'google' === $provider ) {
+			$api_key = get_option( 'occ_titles_google_api_key' );
+			if ( empty( $api_key ) ) {
+				wp_send_json_error( array( 'message' => __( 'Missing Google Gemini API key.', 'oneclickcontent-titles' ) ) );
+			}
+			// Occ_Titles_Google_Helper should be implemented similarly.
+			$helper = new Occ_Titles_Google_Helper();
+			$result = $helper->generate_titles_google( $api_key, $content, $style );
 		} else {
-			$query .= "\n\nStyle: Choose the most suitable style";
+			wp_send_json_error( array( 'message' => __( 'Unknown AI provider.', 'oneclickcontent-titles' ) ) );
 		}
 
-		// Step 1: Create a new thread.
-		$thread_id = $this->openai_helper->create_thread( $api_key );
-		if ( ! $thread_id ) {
-			wp_send_json_error( array( 'message' => __( 'Failed to create thread.', 'oneclickcontent-titles' ) ) );
-		}
-
-		// Step 2: Add message and run thread.
-		$result = $this->openai_helper->add_message_and_run_thread( $api_key, $thread_id, $assistant_id, $query );
-
-		// Check if the result contains the expected data structure.
-		if ( isset( $result['titles'] ) && is_array( $result['titles'] ) ) {
-			wp_send_json_success( array( 'titles' => $result['titles'] ) );
+		if ( is_array( $result ) ) {
+			wp_send_json_success( array( 'titles' => $result ) );
 		} else {
-			wp_send_json_error( array( 'message' => __( 'Unexpected response format.', 'oneclickcontent-titles' ) ) );
+			wp_send_json_error( array( 'message' => $result ) );
 		}
 	}
 }
