@@ -12,6 +12,8 @@
  * @subpackage Occ_Titles/includes
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * The core plugin class.
  *
@@ -98,6 +100,9 @@ class Occ_Titles {
 
 		// The class responsible for defining internationalization functionality of the plugin.
 		require_once plugin_dir_path( __DIR__ ) . 'includes/class-occ-titles-i18n.php';
+
+		// The class responsible for logging plugin events and errors.
+		require_once plugin_dir_path( __DIR__ ) . 'includes/class-occ-titles-logger.php';
 
 		// The class responsible for defining all actions that occur in the admin area.
 		require_once plugin_dir_path( __DIR__ ) . 'admin/class-occ-titles-admin.php';

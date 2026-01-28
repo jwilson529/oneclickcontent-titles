@@ -7,6 +7,8 @@
  * @author     OneClickContent <support@oneclickcontent.com>
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * The admin-specific functionality of the plugin concerning Google Gemini.
  *

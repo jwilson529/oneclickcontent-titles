@@ -4,3 +4,5 @@
  *
  * @package    Occ_Titles
  */
+
+defined( 'ABSPATH' ) || exit;

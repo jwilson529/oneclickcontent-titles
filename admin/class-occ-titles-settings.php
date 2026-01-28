@@ -11,6 +11,8 @@
  * @subpackage Occ_Titles/admin
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Class Occ_Titles_Settings
  *
@@ -72,6 +74,11 @@ class Occ_Titles_Settings {
 			'occ_titles_post_types',
 			array( 'sanitize_callback' => array( __CLASS__, 'occ_titles_sanitize_post_types' ) )
 		);
+		register_setting(
+			'occ_titles_settings',
+			'occ_titles_logging_enabled',
+			array( 'sanitize_callback' => array( __CLASS__, 'occ_titles_sanitize_logging_enabled' ) )
+		);
 
 		// Add the settings section.
 		add_settings_section(
@@ -86,6 +93,13 @@ class Occ_Titles_Settings {
 			'occ_titles_ai_provider',
 			__( 'AI Provider', 'oneclickcontent-titles' ),
 			array( $this, 'occ_titles_ai_provider_callback' ),
+			'occ_titles_settings',
+			'occ_titles_settings_section'
+		);
+		add_settings_field(
+			'occ_titles_logging_enabled',
+			__( 'Enable Logging', 'oneclickcontent-titles' ),
+			array( $this, 'occ_titles_logging_enabled_callback' ),
 			'occ_titles_settings',
 			'occ_titles_settings_section'
 		);
@@ -164,6 +178,17 @@ class Occ_Titles_Settings {
 			return array();
 		}
 		return array_map( 'sanitize_text_field', $input );
+	}
+
+	/**
+	 * Sanitize the logging enabled setting.
+	 *
+	 * @since 1.1.0
+	 * @param mixed $input Raw input.
+	 * @return int Sanitized value.
+	 */
+	public static function occ_titles_sanitize_logging_enabled( $input ) {
+		return absint( $input ) ? 1 : 0;
 	}
 
 	/**
@@ -248,6 +273,19 @@ class Occ_Titles_Settings {
 	}
 
 	/**
+	 * Callback function for the logging enabled setting field.
+	 *
+	 * @since 1.1.0
+	 * @return void
+	 */
+	public function occ_titles_logging_enabled_callback() {
+		$enabled = (int) get_option( 'occ_titles_logging_enabled', 1 );
+		echo '<label for="occ_titles_logging_enabled">';
+		echo '<input type="checkbox" id="occ_titles_logging_enabled" name="occ_titles_logging_enabled" value="1" ' . checked( 1, $enabled, false ) . '>';
+		echo esc_html__( 'Write diagnostic logs to the plugin log file.', 'oneclickcontent-titles' );
+		echo '</label>';
+	}
+	/**
 	 * Callback function for the Post Types setting field.
 	 *
 	 * @since 1.0.0
@@ -291,6 +329,10 @@ class Occ_Titles_Settings {
 	 */
 	public static function occ_titles_auto_save() {
 		if ( ! check_ajax_referer( 'occ_titles_ajax_nonce', 'nonce', false ) ) {
+			Occ_Titles_Logger::get_instance()->warning(
+				'Settings autosave failed nonce verification.',
+				array( 'action' => 'occ_titles_auto_save' )
+			);
 			wp_send_json_error( array( 'message' => __( 'Invalid nonce', 'oneclickcontent-titles' ) ) );
 		}
 
@@ -300,17 +342,26 @@ class Occ_Titles_Settings {
 			'occ_titles_post_types',
 			'occ_titles_openai_model',
 			'occ_titles_google_api_key',
+			'occ_titles_logging_enabled',
 		);
 
 		if ( isset( $_POST['field_name'], $_POST['field_value'] ) ) {
 			$field_name = sanitize_text_field( wp_unslash( $_POST['field_name'] ) );
 			if ( ! in_array( $field_name, $allowed_fields, true ) ) {
+				Occ_Titles_Logger::get_instance()->warning(
+					'Settings autosave rejected invalid field.',
+					array( 'field_name' => $field_name )
+				);
 				wp_send_json_error( array( 'message' => __( 'Invalid field name.', 'oneclickcontent-titles' ) ) );
 			}
 
-			$field_value = is_array( $_POST['field_value'] )
-				? array_map( 'sanitize_text_field', wp_unslash( $_POST['field_value'] ) )
-				: sanitize_text_field( wp_unslash( $_POST['field_value'] ) );
+			if ( 'occ_titles_logging_enabled' === $field_name ) {
+				$field_value = self::occ_titles_sanitize_logging_enabled( wp_unslash( $_POST['field_value'] ) );
+			} else {
+				$field_value = is_array( $_POST['field_value'] )
+					? array_map( 'sanitize_text_field', wp_unslash( $_POST['field_value'] ) )
+					: sanitize_text_field( wp_unslash( $_POST['field_value'] ) );
+			}
 
 			update_option( $field_name, $field_value );
 
@@ -330,6 +381,10 @@ class Occ_Titles_Settings {
 				);
 			}
 		} else {
+			Occ_Titles_Logger::get_instance()->warning(
+				'Settings autosave missing expected payload.',
+				array( 'action' => 'occ_titles_auto_save' )
+			);
 			wp_send_json_error( array( 'message' => __( 'Missing field_name or field_value.', 'oneclickcontent-titles' ) ) );
 		}
 	}

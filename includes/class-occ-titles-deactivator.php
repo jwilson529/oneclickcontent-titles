@@ -9,6 +9,8 @@
  * @subpackage Occ_Titles/includes
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Fired during plugin deactivation.
  *

@@ -7,6 +7,8 @@
  * @author     OneClickContent <support@oneclickcontent.com>
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * The admin-specific functionality of the plugin concerning OpenAI.
  *
@@ -96,6 +98,10 @@ class Occ_Titles_OpenAI_Helper {
 
 		if ( is_wp_error( $response ) ) {
 			$error_message = 'Request error: ' . $response->get_error_message();
+			Occ_Titles_Logger::get_instance()->error(
+				'OpenAI request failed.',
+				array( 'error' => $response->get_error_message() )
+			);
 			return $error_message;
 		}
 
@@ -117,9 +123,17 @@ class Occ_Titles_OpenAI_Helper {
 				return $titles;
 			} else {
 				$json_error = 'JSON decode error: ' . json_last_error_msg() . '. Raw response: ' . $json_text;
+				Occ_Titles_Logger::get_instance()->error(
+					'OpenAI response JSON decode failed.',
+					array( 'json_error' => json_last_error_msg() )
+				);
 				return $json_error;
 			}
 		} else {
+			Occ_Titles_Logger::get_instance()->error(
+				'OpenAI response missing expected content.',
+				array( 'response_code' => wp_remote_retrieve_response_code( $response ) )
+			);
 			return 'Unexpected response format.';
 		}
 	}
@@ -147,6 +161,10 @@ class Occ_Titles_OpenAI_Helper {
 		);
 
 		if ( is_wp_error( $response ) ) {
+			Occ_Titles_Logger::get_instance()->warning(
+				'OpenAI API key validation request failed.',
+				array( 'error' => $response->get_error_message() )
+			);
 			return false;
 		}
 

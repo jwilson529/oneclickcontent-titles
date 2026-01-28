@@ -12,6 +12,8 @@
  * @subpackage Occ_Titles/admin
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -225,11 +227,19 @@ class Occ_Titles_Admin {
 	public function generate_titles() {
 		// Check nonce for security.
 		if ( ! check_ajax_referer( 'occ_titles_ajax_nonce', 'nonce', false ) ) {
+			Occ_Titles_Logger::get_instance()->warning(
+				'Title generation failed nonce verification.',
+				array( 'action' => 'occ_titles_generate_titles' )
+			);
 			wp_send_json_error( array( 'message' => __( 'Nonce verification failed.', 'oneclickcontent-titles' ) ) );
 		}
 
 		// Verify the user has permission.
 		if ( ! current_user_can( 'edit_posts' ) ) {
+			Occ_Titles_Logger::get_instance()->warning(
+				'Title generation denied due to insufficient permissions.',
+				array( 'capability' => 'edit_posts' )
+			);
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'oneclickcontent-titles' ) ) );
 		}
 
@@ -238,6 +248,10 @@ class Occ_Titles_Admin {
 		$style   = isset( $_POST['style'] ) ? sanitize_text_field( wp_unslash( $_POST['style'] ) ) : '';
 
 		if ( empty( $content ) ) {
+			Occ_Titles_Logger::get_instance()->warning(
+				'Title generation request missing content.',
+				array( 'provider' => get_option( 'occ_titles_ai_provider', 'openai' ) )
+			);
 			wp_send_json_error( array( 'message' => __( 'Missing content.', 'oneclickcontent-titles' ) ) );
 		}
 
@@ -247,6 +261,10 @@ class Occ_Titles_Admin {
 		if ( 'openai' === $provider ) {
 			$api_key = get_option( 'occ_titles_openai_api_key' );
 			if ( empty( $api_key ) ) {
+				Occ_Titles_Logger::get_instance()->warning(
+					'OpenAI API key missing for title generation.',
+					array( 'provider' => 'openai' )
+				);
 				wp_send_json_error( array( 'message' => __( 'Missing OpenAI API key.', 'oneclickcontent-titles' ) ) );
 			}
 			$helper = new Occ_Titles_OpenAI_Helper();
@@ -254,18 +272,33 @@ class Occ_Titles_Admin {
 		} elseif ( 'google' === $provider ) {
 			$api_key = get_option( 'occ_titles_google_api_key' );
 			if ( empty( $api_key ) ) {
+				Occ_Titles_Logger::get_instance()->warning(
+					'Google API key missing for title generation.',
+					array( 'provider' => 'google' )
+				);
 				wp_send_json_error( array( 'message' => __( 'Missing Google Gemini API key.', 'oneclickcontent-titles' ) ) );
 			}
 			// Occ_Titles_Google_Helper should be implemented similarly.
 			$helper = new Occ_Titles_Google_Helper();
 			$result = $helper->generate_titles_google( $api_key, $content, $style );
 		} else {
+			Occ_Titles_Logger::get_instance()->error(
+				'Unknown AI provider configured.',
+				array( 'provider' => $provider )
+			);
 			wp_send_json_error( array( 'message' => __( 'Unknown AI provider.', 'oneclickcontent-titles' ) ) );
 		}
 
 		if ( is_array( $result ) ) {
 			wp_send_json_success( array( 'titles' => $result ) );
 		} else {
+			Occ_Titles_Logger::get_instance()->error(
+				'Title generation failed.',
+				array(
+					'provider' => $provider,
+					'message'  => is_string( $result ) ? $result : 'unknown error',
+				)
+			);
 			wp_send_json_error( array( 'message' => $result ) );
 		}
 	}

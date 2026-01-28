@@ -9,6 +9,8 @@
  * @subpackage Occ_Titles/includes
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Register all actions and filters for the plugin.
  *

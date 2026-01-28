@@ -4,11 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "fix": "phpcbf -d error_reporting=\"E_ALL&~E_DEPRECATED\" --ignore=*/vendor/*,*/node_modules/*  --standard=WordPress --extensions=php .",
-    "check": "phpcs -d error_reporting=\"E_ALL&~E_DEPRECATED\" --ignore=*/vendor/*,*/node_modules/*  --standard=WordPress --extensions=php . > check.txt",
+    "test": "phpunit",
+    "fix": "phpcbf -d error_reporting=\"E_ALL&~E_DEPRECATED\" --standard=phpcs.xml --extensions=php .",
+    "check": "phpcs -d error_reporting=\"E_ALL&~E_DEPRECATED\" --standard=phpcs.xml --extensions=php . > check.txt",
     "phpmd": "phpmd . text phpmd.xml --exclude vendor,node_modules > phpmd.txt",
-    "dist": "find . -name '.DS_Store' -delete && zip -r oneclickcontent-titles.zip . -x \"node_modules/*\" \"assets/*\" \"!assets/ai-sparkle.svg\" \".git/*\" \".gitignore\" \".zipignore\" \".DS_Store\" \"**/.DS_Store\" \"check.txt\" \"phpmd.txt\" \"plugincheck.txt\" \"package.json\" \"package-lock.json\" \"phpmd.xml\" \"README.md\" \".github/*\""
+    "dist": "find . -name '.DS_Store' -delete && zip -r oneclickcontent-titles.zip . -x \"node_modules/*\" \"vendor/*\" \"tests/*\" \".git/*\" \".github/*\" \".codex/*\" \".codex-backups/*\" \"*.zip\" \"check.txt\" \"phpmd.txt\" \"plugincheck.txt\" \"session_id.txt\" \"AGENTS.md\" \"SPEC.md\" \"composer.json\" \"composer.lock\" \"package.json\" \"package-lock.json\" \"phpmd.xml\" \"phpunit.xml\" \"phpcs.xml\" \"README.md\" \".gitignore\" \".zipignore\" \".DS_Store\" \"**/.DS_Store\" \"codex-yolo\" \"plugin-error.log\"",
+    "plugin-check": "wp plugin check .",
+    "update-wpcs": "composer global require wp-coding-standards/wpcs --update-with-all-dependencies",
+    "update-phpcs": "composer global require squizlabs/php_codesniffer --update-with-all-dependencies",
+    "refresh-phpcs": "phpcs --clear-cache && phpcs --config-set installed_paths ~/.composer/vendor/wp-coding-standards/wpcs"
   },
   "repository": {
     "type": "git",

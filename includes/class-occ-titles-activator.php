@@ -9,6 +9,8 @@
  * @subpackage Occ_Titles/includes
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Fired during plugin activation.
  *
@@ -40,6 +42,11 @@ class Occ_Titles_Activator {
 		// Set default model if it doesn't exist.
 		if ( false === get_option( 'occ_titles_openai_model' ) ) {
 			update_option( 'occ_titles_openai_model', 'gpt-4o-mini' ); // Set 'gpt-4o-mini' as the default model.
+		}
+
+		// Enable logging by default if it doesn't exist.
+		if ( false === get_option( 'occ_titles_logging_enabled' ) ) {
+			update_option( 'occ_titles_logging_enabled', 1 );
 		}
 	}
 }

@@ -12,6 +12,8 @@
  * @subpackage Occ_Titles/includes
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Define the internationalization functionality.
  *

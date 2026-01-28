@@ -14,8 +14,7 @@
  * @wordpress-plugin
  * Plugin Name:       OneClickContent - Titles
  * Plugin URI:        https://oneclickcontent.com
- * Description:       Generate Titles
-
+ * Description:       Generate and score titles for SEO
  * Version:           1.1.0
  * Author:            James Wilson
  * Author URI:        https://oneclickcontent.com/
@@ -28,9 +27,7 @@
  */
 
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
-	die;
-}
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Currently plugin version.
