@@ -165,6 +165,7 @@ class Occ_Titles_Admin {
 			'current_post_type'     => isset( $screen->post_type ) ? $screen->post_type : '',
 			'svg_url'               => plugin_dir_url( __DIR__ ) . 'img/ai-sparkle.svg',
 			'now'                   => current_time( 'mysql' ),
+			'settings_url'          => admin_url( 'options-general.php?page=occ_titles-settings' ),
 			'strings'               => array(
 				'badge_valid'        => __( 'Valid', 'oneclickcontent-titles' ),
 				'badge_invalid'      => __( 'Invalid', 'oneclickcontent-titles' ),
@@ -256,8 +257,18 @@ class Occ_Titles_Admin {
 		}
 
 		// Get and sanitize incoming data.
-		$content = isset( $_POST['content'] ) ? sanitize_text_field( wp_unslash( $_POST['content'] ) ) : '';
-		$style   = isset( $_POST['style'] ) ? sanitize_text_field( wp_unslash( $_POST['style'] ) ) : '';
+		$content    = isset( $_POST['content'] ) ? sanitize_text_field( wp_unslash( $_POST['content'] ) ) : '';
+		$style      = isset( $_POST['style'] ) ? sanitize_text_field( wp_unslash( $_POST['style'] ) ) : '';
+		$seed_title = isset( $_POST['seed_title'] ) ? sanitize_text_field( wp_unslash( $_POST['seed_title'] ) ) : '';
+		$variation  = isset( $_POST['variation'] ) ? sanitize_text_field( wp_unslash( $_POST['variation'] ) ) : '';
+		$keyword    = isset( $_POST['keyword'] ) ? sanitize_text_field( wp_unslash( $_POST['keyword'] ) ) : '';
+		$count      = isset( $_POST['count'] ) ? absint( $_POST['count'] ) : 5;
+
+		if ( $count < 1 ) {
+			$count = 1;
+		} elseif ( $count > 5 ) {
+			$count = 5;
+		}
 
 		Occ_Titles_Logger::get_instance()->info(
 			'Title generation payload sanitized.',
@@ -265,6 +276,9 @@ class Occ_Titles_Admin {
 				'request_id'     => $request_id,
 				'content_length' => strlen( $content ),
 				'style'          => $style,
+				'seed_title'     => $seed_title,
+				'variation'      => $variation,
+				'count'          => $count,
 			)
 		);
 
@@ -292,7 +306,7 @@ class Occ_Titles_Admin {
 				wp_send_json_error( array( 'message' => __( 'Missing OpenAI API key.', 'oneclickcontent-titles' ) ) );
 			}
 			$helper = new Occ_Titles_OpenAI_Helper();
-			$result = $helper->generate_titles_openai( $api_key, $content, $style, $request_id );
+			$result = $helper->generate_titles_openai( $api_key, $content, $style, $request_id, $count, $seed_title, $variation, $keyword );
 		} elseif ( 'google' === $provider ) {
 			$api_key = get_option( 'occ_titles_google_api_key' );
 			if ( empty( $api_key ) ) {
@@ -304,7 +318,7 @@ class Occ_Titles_Admin {
 			}
 			// Occ_Titles_Google_Helper should be implemented similarly.
 			$helper = new Occ_Titles_Google_Helper();
-			$result = $helper->generate_titles_google( $api_key, $content, $style, $request_id );
+			$result = $helper->generate_titles_google( $api_key, $content, $style, $request_id, $count, $seed_title, $variation, $keyword );
 		} else {
 			Occ_Titles_Logger::get_instance()->error(
 				'Unknown AI provider configured.',
@@ -325,7 +339,13 @@ class Occ_Titles_Admin {
 					'count'      => count( $result ),
 				)
 			);
-			wp_send_json_success( array( 'titles' => $result ) );
+			wp_send_json_success(
+				array(
+					'titles'       => $result,
+					'provider'     => $provider,
+					'generated_at' => current_time( 'mysql' ),
+				)
+			);
 		} else {
 			Occ_Titles_Logger::get_instance()->error(
 				'Title generation failed.',
@@ -337,5 +357,76 @@ class Occ_Titles_Admin {
 			);
 			wp_send_json_error( array( 'message' => $result ) );
 		}
+	}
+
+	/**
+	 * Save generated title results for a post.
+	 *
+	 * @since 1.1.1
+	 * @return void
+	 */
+	public function save_generated_results() {
+		if ( ! check_ajax_referer( 'occ_titles_ajax_nonce', 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => __( 'Nonce verification failed.', 'oneclickcontent-titles' ) ) );
+		}
+
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'oneclickcontent-titles' ) ) );
+		}
+
+		$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+		if ( ! $post_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid post ID.', 'oneclickcontent-titles' ) ) );
+		}
+
+		$raw_results = isset( $_POST['results'] ) ? wp_unslash( $_POST['results'] ) : '';
+		if ( empty( $raw_results ) ) {
+			wp_send_json_error( array( 'message' => __( 'Missing results payload.', 'oneclickcontent-titles' ) ) );
+		}
+
+		$decoded = json_decode( $raw_results, true );
+		if ( ! is_array( $decoded ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid results format.', 'oneclickcontent-titles' ) ) );
+		}
+
+		update_post_meta( $post_id, '_occ_titles_results', $decoded );
+
+		Occ_Titles_Logger::get_instance()->info(
+			'Saved title generation results.',
+			array(
+				'post_id' => $post_id,
+				'count'   => isset( $decoded['titles'] ) && is_array( $decoded['titles'] ) ? count( $decoded['titles'] ) : 0,
+			)
+		);
+
+		wp_send_json_success( array( 'message' => __( 'Results saved.', 'oneclickcontent-titles' ) ) );
+	}
+
+	/**
+	 * Retrieve saved title results for a post.
+	 *
+	 * @since 1.1.1
+	 * @return void
+	 */
+	public function get_saved_results() {
+		if ( ! check_ajax_referer( 'occ_titles_ajax_nonce', 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => __( 'Nonce verification failed.', 'oneclickcontent-titles' ) ) );
+		}
+
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'oneclickcontent-titles' ) ) );
+		}
+
+		$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+		if ( ! $post_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid post ID.', 'oneclickcontent-titles' ) ) );
+		}
+
+		$results = get_post_meta( $post_id, '_occ_titles_results', true );
+		if ( empty( $results ) || ! is_array( $results ) ) {
+			wp_send_json_success( array( 'results' => array() ) );
+		}
+
+		wp_send_json_success( array( 'results' => $results ) );
 	}
 }

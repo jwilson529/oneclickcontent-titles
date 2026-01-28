@@ -30,10 +30,20 @@ class Occ_Titles_Google_Helper {
 	 * @param  string $content The content to generate titles for.
 	 * @param  string $style   Optional style for the titles.
 	 * @param  string $request_id Optional request identifier.
+	 * @param  int    $count   Number of titles to generate.
+	 * @param  string $seed_title Optional seed title for refinement.
+	 * @param  string $variation Optional refinement variation.
+	 * @param  string $keyword Optional keyword for refinement.
 	 * @return array|string    Array of titles if successful, error message if failed.
 	 */
-	public function generate_titles_google( $api_key, $content, $style = '', $request_id = '' ) {
+	public function generate_titles_google( $api_key, $content, $style = '', $request_id = '', $count = 5, $seed_title = '', $variation = '', $keyword = '' ) {
 		$model = get_option( 'occ_titles_google_model', 'gemini-1.5-flash' ); // Default Gemini model.
+
+		if ( $count < 1 ) {
+			$count = 1;
+		} elseif ( $count > 5 ) {
+			$count = 5;
+		}
 
 		Occ_Titles_Logger::get_instance()->info(
 			'Google title generation started.',
@@ -42,10 +52,16 @@ class Occ_Titles_Google_Helper {
 				'model'          => $model,
 				'content_length' => strlen( $content ),
 				'style'          => $style,
+				'count'          => $count,
+				'seed_title'     => $seed_title,
+				'variation'      => $variation,
 			)
 		);
 
-		$system_instruction  = 'You are an SEO expert and content writer. Your task is to generate exactly five SEO-optimized titles for the provided content. ';
+		$system_instruction  = 'You are an SEO expert and content writer.';
+		$system_instruction .= ' Your task is to generate exactly ' . $count . ' SEO-optimized title';
+		$system_instruction .= 1 === (int) $count ? '' : 's';
+		$system_instruction .= ' for the provided content. ';
 		$system_instruction .= 'Each title should be engaging, include relevant keywords, and be between 50-60 characters long. ';
 		$system_instruction .= 'Additionally, analyze the sentiment of each title (Positive, Negative, or Neutral).';
 
@@ -56,14 +72,28 @@ class Occ_Titles_Google_Helper {
 			$system_instruction .= 'Intriguing Statement, News Headline, Comparison, Benefit-Oriented, Storytelling, and Problem-Solution.';
 		}
 
+		if ( ! empty( $seed_title ) ) {
+			$system_instruction .= ' Base the new title' . ( 1 === (int) $count ? '' : 's' ) . ' on this seed title: "' . $seed_title . '".';
+		}
+
+		if ( ! empty( $variation ) ) {
+			$system_instruction .= ' Variation guidance: ' . ucfirst( $variation ) . '.';
+		}
+
+		if ( ! empty( $keyword ) ) {
+			$system_instruction .= ' Include this keyword if it fits naturally: "' . $keyword . '".';
+		}
+
 		$system_instruction .= " Return the response as valid JSON in the following exact format:\n";
 		$system_instruction .= "[\n";
-		$system_instruction .= "  { \"index\": 1, \"text\": \"Title 1 content\", \"style\": \"Style\", \"sentiment\": \"Sentiment\", \"keywords\": [\"keyword1\", \"keyword2\"] },\n";
-		$system_instruction .= "  { \"index\": 2, \"text\": \"Title 2 content\", \"style\": \"Style\", \"sentiment\": \"Sentiment\", \"keywords\": [\"keyword1\", \"keyword2\"] },\n";
-		$system_instruction .= "  { \"index\": 3, \"text\": \"Title 3 content\", \"style\": \"Style\", \"sentiment\": \"Sentiment\", \"keywords\": [\"keyword1\", \"keyword2\"] },\n";
-		$system_instruction .= "  { \"index\": 4, \"text\": \"Title 4 content\", \"style\": \"Style\", \"sentiment\": \"Sentiment\", \"keywords\": [\"keyword1\", \"keyword2\"] },\n";
-		$system_instruction .= "  { \"index\": 5, \"text\": \"Title 5 content\", \"style\": \"Style\", \"sentiment\": \"Sentiment\", \"keywords\": [\"keyword1\", \"keyword2\"] }\n";
-		$system_instruction .= ']';
+
+		$format_lines = array();
+		for ( $i = 1; $i <= $count; $i++ ) {
+			$format_lines[] = "  { \"index\": {$i}, \"text\": \"Title {$i} content\", \"style\": \"Style\", \"sentiment\": \"Sentiment\", \"keywords\": [\"keyword1\", \"keyword2\"] }";
+		}
+
+		$system_instruction .= implode( ",\n", $format_lines );
+		$system_instruction .= "\n]";
 
 		$endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$api_key}";
 
