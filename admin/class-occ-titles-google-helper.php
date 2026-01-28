@@ -29,10 +29,21 @@ class Occ_Titles_Google_Helper {
 	 * @param  string $api_key The Google Gemini API key.
 	 * @param  string $content The content to generate titles for.
 	 * @param  string $style   Optional style for the titles.
+	 * @param  string $request_id Optional request identifier.
 	 * @return array|string    Array of titles if successful, error message if failed.
 	 */
-	public function generate_titles_google( $api_key, $content, $style = '' ) {
+	public function generate_titles_google( $api_key, $content, $style = '', $request_id = '' ) {
 		$model = get_option( 'occ_titles_google_model', 'gemini-1.5-flash' ); // Default Gemini model.
+
+		Occ_Titles_Logger::get_instance()->info(
+			'Google title generation started.',
+			array(
+				'request_id'     => $request_id,
+				'model'          => $model,
+				'content_length' => strlen( $content ),
+				'style'          => $style,
+			)
+		);
 
 		$system_instruction  = 'You are an SEO expert and content writer. Your task is to generate exactly five SEO-optimized titles for the provided content. ';
 		$system_instruction .= 'Each title should be engaging, include relevant keywords, and be between 50-60 characters long. ';
@@ -87,10 +98,27 @@ class Occ_Titles_Google_Helper {
 
 		if ( is_wp_error( $response ) ) {
 			$error_message = 'Request error: ' . $response->get_error_message();
+			Occ_Titles_Logger::get_instance()->error(
+				'Google request failed.',
+				array(
+					'request_id' => $request_id,
+					'error'      => $response->get_error_message(),
+				)
+			);
 			return $error_message;
 		}
 
+		$response_code = wp_remote_retrieve_response_code( $response );
 		$response_body = wp_remote_retrieve_body( $response );
+
+		Occ_Titles_Logger::get_instance()->info(
+			'Google response received.',
+			array(
+				'request_id'  => $request_id,
+				'status'      => $response_code,
+				'body_length' => strlen( $response_body ),
+			)
+		);
 
 		$decoded = json_decode( $response_body, true );
 
@@ -106,9 +134,23 @@ class Occ_Titles_Google_Helper {
 				return $titles;
 			} else {
 				$json_error = 'JSON decode error: ' . json_last_error_msg() . '. Raw response: ' . $json_text;
+				Occ_Titles_Logger::get_instance()->error(
+					'Google response JSON decode failed.',
+					array(
+						'request_id' => $request_id,
+						'json_error' => json_last_error_msg(),
+					)
+				);
 				return $json_error;
 			}
 		} else {
+			Occ_Titles_Logger::get_instance()->error(
+				'Google response missing expected content.',
+				array(
+					'request_id'    => $request_id,
+					'response_code' => $response_code,
+				)
+			);
 			return 'Unexpected response format.';
 		}
 	}
@@ -187,12 +229,14 @@ class Occ_Titles_Google_Helper {
 		$is_valid = self::validate_google_api_key( $api_key );
 
 		if ( $is_valid ) {
+			Occ_Titles_Settings::update_api_key_status( 'google', 'valid', __( 'API key is valid.', 'oneclickcontent-titles' ) );
 			wp_send_json_success(
 				array(
 					'message' => __( 'API key is valid.', 'oneclickcontent-titles' ),
 				)
 			);
 		} else {
+			Occ_Titles_Settings::update_api_key_status( 'google', 'invalid', __( 'Invalid API key.', 'oneclickcontent-titles' ) );
 			wp_send_json_error(
 				array(
 					'message' => __( 'Invalid API key.', 'oneclickcontent-titles' ),

@@ -67,7 +67,7 @@ class Occ_Titles_Settings {
 		register_setting(
 			'occ_titles_settings',
 			'occ_titles_ai_provider',
-			array( 'sanitize_callback' => 'sanitize_text_field' )
+			array( 'sanitize_callback' => array( __CLASS__, 'occ_titles_sanitize_ai_provider' ) )
 		);
 		register_setting(
 			'occ_titles_settings',
@@ -113,7 +113,7 @@ class Occ_Titles_Settings {
 			register_setting(
 				'occ_titles_settings',
 				'occ_titles_openai_api_key',
-				array( 'sanitize_callback' => 'sanitize_text_field' )
+				array( 'sanitize_callback' => array( __CLASS__, 'occ_titles_sanitize_openai_api_key' ) )
 			);
 			register_setting(
 				'occ_titles_settings',
@@ -141,7 +141,7 @@ class Occ_Titles_Settings {
 			register_setting(
 				'occ_titles_settings',
 				'occ_titles_google_api_key',
-				array( 'sanitize_callback' => 'sanitize_text_field' )
+				array( 'sanitize_callback' => array( __CLASS__, 'occ_titles_sanitize_google_api_key' ) )
 			);
 
 			add_settings_field(
@@ -192,6 +192,138 @@ class Occ_Titles_Settings {
 	}
 
 	/**
+	 * Sanitize the AI provider setting.
+	 *
+	 * @since 1.1.1
+	 * @param string $input Raw input.
+	 * @return string Sanitized provider.
+	 */
+	public static function occ_titles_sanitize_ai_provider( $input ) {
+		$provider = sanitize_text_field( $input );
+		$allowed  = array( 'openai', 'google' );
+
+		if ( ! in_array( $provider, $allowed, true ) ) {
+			$provider = 'openai';
+		}
+
+		self::maybe_add_settings_updated_notice();
+
+		return $provider;
+	}
+
+	/**
+	 * Sanitize the OpenAI API key.
+	 *
+	 * @since 1.1.1
+	 * @param string $input Raw input.
+	 * @return string Sanitized value.
+	 */
+	public static function occ_titles_sanitize_openai_api_key( $input ) {
+		$api_key = sanitize_text_field( $input );
+		self::update_api_key_status( 'openai', 'unknown', '' );
+
+		return $api_key;
+	}
+
+	/**
+	 * Sanitize the Google API key.
+	 *
+	 * @since 1.1.1
+	 * @param string $input Raw input.
+	 * @return string Sanitized value.
+	 */
+	public static function occ_titles_sanitize_google_api_key( $input ) {
+		$api_key = sanitize_text_field( $input );
+		self::update_api_key_status( 'google', 'unknown', '' );
+
+		return $api_key;
+	}
+
+	/**
+	 * Update the stored API key validation status.
+	 *
+	 * @since 1.1.1
+	 * @param string $provider Provider slug.
+	 * @param string $status   Status value.
+	 * @param string $message  Optional status message.
+	 * @return void
+	 */
+	public static function update_api_key_status( $provider, $status, $message = '' ) {
+		$provider = sanitize_text_field( $provider );
+		$status   = sanitize_text_field( $status );
+		$message  = sanitize_text_field( $message );
+
+		$option = self::get_api_key_status_option( $provider );
+		if ( '' === $option ) {
+			return;
+		}
+
+		$allowed_statuses = array( 'valid', 'invalid', 'unknown' );
+		if ( ! in_array( $status, $allowed_statuses, true ) ) {
+			$status = 'unknown';
+		}
+
+		$payload = array(
+			'status'     => $status,
+			'message'    => $message,
+			'checked_at' => 'unknown' === $status ? '' : current_time( 'mysql' ),
+		);
+
+		update_option( $option, $payload );
+	}
+
+	/**
+	 * Get the API key status option name for a provider.
+	 *
+	 * @since 1.1.1
+	 * @param string $provider Provider slug.
+	 * @return string
+	 */
+	private static function get_api_key_status_option( $provider ) {
+		if ( 'openai' === $provider ) {
+			return 'occ_titles_openai_api_key_status';
+		}
+
+		if ( 'google' === $provider ) {
+			return 'occ_titles_google_api_key_status';
+		}
+
+		return '';
+	}
+
+	/**
+	 * Add a single settings updated notice for the settings page.
+	 *
+	 * @since 1.1.1
+	 * @return void
+	 */
+	private static function maybe_add_settings_updated_notice() {
+		static $added = false;
+
+		if ( $added ) {
+			return;
+		}
+
+		if ( empty( $_POST['option_page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			return;
+		}
+
+		$option_page = sanitize_text_field( wp_unslash( $_POST['option_page'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( 'occ_titles_settings' !== $option_page ) {
+			return;
+		}
+
+		add_settings_error(
+			'occ_titles_settings',
+			'settings_updated',
+			__( 'Settings saved.', 'oneclickcontent-titles' ),
+			'success'
+		);
+
+		$added = true;
+	}
+
+	/**
 	 * Callback function for the AI Provider setting field.
 	 *
 	 * @since 1.0.0
@@ -220,6 +352,7 @@ class Occ_Titles_Settings {
 		}
 		$value = get_option( 'occ_titles_openai_api_key', '' );
 		echo '<input type="password" name="occ_titles_openai_api_key" value="' . esc_attr( $value ) . '" />';
+		$this->render_api_key_badge( 'openai' );
 		echo '<p class="description">' . wp_kses_post( __( 'Get your OpenAI API Key <a href="https://beta.openai.com/signup/">here</a>.', 'oneclickcontent-titles' ) ) . '</p>';
 	}
 
@@ -237,6 +370,7 @@ class Occ_Titles_Settings {
 		}
 		$value = get_option( 'occ_titles_google_api_key', '' );
 		echo '<input type="password" name="occ_titles_google_api_key" value="' . esc_attr( $value ) . '" />';
+		$this->render_api_key_badge( 'google' );
 		echo '<p class="description">' . esc_html__( 'Get your Google Gemini API Key from your provider dashboard.', 'oneclickcontent-titles' ) . '</p>';
 	}
 
@@ -357,6 +491,10 @@ class Occ_Titles_Settings {
 
 			if ( 'occ_titles_logging_enabled' === $field_name ) {
 				$field_value = self::occ_titles_sanitize_logging_enabled( wp_unslash( $_POST['field_value'] ) );
+			} elseif ( 'occ_titles_openai_api_key' === $field_name ) {
+				$field_value = self::occ_titles_sanitize_openai_api_key( wp_unslash( $_POST['field_value'] ) );
+			} elseif ( 'occ_titles_google_api_key' === $field_name ) {
+				$field_value = self::occ_titles_sanitize_google_api_key( wp_unslash( $_POST['field_value'] ) );
 			} else {
 				$field_value = is_array( $_POST['field_value'] )
 					? array_map( 'sanitize_text_field', wp_unslash( $_POST['field_value'] ) )
@@ -390,9 +528,143 @@ class Occ_Titles_Settings {
 	}
 
 	/**
+	 * Render the API key validation badge.
+	 *
+	 * @since 1.1.1
+	 * @param string $provider Provider slug.
+	 * @return void
+	 */
+	private function render_api_key_badge( $provider ) {
+		$status_data = $this->get_api_key_status_data( $provider );
+		$status      = $status_data['status'];
+		$checked_at  = $status_data['checked_at'];
+		$label       = $this->get_api_key_status_label( $status );
+		$meta        = $this->get_api_key_status_meta( $status, $checked_at );
+		$class       = 'occ_titles-api-badge status-' . $status;
+
+		echo '<div class="occ_titles-api-status">';
+		printf(
+			'<span class="%1$s" data-provider="%2$s" data-status="%3$s">%4$s</span>',
+			esc_attr( $class ),
+			esc_attr( $provider ),
+			esc_attr( $status ),
+			esc_html( $label )
+		);
+		printf(
+			'<span class="occ_titles-api-meta" data-provider="%1$s">%2$s</span>',
+			esc_attr( $provider ),
+			esc_html( $meta )
+		);
+		echo '</div>';
+	}
+
+	/**
+	 * Get the API key status data.
+	 *
+	 * @since 1.1.1
+	 * @param string $provider Provider slug.
+	 * @return array
+	 */
+	private function get_api_key_status_data( $provider ) {
+		$option = self::get_api_key_status_option( $provider );
+		$data   = $option ? get_option( $option, array() ) : array();
+
+		return wp_parse_args(
+			is_array( $data ) ? $data : array(),
+			array(
+				'status'     => 'unknown',
+				'message'    => '',
+				'checked_at' => '',
+			)
+		);
+	}
+
+	/**
+	 * Get the status label.
+	 *
+	 * @since 1.1.1
+	 * @param string $status Status value.
+	 * @return string
+	 */
+	private function get_api_key_status_label( $status ) {
+		if ( 'valid' === $status ) {
+			return __( 'Valid', 'oneclickcontent-titles' );
+		}
+
+		if ( 'invalid' === $status ) {
+			return __( 'Invalid', 'oneclickcontent-titles' );
+		}
+
+		return __( 'Not validated', 'oneclickcontent-titles' );
+	}
+
+	/**
+	 * Get the status meta line.
+	 *
+	 * @since 1.1.1
+	 * @param string $status     Status value.
+	 * @param string $checked_at Checked timestamp.
+	 * @return string
+	 */
+	private function get_api_key_status_meta( $status, $checked_at ) {
+		if ( 'unknown' === $status || empty( $checked_at ) ) {
+			return __( 'Not checked yet.', 'oneclickcontent-titles' );
+		}
+
+		return sprintf(
+			/* translators: %s: date/time of last API key validation. */
+			__( 'Last checked: %s', 'oneclickcontent-titles' ),
+			$checked_at
+		);
+	}
+
+	/**
 	 * Display admin notices for settings.
+	 *
+	 * @since 1.0.0
+	 * @return void
 	 */
 	public function display_admin_notices() {
-		settings_errors();
+		if ( empty( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+
+		$page = sanitize_text_field( wp_unslash( $_GET['page'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( 'occ_titles-settings' !== $page ) {
+			return;
+		}
+
+		$errors = get_settings_errors( 'occ_titles_settings' );
+		if ( empty( $errors ) ) {
+			return;
+		}
+
+		$updated_shown = false;
+
+		foreach ( $errors as $error ) {
+			$type    = isset( $error['type'] ) ? $error['type'] : 'error';
+			$message = isset( $error['message'] ) ? $error['message'] : '';
+
+			$code = isset( $error['code'] ) ? $error['code'] : '';
+
+			if ( 'updated' === $type || 'settings_updated' === $code ) {
+				if ( $updated_shown ) {
+					continue;
+				}
+				$updated_shown = true;
+				$type          = 'success';
+			}
+
+			if ( '' === $message ) {
+				continue;
+			}
+
+			$css_class = 'notice notice-' . sanitize_html_class( $type ) . ' is-dismissible';
+			printf(
+				'<div class="%1$s"><p>%2$s</p></div>',
+				esc_attr( $css_class ),
+				esc_html( $message )
+			);
+		}
 	}
 }

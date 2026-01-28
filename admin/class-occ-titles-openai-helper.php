@@ -29,10 +29,21 @@ class Occ_Titles_OpenAI_Helper {
 	 * @param  string $api_key The OpenAI API key.
 	 * @param  string $content The content to generate titles for.
 	 * @param  string $style   Optional style for the titles.
+	 * @param  string $request_id Optional request identifier.
 	 * @return array|string    Array of titles if successful, error message if failed.
 	 */
-	public function generate_titles_openai( $api_key, $content, $style = '' ) {
+	public function generate_titles_openai( $api_key, $content, $style = '', $request_id = '' ) {
 		$model = get_option( 'occ_titles_openai_model', 'gpt-4o-mini' );
+
+		Occ_Titles_Logger::get_instance()->info(
+			'OpenAI title generation started.',
+			array(
+				'request_id'     => $request_id,
+				'model'          => $model,
+				'content_length' => strlen( $content ),
+				'style'          => $style,
+			)
+		);
 
 		// Build the system instruction.
 		$system_instruction  = 'You are an SEO expert and content writer. Your task is to generate exactly five SEO-optimized titles for the provided content. ';
@@ -55,27 +66,15 @@ class Occ_Titles_OpenAI_Helper {
 		$system_instruction .= "  { \"index\": 5, \"text\": \"Title 5 content\", \"style\": \"Style\", \"sentiment\": \"Sentiment\", \"keywords\": [\"keyword1\", \"keyword2\"] }\n";
 		$system_instruction .= ']';
 
-		// Set the endpoint for chat completions.
-		$endpoint = 'https://api.openai.com/v1/chat/completions';
-
-		// Build the messages array.
-		$messages = array(
-			array(
-				'role'    => 'system',
-				'content' => $system_instruction,
-			),
-			array(
-				'role'    => 'user',
-				'content' => "Here is the content:\n" . $content,
-			),
-		);
+		// Use the Responses API for text generation.
+		$endpoint = 'https://api.openai.com/v1/responses';
 
 		$body = wp_json_encode(
 			array(
-				'model'       => $model,
-				'messages'    => $messages,
-				'max_tokens'  => 2000,
-				'temperature' => 0.7,
+				'model'        => $model,
+				'instructions' => $system_instruction,
+				'input'        => "Here is the content:\n" . $content,
+				'temperature'  => 0.7,
 			)
 		);
 
@@ -100,18 +99,65 @@ class Occ_Titles_OpenAI_Helper {
 			$error_message = 'Request error: ' . $response->get_error_message();
 			Occ_Titles_Logger::get_instance()->error(
 				'OpenAI request failed.',
-				array( 'error' => $response->get_error_message() )
+				array(
+					'request_id' => $request_id,
+					'error'      => $response->get_error_message(),
+				)
 			);
 			return $error_message;
 		}
 
+		$response_code = wp_remote_retrieve_response_code( $response );
 		$response_body = wp_remote_retrieve_body( $response );
+
+		Occ_Titles_Logger::get_instance()->info(
+			'OpenAI response received.',
+			array(
+				'request_id'  => $request_id,
+				'status'      => $response_code,
+				'body_length' => strlen( $response_body ),
+			)
+		);
 
 		$decoded = json_decode( $response_body, true );
 
-		// Check for the expected response from chat completions.
-		if ( isset( $decoded['choices'][0]['message']['content'] ) ) {
-			$json_text = trim( $decoded['choices'][0]['message']['content'] );
+		if ( 400 <= (int) $response_code ) {
+			$error_message = __( 'OpenAI request failed.', 'oneclickcontent-titles' );
+			if ( isset( $decoded['error']['message'] ) ) {
+				$error_message = $decoded['error']['message'];
+			}
+
+			Occ_Titles_Logger::get_instance()->error(
+				'OpenAI request returned error response.',
+				array(
+					'request_id'    => $request_id,
+					'response_code' => $response_code,
+					'error_message' => $error_message,
+				)
+			);
+
+			return $error_message;
+		}
+
+		$json_text = '';
+
+		if ( isset( $decoded['output'] ) && is_array( $decoded['output'] ) ) {
+			foreach ( $decoded['output'] as $output_item ) {
+				if ( empty( $output_item['content'] ) || ! is_array( $output_item['content'] ) ) {
+					continue;
+				}
+				foreach ( $output_item['content'] as $content_item ) {
+					if ( isset( $content_item['type'], $content_item['text'] ) && 'output_text' === $content_item['type'] ) {
+						$json_text .= $content_item['text'];
+					}
+				}
+			}
+		} elseif ( isset( $decoded['choices'][0]['message']['content'] ) ) {
+			$json_text = (string) $decoded['choices'][0]['message']['content'];
+		}
+
+		if ( '' !== $json_text ) {
+			$json_text = trim( $json_text );
 
 			// Remove markdown code fences if present.
 			if ( strpos( $json_text, '```' ) === 0 ) {
@@ -125,14 +171,20 @@ class Occ_Titles_OpenAI_Helper {
 				$json_error = 'JSON decode error: ' . json_last_error_msg() . '. Raw response: ' . $json_text;
 				Occ_Titles_Logger::get_instance()->error(
 					'OpenAI response JSON decode failed.',
-					array( 'json_error' => json_last_error_msg() )
+					array(
+						'request_id' => $request_id,
+						'json_error' => json_last_error_msg(),
+					)
 				);
 				return $json_error;
 			}
 		} else {
 			Occ_Titles_Logger::get_instance()->error(
 				'OpenAI response missing expected content.',
-				array( 'response_code' => wp_remote_retrieve_response_code( $response ) )
+				array(
+					'request_id'    => $request_id,
+					'response_code' => $response_code,
+				)
 			);
 			return 'Unexpected response format.';
 		}
@@ -195,6 +247,7 @@ class Occ_Titles_OpenAI_Helper {
 		$models  = self::validate_openai_api_key( $api_key );
 
 		if ( $models ) {
+			Occ_Titles_Settings::update_api_key_status( 'openai', 'valid', __( 'API key is valid.', 'oneclickcontent-titles' ) );
 			wp_send_json_success(
 				array(
 					'message' => __( 'API key is valid.', 'oneclickcontent-titles' ),
@@ -202,6 +255,7 @@ class Occ_Titles_OpenAI_Helper {
 				)
 			);
 		} else {
+			Occ_Titles_Settings::update_api_key_status( 'openai', 'invalid', __( 'Invalid API key.', 'oneclickcontent-titles' ) );
 			wp_send_json_error(
 				array(
 					'message' => __( 'Invalid API key.', 'oneclickcontent-titles' ),

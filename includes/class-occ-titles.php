@@ -142,6 +142,7 @@ class Occ_Titles {
 	private function define_admin_hooks() {
 		$plugin_admin    = new Occ_Titles_Admin( $this->get_plugin_name(), $this->get_version() );
 		$plugin_settings = new Occ_Titles_Settings();
+		$openai_helper   = new Occ_Titles_OpenAI_Helper();
 		$google_helper   = new Occ_Titles_Google_Helper();
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles', 5 );
@@ -153,9 +154,8 @@ class Occ_Titles {
 		$this->loader->add_action( 'admin_init', $plugin_settings, 'occ_titles_register_settings' );
 		$this->loader->add_action( 'wp_ajax_occ_titles_generate_titles', $plugin_admin, 'generate_titles' );
 		$this->loader->add_action( 'wp_ajax_occ_titles_auto_save', $plugin_settings, 'occ_titles_auto_save' );
-		$this->loader->add_action( 'wp_ajax_occ_titles_ajax_validate_openai_api_key', $plugin_admin, 'occ_titles_ajax_validate_openai_api_key' );
+		$this->loader->add_action( 'wp_ajax_occ_titles_ajax_validate_openai_api_key', $openai_helper, 'occ_titles_ajax_validate_openai_api_key' );
 		$this->loader->add_action( 'wp_ajax_occ_titles_ajax_validate_google_api_key', $google_helper, 'occ_titles_ajax_validate_google_api_key' );
-		$this->loader->add_action( 'admin_notices', $plugin_settings, 'display_admin_notices' );
 	}
 
 	/**

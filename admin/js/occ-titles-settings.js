@@ -1,6 +1,8 @@
 (function($) {
     'use strict';
 
+    let autoValidateRan = false;
+
     initializeAutoSave();
 
     // Debounce function
@@ -105,6 +107,64 @@
     const openAiKeyField = $('input[name="occ_titles_openai_api_key"]');
     const googleKeyField = $('input[name="occ_titles_google_api_key"]');
     const providerField = $('select[name="occ_titles_ai_provider"]');
+    function getBadge(provider) {
+        return $('.occ_titles-api-badge[data-provider="' + provider + '"]');
+    }
+
+    function getBadgeMeta(provider) {
+        return $('.occ_titles-api-meta[data-provider="' + provider + '"]');
+    }
+
+    function getStatusLabel(status) {
+        if (occ_titles_admin_vars && occ_titles_admin_vars.strings) {
+            if (status === 'valid') {
+                return occ_titles_admin_vars.strings.badge_valid;
+            }
+            if (status === 'invalid') {
+                return occ_titles_admin_vars.strings.badge_invalid;
+            }
+            return occ_titles_admin_vars.strings.badge_unknown;
+        }
+
+        if (status === 'valid') {
+            return 'Valid';
+        }
+        if (status === 'invalid') {
+            return 'Invalid';
+        }
+        return 'Not validated';
+    }
+
+    function getMetaLabel(status, checkedAt) {
+        if (status === 'unknown' || !checkedAt) {
+            return occ_titles_admin_vars && occ_titles_admin_vars.strings
+                ? occ_titles_admin_vars.strings.badge_not_checked
+                : 'Not checked yet.';
+        }
+
+        if (occ_titles_admin_vars && occ_titles_admin_vars.strings) {
+            return occ_titles_admin_vars.strings.badge_last_checked.replace('%s', checkedAt);
+        }
+
+        return 'Last checked: ' + checkedAt;
+    }
+
+    function updateApiKeyBadge(provider, status, checkedAt) {
+        const $badge = getBadge(provider);
+        const $meta = getBadgeMeta(provider);
+
+        if (!$badge.length || !$meta.length) {
+            return;
+        }
+
+        $badge
+            .removeClass('status-valid status-invalid status-unknown')
+            .addClass('status-' + status)
+            .attr('data-status', status)
+            .text(getStatusLabel(status));
+
+        $meta.text(getMetaLabel(status, checkedAt));
+    }
 
     function validateApiKey($field, provider) {
         const apiKey = $field.val();
@@ -143,11 +203,13 @@
                 .done(function(validationResponse) {
                     if (validationResponse.success) {
                         showNotification('API key is valid and saved. Please wait...', 'success');
+                        updateApiKeyBadge(provider, 'valid', occ_titles_admin_vars && occ_titles_admin_vars.now ? occ_titles_admin_vars.now : '');
                         setTimeout(function() {
                             location.reload();
                         }, 1000);
                     } else {
                         showNotification(validationResponse.data.message || 'Invalid API key.', 'error');
+                        updateApiKeyBadge(provider, 'invalid', occ_titles_admin_vars && occ_titles_admin_vars.now ? occ_titles_admin_vars.now : '');
                     }
                 })
                 .fail(function() {
@@ -197,6 +259,34 @@
             }
         }, 1000); // Delay to account for page reload
     });
+
+    function initializeApiKeyStatus() {
+        if (autoValidateRan) {
+            return;
+        }
+
+        const provider = providerField.val();
+        const fieldMap = {
+            openai: openAiKeyField,
+            google: googleKeyField
+        };
+
+        if (!provider || !fieldMap[provider] || !fieldMap[provider].length) {
+            return;
+        }
+
+        const $badge = getBadge(provider);
+        const $field = fieldMap[provider];
+        const status = $badge.length ? $badge.attr('data-status') : '';
+        const value = $field.val();
+
+        if (value && status === 'unknown') {
+            autoValidateRan = true;
+            validateApiKey($field, provider);
+        }
+    }
+
+    initializeApiKeyStatus();
 
     /**
      * Adds a spinner with a message below the input field.
