@@ -257,12 +257,22 @@ class Occ_Titles_Admin {
 		}
 
 		// Get and sanitize incoming data.
-		$content    = isset( $_POST['content'] ) ? sanitize_text_field( wp_unslash( $_POST['content'] ) ) : '';
+		$content    = isset( $_POST['content'] ) ? wp_kses_post( wp_unslash( $_POST['content'] ) ) : '';
 		$style      = isset( $_POST['style'] ) ? sanitize_text_field( wp_unslash( $_POST['style'] ) ) : '';
 		$seed_title = isset( $_POST['seed_title'] ) ? sanitize_text_field( wp_unslash( $_POST['seed_title'] ) ) : '';
 		$variation  = isset( $_POST['variation'] ) ? sanitize_text_field( wp_unslash( $_POST['variation'] ) ) : '';
 		$keyword    = isset( $_POST['keyword'] ) ? sanitize_text_field( wp_unslash( $_POST['keyword'] ) ) : '';
 		$count      = isset( $_POST['count'] ) ? absint( $_POST['count'] ) : 5;
+		$intent     = isset( $_POST['intent'] ) ? sanitize_text_field( wp_unslash( $_POST['intent'] ) ) : '';
+		$keywords   = isset( $_POST['keywords'] ) ? wp_unslash( $_POST['keywords'] ) : array();
+
+		if ( is_string( $keywords ) ) {
+			$keywords = array_filter( array_map( 'sanitize_text_field', explode( ',', $keywords ) ) );
+		} elseif ( is_array( $keywords ) ) {
+			$keywords = array_filter( array_map( 'sanitize_text_field', $keywords ) );
+		} else {
+			$keywords = array();
+		}
 
 		if ( $count < 1 ) {
 			$count = 1;
@@ -279,6 +289,8 @@ class Occ_Titles_Admin {
 				'seed_title'     => $seed_title,
 				'variation'      => $variation,
 				'count'          => $count,
+				'intent'         => $intent,
+				'keywords'       => $keywords,
 			)
 		);
 
@@ -294,7 +306,10 @@ class Occ_Titles_Admin {
 		}
 
 		// Determine which AI provider to use.
-		$provider = get_option( 'occ_titles_ai_provider', 'openai' );
+		$provider      = get_option( 'occ_titles_ai_provider', 'openai' );
+		$voice_profile = get_option( 'occ_titles_voice_profile', array() );
+		$voice_samples = get_option( 'occ_titles_voice_samples', array() );
+		$voice_samples = is_array( $voice_samples ) ? $voice_samples : array();
 
 		if ( 'openai' === $provider ) {
 			$api_key = get_option( 'occ_titles_openai_api_key' );
@@ -306,7 +321,7 @@ class Occ_Titles_Admin {
 				wp_send_json_error( array( 'message' => __( 'Missing OpenAI API key.', 'oneclickcontent-titles' ) ) );
 			}
 			$helper = new Occ_Titles_OpenAI_Helper();
-			$result = $helper->generate_titles_openai( $api_key, $content, $style, $request_id, $count, $seed_title, $variation, $keyword );
+			$result = $helper->generate_titles_openai( $api_key, $content, $style, $request_id, $count, $seed_title, $variation, $keyword, $voice_profile, $voice_samples, $intent, $keywords );
 		} elseif ( 'google' === $provider ) {
 			$api_key = get_option( 'occ_titles_google_api_key' );
 			if ( empty( $api_key ) ) {
@@ -318,7 +333,7 @@ class Occ_Titles_Admin {
 			}
 			// Occ_Titles_Google_Helper should be implemented similarly.
 			$helper = new Occ_Titles_Google_Helper();
-			$result = $helper->generate_titles_google( $api_key, $content, $style, $request_id, $count, $seed_title, $variation, $keyword );
+			$result = $helper->generate_titles_google( $api_key, $content, $style, $request_id, $count, $seed_title, $variation, $keyword, $voice_profile, $voice_samples, $intent, $keywords );
 		} else {
 			Occ_Titles_Logger::get_instance()->error(
 				'Unknown AI provider configured.',
@@ -343,6 +358,8 @@ class Occ_Titles_Admin {
 				array(
 					'titles'       => $result,
 					'provider'     => $provider,
+					'intent'       => $intent,
+					'keywords'     => $keywords,
 					'generated_at' => current_time( 'mysql' ),
 				)
 			);
@@ -428,5 +445,45 @@ class Occ_Titles_Admin {
 		}
 
 		wp_send_json_success( array( 'results' => $results ) );
+	}
+
+	/**
+	 * Save a voice sample from an applied title.
+	 *
+	 * @since 1.1.1
+	 * @return void
+	 */
+	public function save_voice_sample() {
+		if ( ! check_ajax_referer( 'occ_titles_ajax_nonce', 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => __( 'Nonce verification failed.', 'oneclickcontent-titles' ) ) );
+		}
+
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'oneclickcontent-titles' ) ) );
+		}
+
+		$title = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
+		if ( '' === $title ) {
+			wp_send_json_error( array( 'message' => __( 'Missing title.', 'oneclickcontent-titles' ) ) );
+		}
+
+		$samples = get_option( 'occ_titles_voice_samples', array() );
+		$samples = is_array( $samples ) ? $samples : array();
+
+		array_unshift( $samples, $title );
+		$samples = array_values( array_unique( $samples ) );
+		$samples = array_slice( $samples, 0, 20 );
+
+		update_option( 'occ_titles_voice_samples', $samples );
+
+		Occ_Titles_Logger::get_instance()->info(
+			'Saved voice sample.',
+			array(
+				'title' => $title,
+				'count' => count( $samples ),
+			)
+		);
+
+		wp_send_json_success( array( 'message' => __( 'Voice sample saved.', 'oneclickcontent-titles' ) ) );
 	}
 }

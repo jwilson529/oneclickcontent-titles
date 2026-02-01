@@ -79,12 +79,24 @@ class Occ_Titles_Settings {
 			'occ_titles_logging_enabled',
 			array( 'sanitize_callback' => array( __CLASS__, 'occ_titles_sanitize_logging_enabled' ) )
 		);
+		register_setting(
+			'occ_titles_settings',
+			'occ_titles_voice_profile',
+			array( 'sanitize_callback' => array( __CLASS__, 'occ_titles_sanitize_voice_profile' ) )
+		);
 
 		// Add the settings section.
 		add_settings_section(
 			'occ_titles_settings_section',
 			__( 'OneClickContent - Titles Settings', 'oneclickcontent-titles' ),
 			array( $this, 'occ_titles_settings_section_callback' ),
+			'occ_titles_settings'
+		);
+
+		add_settings_section(
+			'occ_titles_voice_section',
+			__( 'Brand Voice Profile', 'oneclickcontent-titles' ),
+			array( $this, 'occ_titles_voice_section_callback' ),
 			'occ_titles_settings'
 		);
 
@@ -102,6 +114,14 @@ class Occ_Titles_Settings {
 			array( $this, 'occ_titles_logging_enabled_callback' ),
 			'occ_titles_settings',
 			'occ_titles_settings_section'
+		);
+
+		add_settings_field(
+			'occ_titles_voice_profile',
+			__( 'Voice Profile', 'oneclickcontent-titles' ),
+			array( $this, 'occ_titles_voice_profile_callback' ),
+			'occ_titles_settings',
+			'occ_titles_voice_section'
 		);
 
 		// Retrieve the selected provider (default to "openai").
@@ -189,6 +209,56 @@ class Occ_Titles_Settings {
 	 */
 	public static function occ_titles_sanitize_logging_enabled( $input ) {
 		return absint( $input ) ? 1 : 0;
+	}
+
+	/**
+	 * Sanitize the voice profile settings.
+	 *
+	 * @since 1.1.1
+	 * @param array $input Raw input.
+	 * @return array Sanitized profile.
+	 */
+	public static function occ_titles_sanitize_voice_profile( $input ) {
+		$input = is_array( $input ) ? $input : array();
+
+		$profile = array(
+			'tone'            => sanitize_text_field( $input['tone'] ?? '' ),
+			'formality'       => sanitize_text_field( $input['formality'] ?? '' ),
+			'sentence_length' => sanitize_text_field( $input['sentence_length'] ?? '' ),
+			'cta_style'       => sanitize_text_field( $input['cta_style'] ?? '' ),
+			'must_use'        => self::sanitize_list( $input['must_use'] ?? '' ),
+			'avoid'           => self::sanitize_list( $input['avoid'] ?? '' ),
+			'examples'        => self::sanitize_list( $input['examples'] ?? '' ),
+		);
+
+		return $profile;
+	}
+
+	/**
+	 * Sanitize list input to an array of strings.
+	 *
+	 * @since 1.1.1
+	 * @param string|array $value Raw value.
+	 * @return array
+	 */
+	private static function sanitize_list( $value ) {
+		if ( is_array( $value ) ) {
+			$items = $value;
+		} else {
+			$items = preg_split( '/[\r\n,]+/', (string) $value );
+		}
+
+		$items = array_filter(
+			array_map(
+				static function ( $item ) {
+					$item = sanitize_text_field( $item );
+					return '' === $item ? null : $item;
+				},
+				$items
+			)
+		);
+
+		return array_values( array_unique( $items ) );
 	}
 
 	/**
@@ -419,6 +489,90 @@ class Occ_Titles_Settings {
 		echo esc_html__( 'Write diagnostic logs to the plugin log file.', 'oneclickcontent-titles' );
 		echo '</label>';
 	}
+
+	/**
+	 * Callback for the voice profile settings.
+	 *
+	 * @since 1.1.1
+	 * @return void
+	 */
+	public function occ_titles_voice_profile_callback() {
+		$profile = get_option( 'occ_titles_voice_profile', array() );
+
+		$tone            = $profile['tone'] ?? '';
+		$formality       = $profile['formality'] ?? '';
+		$sentence_length = $profile['sentence_length'] ?? '';
+		$cta_style       = $profile['cta_style'] ?? '';
+		$must_use        = isset( $profile['must_use'] ) ? implode( "\n", (array) $profile['must_use'] ) : '';
+		$avoid           = isset( $profile['avoid'] ) ? implode( "\n", (array) $profile['avoid'] ) : '';
+		$examples        = isset( $profile['examples'] ) ? implode( "\n", (array) $profile['examples'] ) : '';
+
+		echo '<div class="occ_titles-voice-grid">';
+		echo '<p><label for="occ_titles_voice_tone"><strong>' . esc_html__( 'Tone', 'oneclickcontent-titles' ) . '</strong></label></p>';
+		echo '<select id="occ_titles_voice_tone" name="occ_titles_voice_profile[tone]">';
+		echo '<option value="">' . esc_html__( 'Select tone', 'oneclickcontent-titles' ) . '</option>';
+		foreach ( array( 'casual', 'authoritative', 'playful', 'friendly', 'direct', 'journalistic' ) as $option ) {
+			printf(
+				'<option value="%1$s"%2$s>%3$s</option>',
+				esc_attr( $option ),
+				selected( $tone, $option, false ),
+				esc_html( ucfirst( $option ) )
+			);
+		}
+		echo '</select>';
+
+		echo '<p><label for="occ_titles_voice_formality"><strong>' . esc_html__( 'Formality', 'oneclickcontent-titles' ) . '</strong></label></p>';
+		echo '<select id="occ_titles_voice_formality" name="occ_titles_voice_profile[formality]">';
+		echo '<option value="">' . esc_html__( 'Select formality', 'oneclickcontent-titles' ) . '</option>';
+		foreach ( array( 'informal', 'balanced', 'formal' ) as $option ) {
+			printf(
+				'<option value="%1$s"%2$s>%3$s</option>',
+				esc_attr( $option ),
+				selected( $formality, $option, false ),
+				esc_html( ucfirst( $option ) )
+			);
+		}
+		echo '</select>';
+
+		echo '<p><label for="occ_titles_voice_sentence_length"><strong>' . esc_html__( 'Sentence Length', 'oneclickcontent-titles' ) . '</strong></label></p>';
+		echo '<select id="occ_titles_voice_sentence_length" name="occ_titles_voice_profile[sentence_length]">';
+		echo '<option value="">' . esc_html__( 'Select length', 'oneclickcontent-titles' ) . '</option>';
+		foreach ( array( 'short', 'medium', 'long' ) as $option ) {
+			printf(
+				'<option value="%1$s"%2$s>%3$s</option>',
+				esc_attr( $option ),
+				selected( $sentence_length, $option, false ),
+				esc_html( ucfirst( $option ) )
+			);
+		}
+		echo '</select>';
+
+		echo '<p><label for="occ_titles_voice_cta"><strong>' . esc_html__( 'CTA Style', 'oneclickcontent-titles' ) . '</strong></label></p>';
+		echo '<select id="occ_titles_voice_cta" name="occ_titles_voice_profile[cta_style]">';
+		echo '<option value="">' . esc_html__( 'Select CTA', 'oneclickcontent-titles' ) . '</option>';
+		foreach ( array( 'none', 'soft', 'direct' ) as $option ) {
+			printf(
+				'<option value="%1$s"%2$s>%3$s</option>',
+				esc_attr( $option ),
+				selected( $cta_style, $option, false ),
+				esc_html( ucfirst( $option ) )
+			);
+		}
+		echo '</select>';
+
+		echo '<p><label for="occ_titles_voice_must_use"><strong>' . esc_html__( 'Must-use words', 'oneclickcontent-titles' ) . '</strong></label></p>';
+		echo '<textarea id="occ_titles_voice_must_use" name="occ_titles_voice_profile[must_use]" rows="3" class="large-text">' . esc_textarea( $must_use ) . '</textarea>';
+		echo '<p class="description">' . esc_html__( 'One word or phrase per line. These should appear when possible.', 'oneclickcontent-titles' ) . '</p>';
+
+		echo '<p><label for="occ_titles_voice_avoid"><strong>' . esc_html__( 'Avoid words', 'oneclickcontent-titles' ) . '</strong></label></p>';
+		echo '<textarea id="occ_titles_voice_avoid" name="occ_titles_voice_profile[avoid]" rows="3" class="large-text">' . esc_textarea( $avoid ) . '</textarea>';
+		echo '<p class="description">' . esc_html__( 'One word or phrase per line. The model should avoid these.', 'oneclickcontent-titles' ) . '</p>';
+
+		echo '<p><label for="occ_titles_voice_examples"><strong>' . esc_html__( 'Example titles', 'oneclickcontent-titles' ) . '</strong></label></p>';
+		echo '<textarea id="occ_titles_voice_examples" name="occ_titles_voice_profile[examples]" rows="4" class="large-text">' . esc_textarea( $examples ) . '</textarea>';
+		echo '<p class="description">' . esc_html__( 'Paste 3–10 example titles that represent your voice.', 'oneclickcontent-titles' ) . '</p>';
+		echo '</div>';
+	}
 	/**
 	 * Callback function for the Post Types setting field.
 	 *
@@ -452,6 +606,16 @@ class Occ_Titles_Settings {
 	 */
 	public function occ_titles_settings_section_callback() {
 		echo '<p>' . esc_html__( 'Configure the settings for the OneClickContent - Titles plugin.', 'oneclickcontent-titles' ) . '</p>';
+	}
+
+	/**
+	 * Callback function for the voice profile section description.
+	 *
+	 * @since 1.1.1
+	 * @return void
+	 */
+	public function occ_titles_voice_section_callback() {
+		echo '<p>' . esc_html__( 'Define the tone and examples that should guide title generation.', 'oneclickcontent-titles' ) . '</p>';
 	}
 
 

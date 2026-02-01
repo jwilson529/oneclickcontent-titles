@@ -41,8 +41,11 @@
          * @return {number} Post ID or 0.
          */
         function get_post_id() {
-            if ( window.editorMode.is_block_editor && wp.data && wp.data.select ) {
-                return parseInt( wp.data.select( 'core/editor' ).getCurrentPostId(), 10 ) || 0;
+            if ( window.editorMode.is_block_editor && window.wp && wp.data && wp.data.select ) {
+                var editor = wp.data.select( 'core/editor' );
+                if ( editor && typeof editor.getCurrentPostId === 'function' ) {
+                    return parseInt( editor.getCurrentPostId(), 10 ) || 0;
+                }
             }
             return parseInt( $( '#post_ID' ).val(), 10 ) || 0;
         }
@@ -165,6 +168,121 @@
         }
 
         /**
+         * Build keyword suggestions from content.
+         *
+         * @param {string} content Content text.
+         * @return {Array} Suggestions with score.
+         */
+        function build_keyword_suggestions( content ) {
+            if ( ! content ) {
+                return [];
+            }
+
+            var cleaned = content
+                .toLowerCase()
+                .replace( /<[^>]+>/g, ' ' )
+                .replace( /[^a-z0-9\s]/g, ' ' );
+
+            var words = cleaned.split( /\s+/ ).filter( function( word ) {
+                return word.length > 3;
+            } );
+
+            var stop_words = [ 'this', 'that', 'with', 'from', 'your', 'have', 'will', 'about', 'into', 'their', 'there', 'what', 'which', 'when', 'where', 'then', 'than', 'them', 'they', 'were', 'been', 'also', 'because', 'while', 'after', 'before', 'between', 'under', 'over', 'more', 'less', 'very', 'just', 'like' ];
+            var counts = {};
+
+            words.forEach( function( word ) {
+                if ( stop_words.indexOf( word ) !== -1 ) {
+                    return;
+                }
+                counts[ word ] = ( counts[ word ] || 0 ) + 1;
+            } );
+
+            var suggestions = Object.keys( counts ).map( function( word ) {
+                return { term: word, score: counts[ word ] };
+            } );
+
+            suggestions.sort( function( a, b ) {
+                return b.score - a.score;
+            } );
+
+            return suggestions.slice( 0, 10 );
+        }
+
+        /**
+         * Build a SERP preview block.
+         *
+         * @param {string} title Title text.
+         * @return {string} HTML string.
+         */
+        function build_serp_preview( title ) {
+            var url = window.location.origin + '/sample-slug';
+            return '<div class="occ_titles-serp">' +
+                '<div class="occ_titles-serp-url">' + url + '</div>' +
+                '<div class="occ_titles-serp-title">' + title + '</div>' +
+                '<div class="occ_titles-serp-desc">Preview how this title may appear in search results.</div>' +
+                '</div>';
+        }
+
+        /**
+         * Measure text width in pixels.
+         *
+         * @param {string} text Text content.
+         * @return {number} Width in px.
+         */
+        function measure_text_width( text ) {
+            var $ruler = $( '#occ_titles_pixel_ruler' );
+            if ( ! $ruler.length ) {
+                $ruler = $( '<span id="occ_titles_pixel_ruler"></span>' ).css( {
+                    position: 'absolute',
+                    visibility: 'hidden',
+                    whiteSpace: 'nowrap',
+                    fontSize: '20px',
+                    fontFamily: 'Arial, sans-serif',
+                    fontWeight: 600
+                } );
+                $( 'body' ).append( $ruler );
+            }
+            $ruler.text( text );
+            return Math.round( $ruler.width() );
+        }
+
+        /**
+         * Determine quality gate label.
+         *
+         * @param {Object} metrics Metrics object.
+         * @return {string} Gate label.
+         */
+        function get_quality_gate( metrics ) {
+            var passes = 0;
+            if ( metrics.char_count >= 50 && metrics.char_count <= 60 ) {
+                passes += 1;
+            }
+            if ( metrics.keyword_density >= 0.01 && metrics.keyword_density <= 0.03 ) {
+                passes += 1;
+            }
+            if ( metrics.has_power_word ) {
+                passes += 1;
+            }
+            if ( metrics.starts_strong ) {
+                passes += 1;
+            }
+            return passes >= 3 ? 'Pass' : 'Needs work';
+        }
+
+        /**
+         * Get selected keyword targets.
+         *
+         * @return {Array} Selected keywords.
+         */
+        function get_selected_keywords() {
+            var selected = [];
+            $( '.occ_titles-keyword-chip.is-selected' ).each( function() {
+                selected.push( $( this ).attr( 'data-term' ) );
+            } );
+            return selected;
+        }
+
+        /**
          * Determine keyword fit label based on density.
          *
          * @param {number} density Keyword density ratio.
@@ -224,6 +342,9 @@
             currentTitles = normalized;
             lastGeneratedAt = metadata.generated_at || lastGeneratedAt;
             lastProvider = metadata.provider || lastProvider;
+            if ( metadata.intent ) {
+                $( '#occ_titles_intent' ).val( metadata.intent );
+            }
 
             $container.empty().addClass( 'occ_titles-results' );
 
@@ -247,6 +368,52 @@
             var $error_panel = $( '<div class="occ_titles-error-panel" style="display:none;"></div>' );
             $container.append( $error_panel );
 
+            var $controls = $( '<div class="occ_titles-controls"></div>' );
+            $controls.append(
+                '<div class="occ_titles-control-row">' +
+                    '<div class="occ_titles-control occ_titles-control-group">' +
+                        '<div class="occ_titles-control-item">' +
+                            '<label for="occ_titles_intent"><strong>Goal</strong></label>' +
+                            '<select id="occ_titles_intent" class="occ_titles_intent">' +
+                                '<option value="">Select goal</option>' +
+                                '<option value="Increase CTR">Increase CTR</option>' +
+                                '<option value="Rank for keyword">Rank for keyword</option>' +
+                                '<option value="Social share">Social share</option>' +
+                                '<option value="Thought leadership">Thought leadership</option>' +
+                                '<option value="Lead gen">Lead gen</option>' +
+                            '</select>' +
+                        '</div>' +
+                        '<div class="occ_titles-control-item">' +
+                            '<label for="occ_titles_style"><strong>Style</strong></label>' +
+                            '<select id="occ_titles_style" name="occ_titles_style" class="occ_titles_style_dropdown">' +
+                                '<option value="" disabled selected>Choose a Style...</option>' +
+                                styles_options +
+                            '</select>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="occ_titles-control occ_titles-control-actions">' +
+                        '<button type="button" class="button button-primary" id="occ_titles_generate_button_top">Generate Titles</button>' +
+                        '<button type="button" class="button" id="occ_titles_revert_button_top">Revert To Original Title</button>' +
+                    '</div>' +
+                '</div>' +
+                '<p class="occ_titles-controls-help">Pick a goal and style, then generate.</p>' +
+                '<button type="button" class="button-link occ_titles-controls-toggle" aria-expanded="true">Hide controls</button>'
+            );
+            $controls.append( '<div class="occ_titles-control occ_titles-keywords-panel"><label><strong>Keyword targets</strong></label><div class="occ_titles-keyword-list"></div></div>' );
+            $container.append( $controls );
+
+            apply_controls_collapsed_state();
+
+            var suggestions = build_keyword_suggestions( metadata.content || window.occTitlesContentCache || '' );
+            var $keyword_list = $controls.find( '.occ_titles-keyword-list' );
+            suggestions.forEach( function( suggestion ) {
+                var $chip = $( '<button type="button" class="occ_titles-keyword-chip"></button>' );
+                $chip.attr( 'data-term', suggestion.term );
+                $chip.attr( 'data-score', suggestion.score );
+                $chip.text( suggestion.term + ' (' + suggestion.score + ')' );
+                $keyword_list.append( $chip );
+            } );
+
             var $titles_table = $( '<table id="occ_titles_table" class="widefat fixed occ_titles-table" cellspacing="0"></table>' );
             $titles_table.append(
                 '<thead><tr>' +
@@ -255,6 +422,7 @@
                 '<th class="occ_titles-col-score">Score</th>' +
                 '<th class="occ_titles-col-insights">Insights</th>' +
                 '<th class="occ_titles-col-keywords">Keywords</th>' +
+                '<th class="occ_titles-col-serp">SERP Preview</th>' +
                 '</tr></thead>'
             );
             var $table_body = $( '<tbody></tbody>' );
@@ -272,6 +440,16 @@
                 var readability_score = calculate_readability_score( title_text );
                 var seo_data = calculate_seo_grade( char_count );
                 var overall_score = calculate_overall_score( seo_data.score, sentiment, keyword_density, readability_score );
+                var has_power_word = /ultimate|best|proven|simple|easy|fast|guide|tips|secrets/i.test( title_text );
+                var starts_strong = /^[0-9]|how|why|what|when|the|this|your/i.test( title_text.toLowerCase() );
+                var gate = get_quality_gate( {
+                    char_count: char_count,
+                    keyword_density: keyword_density,
+                    has_power_word: has_power_word,
+                    starts_strong: starts_strong
+                } );
+                var pixel_width = measure_text_width( title_text );
+                var pixel_percent = Math.min( 100, Math.round( ( pixel_width / 600 ) * 100 ) );
 
                 var row_data = {
                     index: index,
@@ -283,7 +461,10 @@
                     readability: readability_score,
                     seo: seo_data,
                     overall_score: overall_score,
-                    style: title_obj.style || metadata.style || ''
+                    style: title_obj.style || metadata.style || '',
+                    gate: gate,
+                    pixel_width: pixel_width,
+                    pixel_percent: pixel_percent
                 };
 
                 all_keywords = [ ...new Set( [ ...all_keywords, ...keywords ] ) ];
@@ -340,6 +521,7 @@
 
                 var $insights_cell = $( '<td class="occ_titles-col-insights"></td>' );
                 var $chips = $( '<div class="occ_titles-chips"></div>' );
+                $chips.append( '<span class="occ_titles-chip occ_titles-gate ' + ( row_data.gate === 'Pass' ? 'is-pass' : 'is-warning' ) + '">' + row_data.gate + '</span>' );
                 $chips.append( '<span class="occ_titles-chip">Sentiment: ' + row_data.sentiment + ' ' + row_data.sentiment_emoji + '</span>' );
                 if ( row_data.style ) {
                     $chips.append( '<span class="occ_titles-chip">Style: ' + row_data.style + '</span>' );
@@ -351,8 +533,12 @@
                 $insights_cell.append( $chips );
 
                 var $keywords_cell = $( '<td class="occ_titles-col-keywords"></td>' ).text( keywords_list );
+                var $serp_cell = $( '<td class="occ_titles-col-serp"></td>' );
+                $serp_cell.append( build_serp_preview( row_data.title ) );
+                $serp_cell.append( '<div class="occ_titles-serp-meter"><span style="width:' + row_data.pixel_percent + '%"></span></div>' );
+                $serp_cell.append( '<div class="occ_titles-serp-meta">' + row_data.pixel_width + 'px</div>' );
 
-                $row.append( $rank_cell, $title_cell, $score_cell, $insights_cell, $keywords_cell );
+                $row.append( $rank_cell, $title_cell, $score_cell, $insights_cell, $keywords_cell, $serp_cell );
                 $table_body.append( $row );
             } );
 
@@ -372,17 +558,7 @@
                     '<div class="occ_titles-footer-meta">',
                         '<p><strong>Keywords Used:</strong> ' + keywords_summary + '</p>',
                     '</div>',
-                    '<div class="occ_titles-footer-actions">',
-                        '<button id="occ_titles_revert_button" class="button">',
-                            '<span class="dashicons dashicons-undo" style="margin-right: 5px; vertical-align: middle;"></span> Revert To Original Title',
-                        '</button>',
-                    '</div>',
                     '<div id="occ_titles_more_controls" class="occ_titles-more-controls" style="display: ' + ( hasGenerated ? 'block' : 'none' ) + ';">',
-                        '<label for="occ_titles_style">Select Style:</label>',
-                        '<select id="occ_titles_style" name="occ_titles_style" class="occ_titles_style_dropdown">',
-                            '<option value="" disabled selected>Choose a Style...</option>',
-                            styles_options,
-                        '</select>',
                         '<button id="occ_titles_generate_more_button" class="button">Generate 5 More Titles</button>',
                     '</div>',
                 '</div>'
@@ -393,7 +569,9 @@
                     titles: normalized,
                     generated_at: lastGeneratedAt,
                     provider: lastProvider,
-                    style: metadata.style || ''
+                    style: metadata.style || '',
+                    intent: $( '#occ_titles_intent' ).val() || '',
+                    keywords: get_selected_keywords()
                 } );
             }
         }
@@ -435,6 +613,28 @@
                     nonce: occ_titles_admin_vars.occ_titles_ajax_nonce,
                     post_id: post_id,
                     results: JSON.stringify( payload )
+                }
+            } );
+        }
+
+        /**
+         * Save a voice sample for future generations.
+         *
+         * @param {string} title Title text.
+         */
+        function save_voice_sample( title ) {
+            if ( ! title ) {
+                return;
+            }
+
+            $.ajax( {
+                url: occ_titles_admin_vars.ajax_url,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'occ_titles_save_voice_sample',
+                    nonce: occ_titles_admin_vars.occ_titles_ajax_nonce,
+                    title: title
                 }
             } );
         }
@@ -711,7 +911,7 @@
         /**
          * Event listener for initial generate buttons.
          */
-        $( document ).on( 'click', '#occ_titles_generate_button, #occ_titles_button, #occ_titles_svg_button', function( e ) {
+        $( document ).on( 'click', '#occ_titles_generate_button, #occ_titles_button, #occ_titles_svg_button, #occ_titles_generate_button_top', function( e ) {
             e.preventDefault();
             if ( isProcessing ) {
                 return;
@@ -731,14 +931,54 @@
             var content = window.editorMode.is_block_editor ?
                 wp.data.select( 'core/editor' ).getEditedPostContent() :
                 $( 'textarea#content' ).val();
+            window.occTitlesContentCache = content;
             var style = $( '#occ_titles_style' ).val() || '';
+            var intent = $( '#occ_titles_intent' ).val() || '';
 
             send_ajax_request( {
                 content: content,
-                style: style
+                style: style,
+                intent: intent,
+                keywords: get_selected_keywords()
             } ).always( function() {
                 isProcessing = false;
             } );
+        } );
+
+        /**
+         * Toggle keyword selection for targeting.
+         */
+        $( document ).on( 'click', '.occ_titles-keyword-chip', function( e ) {
+            e.preventDefault();
+            $( this ).toggleClass( 'is-selected' );
+        } );
+
+        /**
+         * Apply saved controls collapsed state.
+         */
+        function apply_controls_collapsed_state() {
+            if ( ! $( '.occ_titles-controls' ).length ) {
+                return;
+            }
+            var stored = localStorage.getItem( 'occ_titles_controls_collapsed' );
+            if ( stored === '1' ) {
+                $( '.occ_titles-controls' ).addClass( 'is-collapsed' );
+                $( '.occ_titles-controls-toggle' ).attr( 'aria-expanded', 'false' ).text( 'Show controls' );
+            }
+        }
+
+        /**
+         * Toggle controls visibility and persist state.
+         */
+        $( document ).on( 'click', '.occ_titles-controls-toggle', function( e ) {
+            e.preventDefault();
+            var $controls = $( '.occ_titles-controls' );
+            $controls.toggleClass( 'is-collapsed' );
+            var collapsed = $controls.hasClass( 'is-collapsed' );
+            localStorage.setItem( 'occ_titles_controls_collapsed', collapsed ? '1' : '0' );
+            $( this )
+                .attr( 'aria-expanded', collapsed ? 'false' : 'true' )
+                .text( collapsed ? 'Show controls' : 'Hide controls' );
         } );
 
         /**
@@ -757,11 +997,15 @@
             var content = window.editorMode.is_block_editor ?
                 wp.data.select( 'core/editor' ).getEditedPostContent() :
                 $( 'textarea#content' ).val();
+            window.occTitlesContentCache = content;
             var style = $( '#occ_titles_style' ).val() || 'listicle'; // Fix: Default to 'listicle'
+            var intent = $( '#occ_titles_intent' ).val() || '';
 
             send_ajax_request( {
                 content: content,
-                style: style
+                style: style,
+                intent: intent,
+                keywords: get_selected_keywords()
             } ).always( function() {
                 isProcessing = false;
             } );
@@ -777,7 +1021,7 @@
         /**
          * Event listener for revert button.
          */
-        $( document ).on( 'click', '#occ_titles_revert_button', function( e ) {
+        $( document ).on( 'click', '#occ_titles_revert_button, #occ_titles_revert_button_top', function( e ) {
             e.preventDefault();
             set_title_in_editor( originalTitle );
         } );
@@ -798,6 +1042,9 @@
                 row_data.index = index;
             }
             apply_title_from_row( row_data );
+            if ( row_data ) {
+                save_voice_sample( row_data.text || row_data.title );
+            }
         } );
 
         /**
@@ -841,7 +1088,9 @@
             var content = window.editorMode.is_block_editor ?
                 wp.data.select( 'core/editor' ).getEditedPostContent() :
                 $( 'textarea#content' ).val();
+            window.occTitlesContentCache = content;
             var style = $( '#occ_titles_style' ).val() || row_data.style || '';
+            var intent = $( '#occ_titles_intent' ).val() || '';
 
             $( '.occ_titles-row[data-index="' + index + '"]' ).addClass( 'is-loading' );
 
@@ -851,7 +1100,9 @@
                 seed_title: row_data.text || row_data.title,
                 variation: variation,
                 keyword: keyword,
-                count: 1
+                count: 1,
+                intent: intent,
+                keywords: get_selected_keywords()
             }, function( response ) {
                 $( '.occ_titles-row[data-index="' + index + '"]' ).removeClass( 'is-loading' );
                 if ( response.success ) {

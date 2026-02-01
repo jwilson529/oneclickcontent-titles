@@ -34,9 +34,13 @@ class Occ_Titles_OpenAI_Helper {
 	 * @param  string $seed_title Optional seed title for refinement.
 	 * @param  string $variation Optional refinement variation.
 	 * @param  string $keyword Optional keyword for refinement.
+	 * @param  array  $voice_profile Optional voice profile data.
+	 * @param  array  $voice_samples Optional recent voice samples.
+	 * @param  string $intent Optional generation intent.
+	 * @param  array  $keywords Optional keyword targets.
 	 * @return array|string    Array of titles if successful, error message if failed.
 	 */
-	public function generate_titles_openai( $api_key, $content, $style = '', $request_id = '', $count = 5, $seed_title = '', $variation = '', $keyword = '' ) {
+	public function generate_titles_openai( $api_key, $content, $style = '', $request_id = '', $count = 5, $seed_title = '', $variation = '', $keyword = '', $voice_profile = array(), $voice_samples = array(), $intent = '', $keywords = array() ) {
 		$model = get_option( 'occ_titles_openai_model', 'gpt-4o-mini' );
 
 		if ( $count < 1 ) {
@@ -55,6 +59,8 @@ class Occ_Titles_OpenAI_Helper {
 				'count'          => $count,
 				'seed_title'     => $seed_title,
 				'variation'      => $variation,
+				'intent'         => $intent,
+				'keywords'       => $keywords,
 			)
 		);
 
@@ -73,6 +79,49 @@ class Occ_Titles_OpenAI_Helper {
 			$system_instruction .= 'Intriguing Statement, News Headline, Comparison, Benefit-Oriented, Storytelling, and Problem-Solution.';
 		}
 
+		if ( is_array( $voice_profile ) && ! empty( $voice_profile ) ) {
+			$tone            = sanitize_text_field( $voice_profile['tone'] ?? '' );
+			$formality       = sanitize_text_field( $voice_profile['formality'] ?? '' );
+			$sentence_length = sanitize_text_field( $voice_profile['sentence_length'] ?? '' );
+			$cta_style       = sanitize_text_field( $voice_profile['cta_style'] ?? '' );
+			$must_use        = isset( $voice_profile['must_use'] ) ? array_map( 'sanitize_text_field', (array) $voice_profile['must_use'] ) : array();
+			$avoid           = isset( $voice_profile['avoid'] ) ? array_map( 'sanitize_text_field', (array) $voice_profile['avoid'] ) : array();
+			$examples        = isset( $voice_profile['examples'] ) ? array_map( 'sanitize_text_field', (array) $voice_profile['examples'] ) : array();
+
+			if ( '' !== $tone ) {
+				$system_instruction .= ' Tone: ' . $tone . '.';
+			}
+			if ( '' !== $formality ) {
+				$system_instruction .= ' Formality: ' . $formality . '.';
+			}
+			if ( '' !== $sentence_length ) {
+				$system_instruction .= ' Sentence length preference: ' . $sentence_length . '.';
+			}
+			if ( '' !== $cta_style ) {
+				$system_instruction .= ' CTA style: ' . $cta_style . '.';
+			}
+			if ( ! empty( $must_use ) ) {
+				$system_instruction .= ' Use these words where possible: ' . implode( ', ', $must_use ) . '.';
+			}
+			if ( ! empty( $avoid ) ) {
+				$system_instruction .= ' Avoid these words: ' . implode( ', ', $avoid ) . '.';
+			}
+
+			$example_titles = array();
+			if ( ! empty( $examples ) ) {
+				$example_titles = array_merge( $example_titles, $examples );
+			}
+			if ( is_array( $voice_samples ) && ! empty( $voice_samples ) ) {
+				$example_titles = array_merge( $example_titles, array_slice( $voice_samples, 0, 3 ) );
+			}
+			$example_titles = array_values( array_unique( array_filter( $example_titles ) ) );
+			$example_titles = array_slice( $example_titles, 0, 5 );
+
+			if ( ! empty( $example_titles ) ) {
+				$system_instruction .= " Match the following example titles for voice consistency:\n- " . implode( "\n- ", $example_titles ) . "\n";
+			}
+		}
+
 		if ( ! empty( $seed_title ) ) {
 			$system_instruction .= ' Base the new title' . ( 1 === (int) $count ? '' : 's' ) . ' on this seed title: "' . $seed_title . '".';
 		}
@@ -83,6 +132,14 @@ class Occ_Titles_OpenAI_Helper {
 
 		if ( ! empty( $keyword ) ) {
 			$system_instruction .= ' Include this keyword if it fits naturally: "' . $keyword . '".';
+		}
+
+		if ( ! empty( $intent ) ) {
+			$system_instruction .= ' Primary goal: ' . $intent . '.';
+		}
+
+		if ( ! empty( $keywords ) && is_array( $keywords ) ) {
+			$system_instruction .= ' Target these keywords where possible: ' . implode( ', ', array_map( 'sanitize_text_field', $keywords ) ) . '.';
 		}
 
 		$system_instruction .= " Return the response as valid JSON in the following exact format:\n";

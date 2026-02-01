@@ -1,12 +1,6 @@
-# Ignore common directories and files in WordPress plugin development
+# WordPress plugin development ignores
 
-# Node modules
-node_modules/
-
-# Dependency directories
-vendor/
-
-# OS generated files
+# OS files
 .DS_Store
 Thumbs.db
 
@@ -16,34 +10,38 @@ Thumbs.db
 *.sublime-project
 *.sublime-workspace
 
-# Log files
-*.log
+# Dependencies
+node_modules/
+vendor/
 
-# Compiled asset files
-*.compiled
-*.min.css
-*.min.js
-*.css.map
-*.js.map
-
-# Packaging
+# Build/dist artifacts
+dist/
+build/
+oneclickcontent-titles/
 *.zip
 *.tar.gz
 *.rar
 
-# Temporary files
-*.bak
-*.swp
+# Caches
+.cache/
+.sass-cache/
+.npm/
+.yarn/
+.phpunit.result.cache
+.phpcs.cache
+.eslintcache
+
+# Logs and temp files
+*.log
 *.tmp
+*.swp
+*.bak
 
-# Including the wp-config.php file if accidentally placed in the plugin directory
-wp-config.php
-
-# Ignore specific plugin or theme related files that are auto-generated
-# e.g., if your plugin generates any specific cache or debug files, exclude them here
-
-# Example for ignoring a custom cache directory (replace 'custom_cache/' with your actual directory)
-# custom_cache/
+# Test/QA outputs
 check.txt
-package.json
 phpmd.txt
+plugincheck.txt
+
+# Environment files
+.env
+.env.*.local
