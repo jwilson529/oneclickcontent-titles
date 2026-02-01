@@ -1,0 +1,11 @@
+{
+  "plugin_slug": "oneclickcontent-titles",
+  "started_at": "2026-01-28T18:30:14Z",
+  "ended_at": "2026-01-28T18:30:14Z",
+  "exit_code": 0,
+  "php_version": "",
+  "git_branch": "main",
+  "git_commit": "5d5986e8bfbe01725b21221baed1517e05e5ddee",
+  "phpcs_errors": 0,
+  "phpcs_warnings": 0
+}

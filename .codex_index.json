@@ -1,0 +1,45 @@
+{
+  "current_commit": "8bbc83fe63be9cd524e41375d9b383138a369388",
+  "working_tree_dirty": true,
+  "files": {
+    "main_plugin_file": "oneclickcontent-titles.php",
+    "loader": "includes/class-occ-titles-loader.php",
+    "main_plugin_class": "includes/class-occ-titles.php",
+    "settings": "admin/class-occ-titles-settings.php",
+    "logger": "includes/class-occ-titles-logger.php",
+    "providers": [
+      "admin/class-occ-titles-openai-helper.php",
+      "admin/class-occ-titles-google-helper.php"
+    ],
+    "clients": [],
+    "shortcodes": [],
+    "blocks": [],
+    "admin_ui": [
+      "admin/class-occ-titles-admin.php",
+      "admin/js/occ-titles-admin.js",
+      "admin/js/occ-titles-settings.js",
+      "admin/css/occ-titles-admin.css"
+    ],
+    "tests": [
+      "tests/bootstrap.php",
+      "tests/test-case.php",
+      "tests/LoaderTest.php",
+      "tests/MainClassTest.php",
+      "tests/OptionsTest.php",
+      "tests/LoggerTest.php",
+      "tests/AdminResultsTest.php"
+    ],
+    "logging": [
+      "includes/class-occ-titles-logger.php",
+      "occ-titles.log",
+      "plugin-error.log"
+    ],
+    "build_tooling": [
+      "composer.json",
+      "package.json",
+      "phpcs.xml",
+      "phpunit.xml",
+      "phpmd.xml"
+    ]
+  }
+}
