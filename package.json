@@ -4,15 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "phpunit",
-    "fix": "phpcbf -d error_reporting=\"E_ALL&~E_DEPRECATED\" --standard=phpcs.xml --extensions=php .",
-    "check": "phpcs -d error_reporting=\"E_ALL&~E_DEPRECATED\" --standard=phpcs.xml --extensions=php . > check.txt",
+    "test": "docker compose up --abort-on-container-exit --exit-code-from tests tests",
+    "fix": "phpcbf -d memory_limit=512M -d error_reporting=\"E_ALL&~E_DEPRECATED\" --standard=phpcs.xml.dist --extensions=php .",
+    "check": "phpcs -d memory_limit=512M -d error_reporting=\"E_ALL&~E_DEPRECATED\" --standard=phpcs.xml.dist --extensions=php . > check.txt",
     "phpmd": "phpmd . text phpmd.xml --exclude vendor,node_modules > phpmd.txt",
     "dist": "find . -name '.DS_Store' -delete && zip -r oneclickcontent-titles.zip . -x \"node_modules/*\" \"vendor/*\" \"tests/*\" \".git/*\" \".github/*\" \".codex/*\" \".codex-backups/*\" \"*.zip\" \"check.txt\" \"phpmd.txt\" \"plugincheck.txt\" \"session_id.txt\" \"AGENTS.md\" \"SPEC.md\" \"composer.json\" \"composer.lock\" \"package.json\" \"package-lock.json\" \"phpmd.xml\" \"phpunit.xml\" \"phpcs.xml\" \"README.md\" \".gitignore\" \".zipignore\" \".DS_Store\" \"**/.DS_Store\" \"codex-yolo\" \"plugin-error.log\" \"UX_SUGGESTIONS.md\" \"Screenshot.png\" \".codex_index.json\" \".codex_run_meta.json\" \".codex_tasks.csv\" \".phpunit.result.cache\" \"occ-titles.log\" \"oneclickcontent-titles/*\" \".idea/*\" \".vscode/*\" \".env\" \".env.*\" \"coverage/*\" \".cache/*\" \".sass-cache/*\" \".npm/*\" \".yarn/*\" \".phpcs.cache\" \".eslintcache\"",
     "plugin-check": "wp plugin check .",
     "update-wpcs": "composer global require wp-coding-standards/wpcs --update-with-all-dependencies",
     "update-phpcs": "composer global require squizlabs/php_codesniffer --update-with-all-dependencies",
-    "refresh-phpcs": "phpcs --clear-cache && phpcs --config-set installed_paths ~/.composer/vendor/wp-coding-standards/wpcs"
+    "refresh-phpcs": "phpcs --clear-cache && phpcs --config-set installed_paths ~/.composer/vendor/wp-coding-standards/wpcs",
+    "test:local": "phpunit"
   },
   "repository": {
     "type": "git",

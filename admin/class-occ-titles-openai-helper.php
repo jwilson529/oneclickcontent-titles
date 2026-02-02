@@ -38,9 +38,10 @@ class Occ_Titles_OpenAI_Helper {
 	 * @param  array  $voice_samples Optional recent voice samples.
 	 * @param  string $intent Optional generation intent.
 	 * @param  array  $keywords Optional keyword targets.
+	 * @param  int    $ellipsis Optional ellipsis toggle.
 	 * @return array|string    Array of titles if successful, error message if failed.
 	 */
-	public function generate_titles_openai( $api_key, $content, $style = '', $request_id = '', $count = 5, $seed_title = '', $variation = '', $keyword = '', $voice_profile = array(), $voice_samples = array(), $intent = '', $keywords = array() ) {
+	public function generate_titles_openai( $api_key, $content, $style = '', $request_id = '', $count = 5, $seed_title = '', $variation = '', $keyword = '', $voice_profile = array(), $voice_samples = array(), $intent = '', $keywords = array(), $ellipsis = 0 ) {
 		$model = get_option( 'occ_titles_openai_model', 'gpt-4o-mini' );
 
 		if ( $count < 1 ) {
@@ -136,6 +137,15 @@ class Occ_Titles_OpenAI_Helper {
 
 		if ( ! empty( $intent ) ) {
 			$system_instruction .= ' Primary goal: ' . $intent . '.';
+		}
+
+		$discover_guidance = $this->get_discover_guidance( $intent );
+		if ( '' !== $discover_guidance ) {
+			$system_instruction .= ' ' . $discover_guidance;
+		}
+
+		if ( $ellipsis ) {
+			$system_instruction .= ' When it helps build curiosity, allow a few titles to end with an ellipsis. Do not end every title with an ellipsis.';
 		}
 
 		if ( ! empty( $keywords ) && is_array( $keywords ) ) {
@@ -275,6 +285,31 @@ class Occ_Titles_OpenAI_Helper {
 			);
 			return 'Unexpected response format.';
 		}
+	}
+
+	/**
+	 * Provide Google Discover and Top Stories guidance when requested.
+	 *
+	 * @since 1.1.2
+	 * @param string $intent Requested intent.
+	 * @return string
+	 */
+	private function get_discover_guidance( $intent ) {
+		$intent = strtolower( (string) $intent );
+		if ( false === strpos( $intent, 'discover' ) && false === strpos( $intent, 'top stories' ) && false === strpos( $intent, 'top story' ) ) {
+			return '';
+		}
+
+		return implode(
+			' ',
+			array(
+				'For Google Discover and Top Stories cards, prioritize selection and engagement over strict keyword targeting.',
+				'Lead with a recognizable entity, then add unresolved tension to create curiosity without being misleading.',
+				'Keep the headline concise, timely, and high velocity in tone.',
+				'Favor authority signaling and broad relevance, and avoid evergreen framing.',
+				'Do not reference the image directly; the title must stand alone.',
+			)
+		);
 	}
 
 	/**

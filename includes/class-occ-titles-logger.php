@@ -226,6 +226,18 @@ class Occ_Titles_Logger {
 	 * @return WP_Filesystem_Base|false
 	 */
 	private function get_filesystem() {
+		/**
+		 * Filter the filesystem instance used by the logger.
+		 *
+		 * @since 1.1.1
+		 *
+		 * @param WP_Filesystem_Base|null $filesystem Filesystem instance.
+		 */
+		$filesystem = apply_filters( 'occ_titles_filesystem', null );
+		if ( class_exists( 'WP_Filesystem_Base' ) && $filesystem instanceof WP_Filesystem_Base ) {
+			return $filesystem;
+		}
+
 		global $wp_filesystem;
 
 		if ( class_exists( 'WP_Filesystem_Base' ) && $wp_filesystem instanceof WP_Filesystem_Base ) {

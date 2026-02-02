@@ -215,12 +215,70 @@
          * @return {string} HTML string.
          */
         function build_serp_preview( title ) {
-            var url = window.location.origin + '/sample-slug';
+            var slug = occ_titles_admin_vars.post_slug || 'sample-slug';
+            var url = occ_titles_admin_vars.post_permalink || ( window.location.origin + '/' + slug );
             return '<div class="occ_titles-serp">' +
                 '<div class="occ_titles-serp-url">' + url + '</div>' +
                 '<div class="occ_titles-serp-title">' + title + '</div>' +
                 '<div class="occ_titles-serp-desc">Preview how this title may appear in search results.</div>' +
                 '</div>';
+        }
+
+        /**
+         * Build a Discover card preview block.
+         *
+         * @param {string} title Title text.
+         * @return {string} HTML string.
+         */
+        function build_discover_preview( title ) {
+            var source = window.location.hostname || 'Example News';
+            var domain_initial = source ? source.charAt( 0 ).toUpperCase() : 'G';
+            return '<div class="occ_titles-discover-card">' +
+                '<div class="occ_titles-discover-image">' +
+                    '<span class="occ_titles-discover-image-label">Top stories</span>' +
+                '</div>' +
+                '<div class="occ_titles-discover-body">' +
+                    '<div class="occ_titles-discover-meta">' +
+                        '<span class="occ_titles-discover-favicon">' + domain_initial + '</span>' +
+                        '<span class="occ_titles-discover-source">' + source + '</span>' +
+                        '<span class="occ_titles-discover-dot">•</span>' +
+                        '<span class="occ_titles-discover-time">3h</span>' +
+                    '</div>' +
+                    '<div class="occ_titles-discover-title">' + title + '</div>' +
+                    '<div class="occ_titles-discover-desc">Discover is image-led and scroll-based. Use curiosity and strong entities, but keep the title clear and true.</div>' +
+                '</div>' +
+                '</div>';
+        }
+
+        /**
+         * Build a preview block based on intent.
+         *
+         * @param {string} title Title text.
+         * @param {string} intent Selected intent.
+         * @return {string} HTML string.
+         */
+        function build_title_preview( title, intent ) {
+            var intent_value = ( intent || '' ).toLowerCase();
+            if ( intent_value.indexOf( 'discover' ) !== -1 || intent_value.indexOf( 'top stories' ) !== -1 || intent_value.indexOf( 'top story' ) !== -1 ) {
+                return build_discover_preview( title );
+            }
+
+            return build_serp_preview( title );
+        }
+
+        /**
+         * Refresh preview cells based on selected intent.
+         */
+        function refresh_previews() {
+            var intent_value = $( '#occ_titles_intent' ).val() || '';
+            $( '.occ_titles-row' ).each( function() {
+                var $row = $( this );
+                var title_text = $row.find( '.occ_titles-title-link' ).text();
+                var $preview_cell = $row.find( '.occ_titles-col-serp' );
+                $preview_cell.empty().append( build_title_preview( title_text, intent_value ) );
+                $preview_cell.append( '<div class="occ_titles-serp-meter"><span style="width:' + $row.data( 'pixelPercent' ) + '%"></span></div>' );
+                $preview_cell.append( '<div class="occ_titles-serp-meta">Target: 560 to 600 px • Current: ' + $row.data( 'pixelWidth' ) + 'px</div>' );
+            } );
         }
 
         /**
@@ -330,6 +388,49 @@
         }
 
         /**
+         * Get the current title from the editor.
+         *
+         * @return {string} Current title.
+         */
+        function get_current_title() {
+            if ( window.editorMode.is_block_editor ) {
+                return wp.data.select( 'core/editor' ).getEditedPostAttribute( 'title' ) || '';
+            }
+
+            if ( $( 'input#title' ).length ) {
+                return $( 'input#title' ).val() || '';
+            }
+
+            return '';
+        }
+
+        /**
+         * Toggle the results panel visibility.
+         *
+         * @param {boolean} collapsed Whether to collapse.
+         */
+        function set_results_collapsed( collapsed ) {
+            var $results = $( '.occ_titles-results' );
+            if ( ! $results.length ) {
+                return;
+            }
+
+            $results.toggleClass( 'is-collapsed', collapsed );
+            localStorage.setItem( 'occ_titles_results_collapsed', collapsed ? '1' : '0' );
+            $( '#occ_titles_toggle_panel' )
+                .text( collapsed ? 'Show panel' : 'Hide panel' )
+                .attr( 'aria-expanded', collapsed ? 'false' : 'true' );
+        }
+
+        /**
+         * Apply stored collapsed state.
+         */
+        function apply_results_collapsed_state() {
+            var stored = localStorage.getItem( 'occ_titles_results_collapsed' );
+            set_results_collapsed( '1' === stored );
+        }
+
+        /**
          * Displays the titles table and footer controls.
          *
          * @param {Array} titles List of title objects.
@@ -344,6 +445,9 @@
             lastProvider = metadata.provider || lastProvider;
             if ( metadata.intent ) {
                 $( '#occ_titles_intent' ).val( metadata.intent );
+            }
+            if ( typeof metadata.ellipsis !== 'undefined' ) {
+                $( '#occ_titles_ellipsis' ).prop( 'checked', !! metadata.ellipsis );
             }
 
             $container.empty().addClass( 'occ_titles-results' );
@@ -360,13 +464,22 @@
             }
 
             var $header_actions = $( '<div class="occ_titles-results-actions"></div>' );
+            $header_actions.append( '<button type="button" class="button button-secondary" id="occ_titles_score_current">Score Current Title</button>' );
             $header_actions.append( '<button type="button" class="button button-secondary" id="occ_titles_copy_all">Copy All</button>' );
             $header_actions.append( '<button type="button" class="button button-secondary" id="occ_titles_export_csv">Download CSV</button>' );
+            $header_actions.append( '<button type="button" class="button button-secondary" id="occ_titles_toggle_panel" aria-expanded="true">Hide panel</button>' );
             $header.append( $header_left, $header_actions );
             $container.append( $header );
 
             var $error_panel = $( '<div class="occ_titles-error-panel" style="display:none;"></div>' );
             $container.append( $error_panel );
+
+            var styles_options = [
+                'how-to', 'listicle', 'question', 'command', 'intriguing statement',
+                'news headline', 'comparison', 'benefit-oriented', 'storytelling', 'problem-solution'
+            ].map( function( style ) {
+                return '<option value="' + style + '">' + style.charAt( 0 ).toUpperCase() + style.slice( 1 ) + '</option>';
+            } ).join( '' );
 
             var $controls = $( '<div class="occ_titles-controls"></div>' );
             $controls.append(
@@ -378,6 +491,7 @@
                                 '<option value="">Select goal</option>' +
                                 '<option value="Increase CTR">Increase CTR</option>' +
                                 '<option value="Rank for keyword">Rank for keyword</option>' +
+                                '<option value="Discover cards">Discover cards</option>' +
                                 '<option value="Social share">Social share</option>' +
                                 '<option value="Thought leadership">Thought leadership</option>' +
                                 '<option value="Lead gen">Lead gen</option>' +
@@ -390,19 +504,27 @@
                                 styles_options +
                             '</select>' +
                         '</div>' +
+                        '<div class="occ_titles-control-item occ_titles-control-inline">' +
+                            '<label for="occ_titles_ellipsis"><strong>Curiosity ellipsis</strong></label>' +
+                            '<label class="occ_titles-toggle">' +
+                                '<input type="checkbox" id="occ_titles_ellipsis" />' +
+                                '<span>Allow “…” endings</span>' +
+                            '</label>' +
+                        '</div>' +
                     '</div>' +
                     '<div class="occ_titles-control occ_titles-control-actions">' +
                         '<button type="button" class="button button-primary" id="occ_titles_generate_button_top">Generate Titles</button>' +
                         '<button type="button" class="button" id="occ_titles_revert_button_top">Revert To Original Title</button>' +
                     '</div>' +
                 '</div>' +
-                '<p class="occ_titles-controls-help">Pick a goal and style, then generate.</p>' +
+                '<p class="occ_titles-controls-help">Step 1: choose a goal and style. Step 2: click Generate Titles.</p>' +
                 '<button type="button" class="button-link occ_titles-controls-toggle" aria-expanded="true">Hide controls</button>'
             );
             $controls.append( '<div class="occ_titles-control occ_titles-keywords-panel"><label><strong>Keyword targets</strong></label><div class="occ_titles-keyword-list"></div></div>' );
             $container.append( $controls );
 
             apply_controls_collapsed_state();
+            apply_results_collapsed_state();
 
             var suggestions = build_keyword_suggestions( metadata.content || window.occTitlesContentCache || '' );
             var $keyword_list = $controls.find( '.occ_titles-keyword-list' );
@@ -422,7 +544,7 @@
                 '<th class="occ_titles-col-score">Score</th>' +
                 '<th class="occ_titles-col-insights">Insights</th>' +
                 '<th class="occ_titles-col-keywords">Keywords</th>' +
-                '<th class="occ_titles-col-serp">SERP Preview</th>' +
+                '<th class="occ_titles-col-serp">Preview</th>' +
                 '</tr></thead>'
             );
             var $table_body = $( '<tbody></tbody>' );
@@ -464,7 +586,8 @@
                     style: title_obj.style || metadata.style || '',
                     gate: gate,
                     pixel_width: pixel_width,
-                    pixel_percent: pixel_percent
+                    pixel_percent: pixel_percent,
+                    is_current: !! title_obj.is_current
                 };
 
                 all_keywords = [ ...new Set( [ ...all_keywords, ...keywords ] ) ];
@@ -486,12 +609,17 @@
 
                 var $row = $( '<tr class="occ_titles-row"></tr>' );
                 $row.attr( 'data-index', row_data.index );
+                $row.data( 'pixelPercent', row_data.pixel_percent );
+                $row.data( 'pixelWidth', row_data.pixel_width );
                 $row.toggleClass( 'is-best', is_best );
 
                 var $rank_cell = $( '<td class="occ_titles-col-rank"></td>' );
                 $rank_cell.append( '<span class="occ_titles-rank">#' + ( rank_index + 1 ) + '</span>' );
                 if ( is_best ) {
                     $rank_cell.append( '<span class="occ_titles-best-badge">Best</span>' );
+                }
+                if ( row_data.is_current ) {
+                    $rank_cell.append( '<span class="occ_titles-current-badge">Current</span>' );
                 }
 
                 var $title_cell = $( '<td class="occ_titles-col-title"></td>' );
@@ -501,9 +629,13 @@
                 } );
 
                 var $actions = $( '<div class="occ_titles-title-actions"></div>' );
-                $actions.append( '<button type="button" class="button button-primary occ_titles-apply" data-index="' + row_data.index + '">Apply</button>' );
-                $actions.append( '<button type="button" class="button occ_titles-undo" data-index="' + row_data.index + '">Undo</button>' );
-                $actions.append( '<span class="occ_titles-applied-label" aria-hidden="true">Applied</span>' );
+                if ( row_data.is_current ) {
+                    $actions.append( '<span class="occ_titles-applied-label is-visible" aria-hidden="true">This is your current title</span>' );
+                } else {
+                    $actions.append( '<button type="button" class="button button-primary occ_titles-apply" data-index="' + row_data.index + '">Apply</button>' );
+                    $actions.append( '<button type="button" class="button occ_titles-undo" data-index="' + row_data.index + '">Undo</button>' );
+                    $actions.append( '<span class="occ_titles-applied-label" aria-hidden="true">Applied</span>' );
+                }
 
                 var $iterate = $( '<div class="occ_titles-iterate"></div>' );
                 $iterate.append( '<button type="button" class="button-link occ_titles-iterate-btn" data-variation="shorter" data-index="' + row_data.index + '">Shorter</button>' );
@@ -533,10 +665,11 @@
                 $insights_cell.append( $chips );
 
                 var $keywords_cell = $( '<td class="occ_titles-col-keywords"></td>' ).text( keywords_list );
+                var preview_intent = $( '#occ_titles_intent' ).val() || metadata.intent || '';
                 var $serp_cell = $( '<td class="occ_titles-col-serp"></td>' );
-                $serp_cell.append( build_serp_preview( row_data.title ) );
+                $serp_cell.append( build_title_preview( row_data.title, preview_intent ) );
                 $serp_cell.append( '<div class="occ_titles-serp-meter"><span style="width:' + row_data.pixel_percent + '%"></span></div>' );
-                $serp_cell.append( '<div class="occ_titles-serp-meta">' + row_data.pixel_width + 'px</div>' );
+                $serp_cell.append( '<div class="occ_titles-serp-meta">Target: 560 to 600 px • Current: ' + row_data.pixel_width + 'px</div>' );
 
                 $row.append( $rank_cell, $title_cell, $score_cell, $insights_cell, $keywords_cell, $serp_cell );
                 $table_body.append( $row );
@@ -546,23 +679,18 @@
             $container.append( $titles_table );
 
             var keywords_summary = all_keywords.length ? all_keywords.join( ', ' ) : 'None';
-            var styles_options = [
-                'how-to', 'listicle', 'question', 'command', 'intriguing statement',
-                'news headline', 'comparison', 'benefit-oriented', 'storytelling', 'problem-solution'
-            ].map( function( style ) {
-                return '<option value="' + style + '">' + style.charAt( 0 ).toUpperCase() + style.slice( 1 ) + '</option>';
-            } ).join( '' );
-
-            $container.append( [
-                '<div id="occ_titles_footer" class="occ_titles-footer">',
-                    '<div class="occ_titles-footer-meta">',
-                        '<p><strong>Keywords Used:</strong> ' + keywords_summary + '</p>',
-                    '</div>',
-                    '<div id="occ_titles_more_controls" class="occ_titles-more-controls" style="display: ' + ( hasGenerated ? 'block' : 'none' ) + ';">',
-                        '<button id="occ_titles_generate_more_button" class="button">Generate 5 More Titles</button>',
-                    '</div>',
-                '</div>'
-            ].join( '' ) );
+            var $guidance = $( '<div class="occ_titles-guidance"></div>' );
+            $guidance.append(
+                '<div class="occ_titles-guidance-card">' +
+                    '<strong>How to pick:</strong> choose a title with a strong score, clean readability, and the right keywords. Click Apply when ready.' +
+                '</div>' +
+                '<div class="occ_titles-guidance-card">' +
+                    '<strong>Pixel target:</strong> 560 to 600 px. Google trims headlines by pixel width, not character count.' +
+                '</div>' +
+                '<div class="occ_titles-guidance-card"><strong>Keywords used:</strong> ' + keywords_summary + '</div>'
+            );
+            $container.find( '.occ_titles-guidance' ).remove();
+            $container.find( '.occ_titles-controls' ).after( $guidance );
 
             if ( ! metadata.from_cache ) {
                 persist_results( {
@@ -571,6 +699,7 @@
                     provider: lastProvider,
                     style: metadata.style || '',
                     intent: $( '#occ_titles_intent' ).val() || '',
+                    ellipsis: $( '#occ_titles_ellipsis' ).is( ':checked' ) ? 1 : 0,
                     keywords: get_selected_keywords()
                 } );
             }
@@ -934,11 +1063,13 @@
             window.occTitlesContentCache = content;
             var style = $( '#occ_titles_style' ).val() || '';
             var intent = $( '#occ_titles_intent' ).val() || '';
+            var ellipsis = $( '#occ_titles_ellipsis' ).is( ':checked' ) ? 1 : 0;
 
             send_ajax_request( {
                 content: content,
                 style: style,
                 intent: intent,
+                ellipsis: ellipsis,
                 keywords: get_selected_keywords()
             } ).always( function() {
                 isProcessing = false;
@@ -1000,11 +1131,13 @@
             window.occTitlesContentCache = content;
             var style = $( '#occ_titles_style' ).val() || 'listicle'; // Fix: Default to 'listicle'
             var intent = $( '#occ_titles_intent' ).val() || '';
+            var ellipsis = $( '#occ_titles_ellipsis' ).is( ':checked' ) ? 1 : 0;
 
             send_ajax_request( {
                 content: content,
                 style: style,
                 intent: intent,
+                ellipsis: ellipsis,
                 keywords: get_selected_keywords()
             } ).always( function() {
                 isProcessing = false;
@@ -1016,6 +1149,13 @@
          */
         $( document ).on( 'change', '#occ_titles_style', function() {
             update_generate_more_button_text();
+        } );
+
+        /**
+         * Event listener for intent dropdown change.
+         */
+        $( document ).on( 'change', '#occ_titles_intent', function() {
+            refresh_previews();
         } );
 
         /**
@@ -1045,6 +1185,61 @@
             if ( row_data ) {
                 save_voice_sample( row_data.text || row_data.title );
             }
+        } );
+
+        /**
+         * Score the current title and insert into the table.
+         */
+        $( document ).on( 'click', '#occ_titles_score_current', function( e ) {
+            e.preventDefault();
+            var $button = $( this );
+            var current_title = get_current_title();
+            if ( ! current_title ) {
+                display_custom_error( 'No title found to score.' );
+                return;
+            }
+
+            var matched = false;
+            var updated = currentTitles.map( function( item ) {
+                if ( item && item.text && item.text.toLowerCase() === current_title.toLowerCase() ) {
+                    matched = true;
+                    return Object.assign( {}, item, { is_current: true } );
+                }
+                return item;
+            } );
+
+            if ( ! matched ) {
+                updated.unshift( {
+                    text: current_title,
+                    style: 'Current',
+                    sentiment: 'Neutral',
+                    keywords: get_selected_keywords(),
+                    is_current: true
+                } );
+            }
+
+            display_titles( updated, {
+                generated_at: lastGeneratedAt || occ_titles_admin_vars.now,
+                provider: lastProvider,
+                style: $( '#occ_titles_style' ).val() || '',
+                intent: $( '#occ_titles_intent' ).val() || '',
+                ellipsis: $( '#occ_titles_ellipsis' ).is( ':checked' ) ? 1 : 0,
+                from_cache: true
+            } );
+
+            $button.addClass( 'is-success' ).text( 'Scored' );
+            setTimeout( function() {
+                $button.removeClass( 'is-success' ).text( 'Score Current Title' );
+            }, 1500 );
+        } );
+
+        /**
+         * Toggle results panel visibility.
+         */
+        $( document ).on( 'click', '#occ_titles_toggle_panel', function( e ) {
+            e.preventDefault();
+            var is_collapsed = $( '.occ_titles-results' ).hasClass( 'is-collapsed' );
+            set_results_collapsed( ! is_collapsed );
         } );
 
         /**
@@ -1091,6 +1286,7 @@
             window.occTitlesContentCache = content;
             var style = $( '#occ_titles_style' ).val() || row_data.style || '';
             var intent = $( '#occ_titles_intent' ).val() || '';
+            var ellipsis = $( '#occ_titles_ellipsis' ).is( ':checked' ) ? 1 : 0;
 
             $( '.occ_titles-row[data-index="' + index + '"]' ).addClass( 'is-loading' );
 
@@ -1102,6 +1298,7 @@
                 keyword: keyword,
                 count: 1,
                 intent: intent,
+                ellipsis: ellipsis,
                 keywords: get_selected_keywords()
             }, function( response ) {
                 $( '.occ_titles-row[data-index="' + index + '"]' ).removeClass( 'is-loading' );

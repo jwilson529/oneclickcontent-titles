@@ -1,5 +1,5 @@
 {
-  "current_commit": "8bbc83fe63be9cd524e41375d9b383138a369388",
+  "current_commit": "e035eec0078e712424f5e19da32c184de851153c",
   "working_tree_dirty": true,
   "files": {
     "main_plugin_file": "oneclickcontent-titles.php",
@@ -23,11 +23,14 @@
     "tests": [
       "tests/bootstrap.php",
       "tests/test-case.php",
-      "tests/LoaderTest.php",
-      "tests/MainClassTest.php",
-      "tests/OptionsTest.php",
-      "tests/LoggerTest.php",
-      "tests/AdminResultsTest.php"
+      "tests/class-loadertest.php",
+      "tests/class-mainclasstest.php",
+      "tests/class-optionstest.php",
+      "tests/class-loggertest.php",
+      "tests/class-adminresultstest.php",
+      "tests/class-occ-titles-test-component.php",
+      "tests/class-wp-filesystem-base.php",
+      "tests/class-occ-titles-test-filesystem.php"
     ],
     "logging": [
       "includes/class-occ-titles-logger.php",
@@ -38,7 +41,9 @@
       "composer.json",
       "package.json",
       "phpcs.xml",
+      "phpcs.xml.dist",
       "phpunit.xml",
+      "phpunit.xml.dist",
       "phpmd.xml"
     ]
   }

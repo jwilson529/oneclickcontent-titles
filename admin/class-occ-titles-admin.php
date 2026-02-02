@@ -148,6 +148,16 @@ class Occ_Titles_Admin {
 	public function enqueue_scripts() {
 		$screen              = get_current_screen(); // Get current screen object.
 		$selected_post_types = (array) get_option( 'occ_titles_post_types', array() );
+		$post_id             = 0;
+
+		if ( isset( $_GET['post'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$post_id = absint( $_GET['post'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		} elseif ( isset( $GLOBALS['post'] ) && $GLOBALS['post'] instanceof WP_Post ) {
+			$post_id = (int) $GLOBALS['post']->ID;
+		}
+
+		$post_slug      = $post_id ? get_post_field( 'post_name', $post_id ) : '';
+		$post_permalink = $post_id ? get_permalink( $post_id ) : '';
 
 		// Enqueue the settings script on all admin pages.
 		wp_enqueue_script(
@@ -166,6 +176,9 @@ class Occ_Titles_Admin {
 			'svg_url'               => plugin_dir_url( __DIR__ ) . 'img/ai-sparkle.svg',
 			'now'                   => current_time( 'mysql' ),
 			'settings_url'          => admin_url( 'options-general.php?page=occ_titles-settings' ),
+			'post_id'               => $post_id,
+			'post_slug'             => $post_slug,
+			'post_permalink'        => $post_permalink,
 			'strings'               => array(
 				'badge_valid'        => __( 'Valid', 'oneclickcontent-titles' ),
 				'badge_invalid'      => __( 'Invalid', 'oneclickcontent-titles' ),
@@ -264,6 +277,7 @@ class Occ_Titles_Admin {
 		$keyword    = isset( $_POST['keyword'] ) ? sanitize_text_field( wp_unslash( $_POST['keyword'] ) ) : '';
 		$count      = isset( $_POST['count'] ) ? absint( $_POST['count'] ) : 5;
 		$intent     = isset( $_POST['intent'] ) ? sanitize_text_field( wp_unslash( $_POST['intent'] ) ) : '';
+		$ellipsis   = isset( $_POST['ellipsis'] ) ? absint( $_POST['ellipsis'] ) : 0;
 		$keywords   = isset( $_POST['keywords'] ) ? wp_unslash( $_POST['keywords'] ) : array();
 
 		if ( is_string( $keywords ) ) {
@@ -290,6 +304,7 @@ class Occ_Titles_Admin {
 				'variation'      => $variation,
 				'count'          => $count,
 				'intent'         => $intent,
+				'ellipsis'       => $ellipsis ? 'yes' : 'no',
 				'keywords'       => $keywords,
 			)
 		);
@@ -321,7 +336,7 @@ class Occ_Titles_Admin {
 				wp_send_json_error( array( 'message' => __( 'Missing OpenAI API key.', 'oneclickcontent-titles' ) ) );
 			}
 			$helper = new Occ_Titles_OpenAI_Helper();
-			$result = $helper->generate_titles_openai( $api_key, $content, $style, $request_id, $count, $seed_title, $variation, $keyword, $voice_profile, $voice_samples, $intent, $keywords );
+			$result = $helper->generate_titles_openai( $api_key, $content, $style, $request_id, $count, $seed_title, $variation, $keyword, $voice_profile, $voice_samples, $intent, $keywords, $ellipsis );
 		} elseif ( 'google' === $provider ) {
 			$api_key = get_option( 'occ_titles_google_api_key' );
 			if ( empty( $api_key ) ) {
@@ -333,7 +348,7 @@ class Occ_Titles_Admin {
 			}
 			// Occ_Titles_Google_Helper should be implemented similarly.
 			$helper = new Occ_Titles_Google_Helper();
-			$result = $helper->generate_titles_google( $api_key, $content, $style, $request_id, $count, $seed_title, $variation, $keyword, $voice_profile, $voice_samples, $intent, $keywords );
+			$result = $helper->generate_titles_google( $api_key, $content, $style, $request_id, $count, $seed_title, $variation, $keyword, $voice_profile, $voice_samples, $intent, $keywords, $ellipsis );
 		} else {
 			Occ_Titles_Logger::get_instance()->error(
 				'Unknown AI provider configured.',
@@ -359,6 +374,7 @@ class Occ_Titles_Admin {
 					'titles'       => $result,
 					'provider'     => $provider,
 					'intent'       => $intent,
+					'ellipsis'     => $ellipsis ? 1 : 0,
 					'keywords'     => $keywords,
 					'generated_at' => current_time( 'mysql' ),
 				)
