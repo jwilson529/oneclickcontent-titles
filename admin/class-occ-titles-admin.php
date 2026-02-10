@@ -125,7 +125,7 @@ class Occ_Titles_Admin {
 				$this->version,
 				'all'
 			);
-		} elseif ( 'settings_page_occ_titles-settings' === $screen->base ) {
+		} elseif ( in_array( $screen->base, array( 'settings_page_occ_titles-settings', 'settings_page_occ_titles-help' ), true ) ) {
 			wp_enqueue_style(
 				$this->plugin_name,
 				plugin_dir_url( __FILE__ ) . 'css/occ-titles-admin.css',

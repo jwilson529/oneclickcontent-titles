@@ -75,6 +75,7 @@ class Occ_Titles {
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->define_admin_hooks();
+		$this->define_public_hooks();
 	}
 
 	/**
@@ -113,6 +114,9 @@ class Occ_Titles {
 
 		// The class responsible for defining settings actions that occur in the admin area.
 		require_once plugin_dir_path( __DIR__ ) . 'admin/class-occ-titles-settings.php';
+
+		// The class responsible for defining public-facing actions.
+		require_once plugin_dir_path( __DIR__ ) . 'public/class-occ-titles-public.php';
 
 		$this->loader = new Occ_Titles_Loader();
 	}
@@ -159,6 +163,19 @@ class Occ_Titles {
 		$this->loader->add_action( 'wp_ajax_occ_titles_auto_save', $plugin_settings, 'occ_titles_auto_save' );
 		$this->loader->add_action( 'wp_ajax_occ_titles_ajax_validate_openai_api_key', $openai_helper, 'occ_titles_ajax_validate_openai_api_key' );
 		$this->loader->add_action( 'wp_ajax_occ_titles_ajax_validate_google_api_key', $google_helper, 'occ_titles_ajax_validate_google_api_key' );
+	}
+
+	/**
+	 * Register all of the hooks related to the public-facing functionality.
+	 *
+	 * @since 1.1.1
+	 * @access private
+	 */
+	private function define_public_hooks() {
+		$plugin_public = new Occ_Titles_Public( $this->get_plugin_name(), $this->get_version() );
+
+		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles', 5 );
+		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts', 5 );
 	}
 
 	/**

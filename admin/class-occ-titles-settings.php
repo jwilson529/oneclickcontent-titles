@@ -34,6 +34,15 @@ class Occ_Titles_Settings {
 			'occ_titles-settings',
 			array( $this, 'occ_titles_options_page' )
 		);
+
+		add_submenu_page(
+			'options-general.php',
+			__( 'OneClickContent - Title Help', 'oneclickcontent-titles' ),
+			__( 'Title Help', 'oneclickcontent-titles' ),
+			'manage_options',
+			'occ_titles-help',
+			array( $this, 'occ_titles_help_page' )
+		);
 	}
 
 	/**
@@ -45,6 +54,11 @@ class Occ_Titles_Settings {
 	public function occ_titles_options_page() {
 		?>
 		<div id="occ_titles" class="wrap">
+			<p>
+				<a class="button button-secondary" href="<?php echo esc_url( admin_url( 'options-general.php?page=occ_titles-help' ) ); ?>">
+					<?php esc_html_e( 'Open Title Help', 'oneclickcontent-titles' ); ?>
+				</a>
+			</p>
 			<form class="occ_titles-settings-form" method="post" action="options.php">
 				<?php
 				settings_fields( 'occ_titles_settings' );
@@ -52,6 +66,277 @@ class Occ_Titles_Settings {
 				submit_button();
 				?>
 			</form>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Outputs the Title Help page content.
+	 *
+	 * @since 1.1.1
+	 * @return void
+	 */
+	public function occ_titles_help_page() {
+		$training_steps = array(
+			array(
+				'step'    => __( 'Step 1', 'oneclickcontent-titles' ),
+				'title'   => __( 'Step 1: Open your post and click Generate Titles', 'oneclickcontent-titles' ),
+				'content' => __( 'In the post editor, click the spark icon next to the title field. This opens the title panel where you can generate and score options.', 'oneclickcontent-titles' ),
+				'image'   => 'https://placehold.co/1200x675?text=Step+1:+Open+Post+Editor+and+Click+Generate+Titles',
+				'alt'     => __( 'Placeholder screenshot for opening the title generator', 'oneclickcontent-titles' ),
+				'focus'   => __( 'Focus: open the panel and confirm content context before generating.', 'oneclickcontent-titles' ),
+			),
+			array(
+				'step'    => __( 'Step 2', 'oneclickcontent-titles' ),
+				'title'   => __( 'Step 2: Set Goal, Style, and optional keyword targets', 'oneclickcontent-titles' ),
+				'content' => __( 'Choose a goal and style before generating. Select keyword chips that must appear in your headlines for better alignment with your SEO strategy.', 'oneclickcontent-titles' ),
+				'image'   => 'https://placehold.co/1200x675?text=Step+2:+Set+Goal+Style+and+Keywords',
+				'alt'     => __( 'Placeholder screenshot for title controls', 'oneclickcontent-titles' ),
+				'focus'   => __( 'Focus: align controls with the real publishing objective.', 'oneclickcontent-titles' ),
+			),
+			array(
+				'step'    => __( 'Step 3', 'oneclickcontent-titles' ),
+				'title'   => __( 'Step 3: Generate, compare, and apply the best title', 'oneclickcontent-titles' ),
+				'content' => __( 'Review score, insights, keyword fit, and preview width. Click Apply on the row you want to use, or iterate with Shorter, Punchier, More benefit, and Add keyword.', 'oneclickcontent-titles' ),
+				'image'   => 'https://placehold.co/1200x675?text=Step+3:+Compare+Rows+and+Apply+Best+Title',
+				'alt'     => __( 'Placeholder screenshot for generated title rows', 'oneclickcontent-titles' ),
+				'focus'   => __( 'Focus: select the strongest option, not just the most dramatic one.', 'oneclickcontent-titles' ),
+			),
+			array(
+				'step'    => __( 'Step 4', 'oneclickcontent-titles' ),
+				'title'   => __( 'Step 4: Validate in preview and finalize', 'oneclickcontent-titles' ),
+				'content' => __( 'Use the preview column and pixel meter to keep titles in a clean display range. Save or publish your post once your selected title matches the goal.', 'oneclickcontent-titles' ),
+				'image'   => 'https://placehold.co/1200x675?text=Step+4:+Check+Preview+and+Publish',
+				'alt'     => __( 'Placeholder screenshot for preview validation', 'oneclickcontent-titles' ),
+				'focus'   => __( 'Focus: confirm quality and clarity before publishing.', 'oneclickcontent-titles' ),
+			),
+		);
+
+		$label_definitions = array(
+			array(
+				'label'       => __( 'Goal', 'oneclickcontent-titles' ),
+				'description' => __( 'Sets the optimization target for the batch. Options include Increase CTR, Rank for keyword, Discover cards, Social share, Thought leadership, and Lead gen.', 'oneclickcontent-titles' ),
+				'group'       => __( 'Controls', 'oneclickcontent-titles' ),
+			),
+			array(
+				'label'       => __( 'Style', 'oneclickcontent-titles' ),
+				'description' => __( 'Controls title format such as How-to, Listicle, Question, Command, News headline, Comparison, and other templates.', 'oneclickcontent-titles' ),
+				'group'       => __( 'Controls', 'oneclickcontent-titles' ),
+			),
+			array(
+				'label'       => __( 'Curiosity ellipsis', 'oneclickcontent-titles' ),
+				'description' => __( 'Allows generated titles to end with "...". Use only when it improves curiosity without becoming clickbait.', 'oneclickcontent-titles' ),
+				'group'       => __( 'Controls', 'oneclickcontent-titles' ),
+			),
+			array(
+				'label'       => __( 'Keyword targets', 'oneclickcontent-titles' ),
+				'description' => __( 'Keyword chips extracted from your content. Selected chips are prioritized during title generation.', 'oneclickcontent-titles' ),
+				'group'       => __( 'Controls', 'oneclickcontent-titles' ),
+			),
+			array(
+				'label'       => __( 'Score', 'oneclickcontent-titles' ),
+				'description' => __( 'Overall quality score that combines length, readability, sentiment, and keyword usage signals.', 'oneclickcontent-titles' ),
+				'group'       => __( 'Signals', 'oneclickcontent-titles' ),
+			),
+			array(
+				'label'       => __( 'Pass / Needs work', 'oneclickcontent-titles' ),
+				'description' => __( 'Quick quality gate. Pass means the title meets more of the recommended conditions.', 'oneclickcontent-titles' ),
+				'group'       => __( 'Signals', 'oneclickcontent-titles' ),
+			),
+			array(
+				'label'       => __( 'Length', 'oneclickcontent-titles' ),
+				'description' => __( 'Shows whether the title is short, ideal, or long based on character guidance.', 'oneclickcontent-titles' ),
+				'group'       => __( 'Signals', 'oneclickcontent-titles' ),
+			),
+			array(
+				'label'       => __( 'Keyword fit', 'oneclickcontent-titles' ),
+				'description' => __( 'Indicates if keyword density is low, high, or too high for the selected title.', 'oneclickcontent-titles' ),
+				'group'       => __( 'Signals', 'oneclickcontent-titles' ),
+			),
+			array(
+				'label'       => __( 'Density', 'oneclickcontent-titles' ),
+				'description' => __( 'Displays the keyword density percentage measured for that title.', 'oneclickcontent-titles' ),
+				'group'       => __( 'Signals', 'oneclickcontent-titles' ),
+			),
+			array(
+				'label'       => __( 'Preview + Pixel meter', 'oneclickcontent-titles' ),
+				'description' => __( 'Shows how your title may render. Keep the pixel target near 560 to 600 px to reduce truncation risk.', 'oneclickcontent-titles' ),
+				'group'       => __( 'Signals', 'oneclickcontent-titles' ),
+			),
+			array(
+				'label'       => __( 'Best / Current badges', 'oneclickcontent-titles' ),
+				'description' => __( 'Best marks the strongest scored option. Current marks your post’s existing live title for comparison.', 'oneclickcontent-titles' ),
+				'group'       => __( 'Rows', 'oneclickcontent-titles' ),
+			),
+			array(
+				'label'       => __( 'Apply / Undo / Iterate buttons', 'oneclickcontent-titles' ),
+				'description' => __( 'Apply sets the title in the editor. Undo restores the previous title. Iterate buttons request focused rewrites.', 'oneclickcontent-titles' ),
+				'group'       => __( 'Rows', 'oneclickcontent-titles' ),
+			),
+		);
+
+		$best_practices = array(
+			__( 'Match the Goal to the page intent before generating titles.', 'oneclickcontent-titles' ),
+			__( 'Prioritize clarity first, then curiosity. Avoid misleading promises.', 'oneclickcontent-titles' ),
+			__( 'Use one primary keyword naturally in the title.', 'oneclickcontent-titles' ),
+			__( 'Aim for strong, specific nouns and verbs instead of vague wording.', 'oneclickcontent-titles' ),
+			__( 'Keep title width in range using the pixel meter, not only character count.', 'oneclickcontent-titles' ),
+			__( 'Use Score Current Title before replacing an existing high performer.', 'oneclickcontent-titles' ),
+			__( 'Save voice samples in real projects so future generations match your brand tone.', 'oneclickcontent-titles' ),
+		);
+
+		$common_mistakes = array(
+			__( 'Choosing a style before deciding the actual publishing goal.', 'oneclickcontent-titles' ),
+			__( 'Overloading the title with too many keywords.', 'oneclickcontent-titles' ),
+			__( 'Using curiosity language that does not match the article promise.', 'oneclickcontent-titles' ),
+			__( 'Ignoring preview width and publishing truncated headlines.', 'oneclickcontent-titles' ),
+			__( 'Applying a title without comparing against the current one.', 'oneclickcontent-titles' ),
+		);
+		?>
+		<div class="wrap occ_titles_help">
+			<section class="occ_titles_help__hero">
+				<div class="occ_titles_help__hero_content">
+					<p class="occ_titles_help__eyebrow"><?php esc_html_e( 'Editor Training', 'oneclickcontent-titles' ); ?></p>
+					<h1><?php esc_html_e( 'Title Help and Training', 'oneclickcontent-titles' ); ?></h1>
+					<p><?php esc_html_e( 'Use this page as your team playbook for writing titles with confidence. It combines workflow, scoring guidance, and clear definitions so editors can make consistent decisions.', 'oneclickcontent-titles' ); ?></p>
+					<div class="occ_titles_help__hero_actions">
+						<a class="button button-primary" href="<?php echo esc_url( admin_url( 'options-general.php?page=occ_titles-settings' ) ); ?>">
+							<?php esc_html_e( 'Open Plugin Settings', 'oneclickcontent-titles' ); ?>
+						</a>
+						<a class="button button-secondary" href="<?php echo esc_url( admin_url( 'options-general.php?page=occ_titles-settings' ) ); ?>">
+							<?php esc_html_e( 'Configure Provider and Post Types', 'oneclickcontent-titles' ); ?>
+						</a>
+					</div>
+				</div>
+				<div class="occ_titles_help__hero_stats">
+					<div class="occ_titles_help__stat_card">
+						<span class="occ_titles_help__stat_value">4</span>
+						<span class="occ_titles_help__stat_label"><?php esc_html_e( 'Workflow steps', 'oneclickcontent-titles' ); ?></span>
+					</div>
+					<div class="occ_titles_help__stat_card">
+						<span class="occ_titles_help__stat_value"><?php echo esc_html( (string) count( $label_definitions ) ); ?></span>
+						<span class="occ_titles_help__stat_label"><?php esc_html_e( 'UI labels explained', 'oneclickcontent-titles' ); ?></span>
+					</div>
+					<div class="occ_titles_help__stat_card">
+						<span class="occ_titles_help__stat_value"><?php esc_html_e( '560-600', 'oneclickcontent-titles' ); ?></span>
+						<span class="occ_titles_help__stat_label"><?php esc_html_e( 'Pixel target range', 'oneclickcontent-titles' ); ?></span>
+					</div>
+				</div>
+			</section>
+
+			<section class="occ_titles_help__section">
+				<div class="occ_titles_help__section_header">
+					<h2><?php esc_html_e( 'Quick Workflow', 'oneclickcontent-titles' ); ?></h2>
+					<p><?php esc_html_e( 'Teach this exact order so your writers get predictable outputs and fewer rewrites.', 'oneclickcontent-titles' ); ?></p>
+				</div>
+				<ol class="occ_titles_help__timeline">
+					<li><?php esc_html_e( 'Open the post editor and launch the title panel.', 'oneclickcontent-titles' ); ?></li>
+					<li><?php esc_html_e( 'Choose Goal and Style, then set optional keyword targets.', 'oneclickcontent-titles' ); ?></li>
+					<li><?php esc_html_e( 'Generate titles and compare score, insights, and preview.', 'oneclickcontent-titles' ); ?></li>
+					<li><?php esc_html_e( 'Apply the strongest option and publish.', 'oneclickcontent-titles' ); ?></li>
+				</ol>
+			</section>
+
+			<section class="occ_titles_help__section">
+				<div class="occ_titles_help__section_header">
+					<h2><?php esc_html_e( 'How Scoring Works', 'oneclickcontent-titles' ); ?></h2>
+					<p><?php esc_html_e( 'The score combines multiple signals and adapts weights to your selected Goal. This helps the ranking reflect the outcome you actually want.', 'oneclickcontent-titles' ); ?></p>
+				</div>
+				<div class="occ_titles_help__glossary">
+					<article class="occ_titles_help__glossary_item">
+						<div class="occ_titles_help__glossary_meta"><?php esc_html_e( 'Core signal', 'oneclickcontent-titles' ); ?></div>
+						<h3><?php esc_html_e( 'Length score', 'oneclickcontent-titles' ); ?></h3>
+						<p><?php esc_html_e( 'Higher when the title stays in the recommended range (about 50 to 60 characters).', 'oneclickcontent-titles' ); ?></p>
+					</article>
+					<article class="occ_titles_help__glossary_item">
+						<div class="occ_titles_help__glossary_meta"><?php esc_html_e( 'Core signal', 'oneclickcontent-titles' ); ?></div>
+						<h3><?php esc_html_e( 'Sentiment score', 'oneclickcontent-titles' ); ?></h3>
+						<p><?php esc_html_e( 'Positive and neutral phrasing generally score better than negative phrasing.', 'oneclickcontent-titles' ); ?></p>
+					</article>
+					<article class="occ_titles_help__glossary_item">
+						<div class="occ_titles_help__glossary_meta"><?php esc_html_e( 'Core signal', 'oneclickcontent-titles' ); ?></div>
+						<h3><?php esc_html_e( 'Keyword fit score', 'oneclickcontent-titles' ); ?></h3>
+						<p><?php esc_html_e( 'Uses selected or returned keywords to measure fit for short headline length. If no keyword targets are provided, this factor is neutral.', 'oneclickcontent-titles' ); ?></p>
+					</article>
+					<article class="occ_titles_help__glossary_item">
+						<div class="occ_titles_help__glossary_meta"><?php esc_html_e( 'Core signal', 'oneclickcontent-titles' ); ?></div>
+						<h3><?php esc_html_e( 'Readability score', 'oneclickcontent-titles' ); ?></h3>
+						<p><?php esc_html_e( 'Rewards titles that are easy to parse quickly while scanning results.', 'oneclickcontent-titles' ); ?></p>
+					</article>
+					<article class="occ_titles_help__glossary_item">
+						<div class="occ_titles_help__glossary_meta"><?php esc_html_e( 'Additional signals', 'oneclickcontent-titles' ); ?></div>
+						<h3><?php esc_html_e( 'Intent, opening, specificity, clarity, and pixel fit', 'oneclickcontent-titles' ); ?></h3>
+						<p><?php esc_html_e( 'These signals refine ranking quality for each goal. Example: Rank for keyword weighs keyword fit higher, while Increase CTR weighs opening and specificity higher.', 'oneclickcontent-titles' ); ?></p>
+					</article>
+				</div>
+				<p class="description">
+					<?php esc_html_e( 'Quality gate (Pass / Needs work) is separate from overall score. It checks practical readiness conditions, while the weighted score and letter grade (A/B/C) rank options against each other.', 'oneclickcontent-titles' ); ?>
+				</p>
+			</section>
+
+			<section class="occ_titles_help__section">
+				<div class="occ_titles_help__section_header">
+					<h2><?php esc_html_e( 'Training Steps', 'oneclickcontent-titles' ); ?></h2>
+					<p><?php esc_html_e( 'Replace each placeholder with your own screenshots after recording your internal process.', 'oneclickcontent-titles' ); ?></p>
+				</div>
+				<div class="occ_titles_help__step_grid">
+					<?php foreach ( $training_steps as $step ) : ?>
+						<article class="occ_titles_help__step_card">
+							<div class="occ_titles_help__step_head">
+								<span class="occ_titles_help__step_badge"><?php echo esc_html( $step['step'] ); ?></span>
+								<h3><?php echo esc_html( $step['title'] ); ?></h3>
+							</div>
+							<p><?php echo esc_html( $step['content'] ); ?></p>
+							<p class="occ_titles_help__step_focus"><?php echo esc_html( $step['focus'] ); ?></p>
+							<figure class="occ_titles_help__media">
+								<img src="<?php echo esc_url( $step['image'] ); ?>" alt="<?php echo esc_attr( $step['alt'] ); ?>" />
+								<figcaption><?php esc_html_e( 'Placeholder image. Replace with your real screenshot.', 'oneclickcontent-titles' ); ?></figcaption>
+							</figure>
+						</article>
+					<?php endforeach; ?>
+				</div>
+			</section>
+
+			<section class="occ_titles_help__section">
+				<div class="occ_titles_help__section_header">
+					<h2><?php esc_html_e( 'Label Glossary', 'oneclickcontent-titles' ); ?></h2>
+					<p><?php esc_html_e( 'Give this section to new editors so they understand exactly what each signal means.', 'oneclickcontent-titles' ); ?></p>
+				</div>
+				<div class="occ_titles_help__glossary">
+					<?php foreach ( $label_definitions as $row ) : ?>
+						<article class="occ_titles_help__glossary_item">
+							<div class="occ_titles_help__glossary_meta"><?php echo esc_html( $row['group'] ); ?></div>
+							<h3><?php echo esc_html( $row['label'] ); ?></h3>
+							<p><?php echo esc_html( $row['description'] ); ?></p>
+						</article>
+					<?php endforeach; ?>
+				</div>
+			</section>
+
+			<section class="occ_titles_help__section">
+				<div class="occ_titles_help__section_header">
+					<h2><?php esc_html_e( 'Best Practices and Pitfalls', 'oneclickcontent-titles' ); ?></h2>
+					<p><?php esc_html_e( 'Use this as a final quality check before publishing.', 'oneclickcontent-titles' ); ?></p>
+				</div>
+				<div class="occ_titles_help__two_col">
+					<div class="occ_titles_help__panel">
+						<h3><?php esc_html_e( 'Do This', 'oneclickcontent-titles' ); ?></h3>
+						<ul>
+							<?php foreach ( $best_practices as $practice ) : ?>
+								<li><?php echo esc_html( $practice ); ?></li>
+							<?php endforeach; ?>
+						</ul>
+					</div>
+					<div class="occ_titles_help__panel occ_titles_help__panel_warning">
+						<h3><?php esc_html_e( 'Avoid This', 'oneclickcontent-titles' ); ?></h3>
+						<ul>
+							<?php foreach ( $common_mistakes as $mistake ) : ?>
+								<li><?php echo esc_html( $mistake ); ?></li>
+							<?php endforeach; ?>
+						</ul>
+					</div>
+				</div>
+			</section>
 		</div>
 		<?php
 	}

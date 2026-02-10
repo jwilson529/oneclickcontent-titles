@@ -1,10 +1,8 @@
-# WordPress plugin development ignores
-
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# Editor settings
+# Editors
 .idea/
 .vscode/
 *.sublime-project
@@ -14,51 +12,47 @@ Thumbs.db
 node_modules/
 vendor/
 
-# Build/dist artifacts
-dist/
-build/
+# Local WP harness
+.wp-core/
+.wp-tests/
+
+# Build artifacts
+.dist/
 oneclickcontent-titles/
 *.zip
 *.tar.gz
 *.rar
 
-# Caches
+# QA outputs and caches
+check.txt
+phpmd.txt
+plugincheck.txt
+coverage/
 .cache/
 .sass-cache/
 .npm/
 .yarn/
-.wp-core/
-.wp-tests/
 .phpunit.result.cache
 .phpcs.cache
 .eslintcache
 
-# Logs and temp files
+# Logs and temp
 *.log
 *.tmp
 *.swp
 *.bak
 session_id.txt
+
+# Local automation artifacts
 .codex_index.json
 .codex_run_meta.json
 .codex_tasks.csv
 .codex-backups/
-coverage/
-.wp-core/
-.wp-tests/
-phpcs.xml.dist
-phpunit.xml.dist
-docker-compose.yml
-bin/
 Screenshot*.png
+screencapture-*.png
 UX_SUGGESTIONS.md
 codex-yolo
 
-# Test/QA outputs
-check.txt
-phpmd.txt
-plugincheck.txt
-
-# Environment files
+# Environment
 .env
 .env.*.local

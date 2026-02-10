@@ -132,19 +132,266 @@
         }
 
         /**
-         * Calculates an overall score for the title.
+         * Clamp a score to 0-100.
          *
-         * @param {number} seo_score SEO score.
-         * @param {string} sentiment Sentiment type.
-         * @param {number} keyword_density Keyword density ratio.
-         * @param {number} readability_score Readability score.
-         * @return {number} Overall score.
+         * @param {number} score Raw score.
+         * @return {number} Clamped score.
          */
-        function calculate_overall_score( seo_score, sentiment, keyword_density, readability_score ) {
-            var sentiment_score           = sentiment === 'Positive' ? 100 : ( sentiment === 'Neutral' ? 75 : 50 );
-            var keyword_density_score     = keyword_density >= 0.01 && keyword_density <= 0.03 ? 100 : 50;
-            var readability_score_normalized = 100 - Math.abs( readability_score - 10 ) * 10;
-            return ( seo_score + sentiment_score + keyword_density_score + readability_score_normalized ) / 4;
+        function clamp_score( score ) {
+            return Math.max( 0, Math.min( 100, score ) );
+        }
+
+        /**
+         * Get a normalized goal key.
+         *
+         * @param {string} goal Goal label.
+         * @return {string} Normalized goal key.
+         */
+        function get_goal_key( goal ) {
+            return ( goal || '' ).toLowerCase().trim();
+        }
+
+        /**
+         * Get goal-specific score weights.
+         *
+         * @param {string} goal Goal label.
+         * @return {Object} Weight profile.
+         */
+        function get_goal_weight_profile( goal ) {
+            var goal_key = get_goal_key( goal );
+            var profile = {
+                label: 'Balanced',
+                weights: {
+                    intent: 0.18,
+                    keyword: 0.16,
+                    length: 0.12,
+                    pixel: 0.12,
+                    specificity: 0.11,
+                    opening: 0.10,
+                    clarity: 0.09,
+                    readability: 0.07,
+                    sentiment: 0.05
+                }
+            };
+
+            if ( goal_key.indexOf( 'rank for keyword' ) !== -1 ) {
+                profile.label = 'SEO';
+                profile.weights = {
+                    intent: 0.15,
+                    keyword: 0.24,
+                    length: 0.14,
+                    pixel: 0.13,
+                    specificity: 0.10,
+                    opening: 0.07,
+                    clarity: 0.08,
+                    readability: 0.05,
+                    sentiment: 0.04
+                };
+            } else if ( goal_key.indexOf( 'increase ctr' ) !== -1 ) {
+                profile.label = 'CTR';
+                profile.weights = {
+                    intent: 0.20,
+                    keyword: 0.12,
+                    length: 0.11,
+                    pixel: 0.10,
+                    specificity: 0.14,
+                    opening: 0.14,
+                    clarity: 0.09,
+                    readability: 0.05,
+                    sentiment: 0.05
+                };
+            } else if ( goal_key.indexOf( 'discover' ) !== -1 || goal_key.indexOf( 'social' ) !== -1 ) {
+                profile.label = 'Discovery';
+                profile.weights = {
+                    intent: 0.20,
+                    keyword: 0.10,
+                    length: 0.10,
+                    pixel: 0.14,
+                    specificity: 0.13,
+                    opening: 0.15,
+                    clarity: 0.08,
+                    readability: 0.04,
+                    sentiment: 0.06
+                };
+            } else if ( goal_key.indexOf( 'thought leadership' ) !== -1 ) {
+                profile.label = 'Authority';
+                profile.weights = {
+                    intent: 0.20,
+                    keyword: 0.10,
+                    length: 0.10,
+                    pixel: 0.09,
+                    specificity: 0.16,
+                    opening: 0.08,
+                    clarity: 0.14,
+                    readability: 0.09,
+                    sentiment: 0.04
+                };
+            } else if ( goal_key.indexOf( 'lead gen' ) !== -1 ) {
+                profile.label = 'Lead Gen';
+                profile.weights = {
+                    intent: 0.22,
+                    keyword: 0.12,
+                    length: 0.10,
+                    pixel: 0.10,
+                    specificity: 0.14,
+                    opening: 0.13,
+                    clarity: 0.12,
+                    readability: 0.04,
+                    sentiment: 0.03
+                };
+            }
+
+            return profile;
+        }
+
+        /**
+         * Score intent match.
+         *
+         * @param {Object} metrics Metrics object.
+         * @return {number} Intent score.
+         */
+        function score_intent_match( metrics ) {
+            var goal_key = get_goal_key( metrics.goal );
+            var title = ( metrics.title || '' ).toLowerCase();
+            var score = 72;
+
+            if ( ! goal_key ) {
+                return score;
+            }
+
+            if ( goal_key.indexOf( 'rank for keyword' ) !== -1 ) {
+                if ( metrics.has_keyword_targets && metrics.keyword_density > 0 ) {
+                    score += 18;
+                }
+                if ( title.indexOf( 'seo' ) !== -1 || title.indexOf( 'guide' ) !== -1 || metrics.starts_strong ) {
+                    score += 8;
+                }
+            } else if ( goal_key.indexOf( 'increase ctr' ) !== -1 ) {
+                if ( metrics.has_power_word || metrics.starts_strong ) {
+                    score += 15;
+                }
+                if ( metrics.has_number ) {
+                    score += 8;
+                }
+            } else if ( goal_key.indexOf( 'discover' ) !== -1 || goal_key.indexOf( 'social' ) !== -1 ) {
+                if ( metrics.has_power_word || metrics.has_number ) {
+                    score += 12;
+                }
+                if ( metrics.pixel_width >= 540 && metrics.pixel_width <= 620 ) {
+                    score += 10;
+                }
+            } else if ( goal_key.indexOf( 'thought leadership' ) !== -1 ) {
+                if ( metrics.readability_score >= 2.5 && metrics.readability_score <= 6.5 ) {
+                    score += 10;
+                }
+                if ( metrics.word_count >= 7 && metrics.word_count <= 12 ) {
+                    score += 10;
+                }
+            } else if ( goal_key.indexOf( 'lead gen' ) !== -1 ) {
+                if ( title.indexOf( 'how to' ) !== -1 || title.indexOf( 'why' ) !== -1 || title.indexOf( 'best' ) !== -1 ) {
+                    score += 12;
+                }
+                if ( metrics.has_power_word || metrics.starts_strong ) {
+                    score += 10;
+                }
+            }
+
+            return clamp_score( score );
+        }
+
+        /**
+         * Calculate expanded signal scores.
+         *
+         * @param {Object} metrics Metrics object.
+         * @return {Object} Signal scores.
+         */
+        function calculate_signal_scores( metrics ) {
+            var readability_score_normalized = clamp_score( 100 - Math.abs( metrics.readability_score - 4.5 ) * 16 );
+            var sentiment_score = metrics.sentiment === 'Positive' ? 100 : ( metrics.sentiment === 'Neutral' ? 75 : 50 );
+            var keyword_score = 75;
+
+            if ( metrics.has_keyword_targets ) {
+                if ( metrics.keyword_density > 0 && metrics.keyword_density <= 0.30 ) {
+                    keyword_score = 100;
+                } else if ( metrics.keyword_density > 0.30 && metrics.keyword_density <= 0.45 ) {
+                    keyword_score = 70;
+                } else {
+                    keyword_score = 45;
+                }
+            }
+
+            var pixel_score = 50;
+            if ( metrics.pixel_width >= 560 && metrics.pixel_width <= 600 ) {
+                pixel_score = 100;
+            } else if ( metrics.pixel_width >= 540 && metrics.pixel_width <= 620 ) {
+                pixel_score = 85;
+            } else if ( metrics.pixel_width >= 520 && metrics.pixel_width <= 640 ) {
+                pixel_score = 70;
+            }
+
+            var opening_score = 55;
+            if ( metrics.has_power_word && metrics.starts_strong ) {
+                opening_score = 100;
+            } else if ( metrics.has_power_word || metrics.starts_strong ) {
+                opening_score = 82;
+            }
+
+            var specificity_score = 50;
+            if ( metrics.has_number ) {
+                specificity_score += 20;
+            }
+            if ( metrics.has_separator ) {
+                specificity_score += 15;
+            }
+            if ( metrics.word_count >= 6 && metrics.word_count <= 12 ) {
+                specificity_score += 15;
+            }
+
+            var clarity_score = metrics.word_count >= 7 && metrics.word_count <= 12 ? 100 : ( metrics.word_count >= 5 && metrics.word_count <= 14 ? 80 : 62 );
+            if ( /[!?]{2,}/.test( metrics.title ) ) {
+                clarity_score -= 20;
+            }
+
+            return {
+                length: metrics.seo_data.score,
+                pixel: pixel_score,
+                keyword: keyword_score,
+                readability: readability_score_normalized,
+                sentiment: sentiment_score,
+                opening: opening_score,
+                specificity: clamp_score( specificity_score ),
+                clarity: clamp_score( clarity_score ),
+                intent: score_intent_match( metrics )
+            };
+        }
+
+        /**
+         * Calculate weighted score from signal scores.
+         *
+         * @param {Object} signal_scores Signal scores.
+         * @param {Object} weights Weight map.
+         * @return {number} Weighted score.
+         */
+        function calculate_weighted_score( signal_scores, weights ) {
+            return Object.keys( weights ).reduce( function( total, key ) {
+                return total + ( signal_scores[ key ] || 0 ) * weights[ key ];
+            }, 0 );
+        }
+
+        /**
+         * Convert score to letter grade.
+         *
+         * @param {number} score Numeric score.
+         * @return {string} Letter grade.
+         */
+        function get_letter_grade( score ) {
+            if ( score >= 85 ) {
+                return 'A';
+            }
+            if ( score >= 70 ) {
+                return 'B';
+            }
+            return 'C';
         }
 
         /**
@@ -220,7 +467,6 @@
             return '<div class="occ_titles-serp">' +
                 '<div class="occ_titles-serp-url">' + url + '</div>' +
                 '<div class="occ_titles-serp-title">' + title + '</div>' +
-                '<div class="occ_titles-serp-desc">Preview how this title may appear in search results.</div>' +
                 '</div>';
         }
 
@@ -312,19 +558,31 @@
          */
         function get_quality_gate( metrics ) {
             var passes = 0;
+            var checks = 0;
+
+            checks += 1;
             if ( metrics.char_count >= 50 && metrics.char_count <= 60 ) {
                 passes += 1;
             }
-            if ( metrics.keyword_density >= 0.01 && metrics.keyword_density <= 0.03 ) {
+
+            if ( metrics.has_keyword_targets ) {
+                checks += 1;
+                if ( metrics.keyword_density > 0 && metrics.keyword_density <= 0.30 ) {
+                    passes += 1;
+                }
+            }
+
+            checks += 1;
+            if ( metrics.has_power_word || metrics.starts_strong ) {
                 passes += 1;
             }
-            if ( metrics.has_power_word ) {
+
+            checks += 1;
+            if ( metrics.pixel_width >= 540 && metrics.pixel_width <= 620 ) {
                 passes += 1;
             }
-            if ( metrics.starts_strong ) {
-                passes += 1;
-            }
-            return passes >= 3 ? 'Pass' : 'Needs work';
+
+            return passes >= Math.max( 2, Math.ceil( checks * 0.67 ) ) ? 'Pass' : 'Needs work';
         }
 
         /**
@@ -347,10 +605,10 @@
          * @return {string} Fit label.
          */
         function get_keyword_fit_label( density ) {
-            if ( density >= 0.01 && density <= 0.03 ) {
+            if ( density > 0 && density <= 0.30 ) {
                 return 'High';
             }
-            if ( density > 0.03 ) {
+            if ( density > 0.30 ) {
                 return 'Too High';
             }
             return 'Low';
@@ -551,6 +809,9 @@
 
             var all_keywords = [];
             var rows = [];
+            var selected_keywords = get_selected_keywords();
+            var selected_goal = $( '#occ_titles_intent' ).val() || metadata.intent || '';
+            var score_profile = get_goal_weight_profile( selected_goal );
 
             normalized.forEach( function( title_obj, index ) {
                 var title_text = title_obj.text || '';
@@ -558,20 +819,51 @@
                 var sentiment = title_obj.sentiment || 'Neutral';
                 var sentiment_emoji = get_emoji_for_sentiment( sentiment );
                 var keywords = Array.isArray( title_obj.keywords ) ? title_obj.keywords : [];
+                var has_keyword_targets = selected_keywords.length > 0 || keywords.length > 0;
                 var keyword_density = calculate_keyword_density( title_text, keywords );
                 var readability_score = calculate_readability_score( title_text );
                 var seo_data = calculate_seo_grade( char_count );
-                var overall_score = calculate_overall_score( seo_data.score, sentiment, keyword_density, readability_score );
+                var pixel_width = measure_text_width( title_text );
+                var pixel_percent = Math.min( 100, Math.round( ( pixel_width / 600 ) * 100 ) );
                 var has_power_word = /ultimate|best|proven|simple|easy|fast|guide|tips|secrets/i.test( title_text );
-                var starts_strong = /^[0-9]|how|why|what|when|the|this|your/i.test( title_text.toLowerCase() );
+                var has_separator = /[:,\-]/.test( title_text );
+                var has_number = /\d/.test( title_text );
+                var word_count = title_text.split( /\s+/ ).filter( function( word ) {
+                    return word.trim().length > 0;
+                } ).length;
+                var starts_strong = /^(?:[0-9]|how|why|what|when|the|this|your)\b/i.test( title_text.trim() );
+                var signal_scores = calculate_signal_scores( {
+                    title: title_text,
+                    goal: selected_goal,
+                    seo_data: seo_data,
+                    sentiment: sentiment,
+                    keyword_density: keyword_density,
+                    readability_score: readability_score,
+                    has_keyword_targets: has_keyword_targets,
+                    has_power_word: has_power_word,
+                    has_separator: has_separator,
+                    has_number: has_number,
+                    starts_strong: starts_strong,
+                    pixel_width: pixel_width,
+                    word_count: word_count
+                } );
+                var overall_score = calculate_weighted_score( signal_scores, score_profile.weights );
                 var gate = get_quality_gate( {
                     char_count: char_count,
                     keyword_density: keyword_density,
+                    has_keyword_targets: has_keyword_targets,
                     has_power_word: has_power_word,
-                    starts_strong: starts_strong
+                    starts_strong: starts_strong,
+                    pixel_width: pixel_width
                 } );
-                var pixel_width = measure_text_width( title_text );
-                var pixel_percent = Math.min( 100, Math.round( ( pixel_width / 600 ) * 100 ) );
+                var grade = get_letter_grade( overall_score );
+                var signal_summary = [
+                    'Intent ' + Math.round( signal_scores.intent ),
+                    'Keyword ' + Math.round( signal_scores.keyword ),
+                    'Specificity ' + Math.round( signal_scores.specificity ),
+                    'Opening ' + Math.round( signal_scores.opening ),
+                    'Pixel ' + Math.round( signal_scores.pixel )
+                ].join( ' • ' );
 
                 var row_data = {
                     index: index,
@@ -583,8 +875,10 @@
                     readability: readability_score,
                     seo: seo_data,
                     overall_score: overall_score,
+                    grade: grade,
                     style: title_obj.style || metadata.style || '',
                     gate: gate,
+                    signal_summary: signal_summary,
                     pixel_width: pixel_width,
                     pixel_percent: pixel_percent,
                     is_current: !! title_obj.is_current
@@ -650,8 +944,11 @@
                 $meter.find( 'span' ).css( 'width', Math.min( 100, overall_score_formatted ) + '%' );
                 $score_cell.append( $meter );
                 $score_cell.append( '<div class="occ_titles-score-value">' + overall_score_formatted + '</div>' );
+                $score_cell.append( '<div class="occ_titles-grade occ_titles-grade-' + row_data.grade.toLowerCase() + '">Grade ' + row_data.grade + '</div>' );
 
                 var $insights_cell = $( '<td class="occ_titles-col-insights"></td>' );
+                var $signal_breakdown = $( '<div class="occ_titles-signal-breakdown"></div>' );
+                $signal_breakdown.text( row_data.signal_summary );
                 var $chips = $( '<div class="occ_titles-chips"></div>' );
                 $chips.append( '<span class="occ_titles-chip occ_titles-gate ' + ( row_data.gate === 'Pass' ? 'is-pass' : 'is-warning' ) + '">' + row_data.gate + '</span>' );
                 $chips.append( '<span class="occ_titles-chip">Sentiment: ' + row_data.sentiment + ' ' + row_data.sentiment_emoji + '</span>' );
@@ -662,6 +959,8 @@
                 $chips.append( '<span class="occ_titles-chip">Keyword fit: ' + keyword_fit + '</span>' );
                 $chips.append( '<span class="occ_titles-chip">Readability: ' + readability_formatted + '</span>' );
                 $chips.append( '<span class="occ_titles-chip">Density: ' + keyword_density_pct + '</span>' );
+                $chips.append( '<span class="occ_titles-chip">Profile: ' + score_profile.label + '</span>' );
+                $insights_cell.append( $signal_breakdown );
                 $insights_cell.append( $chips );
 
                 var $keywords_cell = $( '<td class="occ_titles-col-keywords"></td>' ).text( keywords_list );
@@ -686,6 +985,9 @@
                 '</div>' +
                 '<div class="occ_titles-guidance-card">' +
                     '<strong>Pixel target:</strong> 560 to 600 px. Google trims headlines by pixel width, not character count.' +
+                '</div>' +
+                '<div class="occ_titles-guidance-card">' +
+                    '<strong>Score logic:</strong> 9 signals are weighted by goal (' + score_profile.label + ' profile). Grade bands: A (85+), B (70-84), C (&lt;70).' +
                 '</div>' +
                 '<div class="occ_titles-guidance-card"><strong>Keywords used:</strong> ' + keywords_summary + '</div>'
             );
