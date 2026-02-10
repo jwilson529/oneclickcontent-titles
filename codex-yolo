@@ -1191,6 +1191,29 @@ This repository will always be a WordPress plugin. Plugin specific details, such
 
 ---
 
+## Available Skills (Local)
+
+When a task matches a skill name or description, open its `SKILL.md` and follow it for that turn. If multiple skills apply, use the minimal set that covers the request, in a clear order.
+
+- pdf: Read/create/review PDFs with layout-sensitive checks. (file: /Users/jameswilson/.codex/skills/pdf/SKILL.md)
+- wordpress-router: Classify WordPress repos and route to the right workflow. (file: /Users/jameswilson/.codex/skills/wordpress-router/SKILL.md)
+- wp-abilities-api: Use for WordPress Abilities API definitions and REST exposure. (file: /Users/jameswilson/.codex/skills/wp-abilities-api/SKILL.md)
+- wp-block-development: Gutenberg block development workflows. (file: /Users/jameswilson/.codex/skills/wp-block-development/SKILL.md)
+- wp-block-themes: Block theme workflows including theme.json/templates/patterns. (file: /Users/jameswilson/.codex/skills/wp-block-themes/SKILL.md)
+- wp-interactivity-api: Interactivity API directives/store/actions. (file: /Users/jameswilson/.codex/skills/wp-interactivity-api/SKILL.md)
+- wp-performance: Backend performance profiling and optimization. (file: /Users/jameswilson/.codex/skills/wp-performance/SKILL.md)
+- wp-phpstan: PHPStan config and fixes for WP projects. (file: /Users/jameswilson/.codex/skills/wp-phpstan/SKILL.md)
+- wp-playground: WP Playground workflows and blueprints. (file: /Users/jameswilson/.codex/skills/wp-playground/SKILL.md)
+- wp-plugin-development: WordPress plugin architecture, hooks, security, packaging. (file: /Users/jameswilson/.codex/skills/wp-plugin-development/SKILL.md)
+- wp-project-triage: Deterministic repo inspection and JSON report. (file: /Users/jameswilson/.codex/skills/wp-project-triage/SKILL.md)
+- wp-rest-api: REST API endpoints, schemas, permissions. (file: /Users/jameswilson/.codex/skills/wp-rest-api/SKILL.md)
+- wp-wpcli-and-ops: WP-CLI operations and automation. (file: /Users/jameswilson/.codex/skills/wp-wpcli-and-ops/SKILL.md)
+- wpds: WordPress Design System UI guidance. (file: /Users/jameswilson/.codex/skills/wpds/SKILL.md)
+- skill-creator: Create or update skills. (file: /Users/jameswilson/.codex/skills/.system/skill-creator/SKILL.md)
+- skill-installer: Install skills from curated list or repo. (file: /Users/jameswilson/.codex/skills/.system/skill-installer/SKILL.md)
+
+---
+
 ## Repository Indexing and State Detection
 
 Before writing or modifying code, you must understand the project structure and important files. Use a cached index when possible instead of re-reading every file on every pass.
@@ -1697,6 +1720,7 @@ This file captures reusable lessons from building WordPress plugins in this repo
 - WP test config must define required constants (e.g., `WP_TESTS_DOMAIN`, `WP_TESTS_EMAIL`, `WP_TESTS_TITLE`, `WP_PHP_BINARY`).
 - The WP tests config must be environment-aware (local vs Docker paths) instead of hardcoding `/work/...`.
 - For Docker DB creation, prefer a `mysql` invocation that works with MariaDB clients (avoid unsupported flags).
+- If local tests depend on a `.wp-tests` directory, ensure bootstrap guards for missing paths and fail with a clear error to avoid confusing PHPUnit failures.
 
 ## Tooling and Standards
 - Use WPCS (Core/Docs/Extra) with `phpcs.xml.dist` and `npm run check` writing to `check.txt`.
@@ -1710,6 +1734,7 @@ This file captures reusable lessons from building WordPress plugins in this repo
 - Avoid anonymous hooks when named methods help testability and unhooking.
 - Implement settings and logging classes early because they affect admin UX and diagnostics.
 - Make internationalization explicit with a text domain and `load_plugin_textdomain` in the main bootstrap.
+- Provide a logger early and make it configurable via a constant or filter so tests can redirect logs to a temp file.
 
 ## Caching and Performance
 - Use object cache + transients with a cache-buster option for invalidation.
@@ -1758,6 +1783,503 @@ EOF
 )
 
 ensure_managed_file "$PLAYBOOK_FILE" "PLAYBOOK.md" "$PLAYBOOK_MARKER" "$PLAYBOOK_CONTENT"
+
+# 0.36 Ensure UI governance docs exist (design/system/flow)
+DESIGN_SYSTEM_FILE="$PLUGIN_DIR/DESIGN_SYSTEM.md"
+DESIGN_SYSTEM_MARKER="<!-- GENERATED_BY_CODEX_YOLO_DESIGN_SYSTEM_V1 -->"
+DESIGN_SYSTEM_CONTENT=$(cat <<'EOF'
+<!-- GENERATED_BY_CODEX_YOLO_DESIGN_SYSTEM_V1 -->
+# DESIGN_SYSTEM.md
+
+## Purpose
+Defines all visual tokens, component standards, and UI consistency rules.
+All UI styling MUST reference values defined in this file. No hardcoded design values allowed.
+
+---
+
+# Core Philosophy
+
+- Simplicity is architecture.
+- Every element must justify its existence.
+- Consistency is mandatory.
+- Mobile-first design is the default.
+- Accessibility is not optional.
+
+---
+
+# Typography
+
+## Font Stack
+Primary:
+- System UI stack or project defined web font
+
+Fallback:
+- Arial, Helvetica, sans-serif
+
+---
+
+## Type Scale
+
+| Token | Size |
+|--------|----------|
+| text-xs | 12px |
+| text-sm | 14px |
+| text-base | 16px |
+| text-lg | 18px |
+| text-xl | 20px |
+| text-2xl | 24px |
+| text-3xl | 32px |
+
+---
+
+## Font Weight Tokens
+
+- weight-regular: 400
+- weight-medium: 500
+- weight-semibold: 600
+- weight-bold: 700
+
+---
+
+# Spacing Scale
+
+All margins, padding, and layout spacing MUST use these values.
+
+| Token | Value |
+|----------|-----------|
+| space-1 | 4px |
+| space-2 | 8px |
+| space-3 | 12px |
+| space-4 | 16px |
+| space-5 | 24px |
+| space-6 | 32px |
+| space-7 | 48px |
+
+---
+
+# Border Radius
+
+- radius-sm: 4px
+- radius-md: 8px
+- radius-lg: 12px
+- radius-xl: 16px
+
+---
+
+# Shadows
+
+- shadow-sm: subtle elevation for cards
+- shadow-md: modals, dropdowns
+- shadow-lg: overlays
+
+---
+
+# Color Tokens
+
+## Semantic Colors
+
+### Primary
+Used for main CTAs and brand highlights.
+
+### Secondary
+Used for supporting elements.
+
+### Success
+Used for confirmations and positive states.
+
+### Warning
+Used for caution and validation warnings.
+
+### Danger
+Used for destructive or error actions.
+
+### Neutral
+Used for backgrounds, borders, and layout separation.
+
+---
+
+# Accessibility Requirements
+
+- Minimum contrast ratio: WCAG AA
+- Focus indicators must be visible
+- Keyboard navigation must function fully
+- Labels required for all form inputs
+
+---
+
+# Layout Rules
+
+- Content should align to consistent grid
+- Vertical rhythm must follow spacing scale
+- Avoid nested card patterns when possible
+
+---
+
+# Component Standards
+
+## Buttons
+
+### Primary Button
+- Used for single main action
+- Must be visually dominant
+
+### Secondary Button
+- Supporting actions only
+
+### Danger Button
+- Destructive actions only
+
+---
+
+## Forms
+
+- Labels must be visible
+- Validation messages must be clear
+- Inline help text allowed
+
+---
+
+## Cards
+
+- Use consistent padding token
+- Use defined radius token
+- Avoid decorative styling without purpose
+
+---
+
+## Tables
+
+- Use consistent row spacing
+- Maintain readable density
+- Provide hover feedback
+
+---
+
+# Responsiveness
+
+- Mobile-first required
+- Touch targets minimum 44px height
+- Layout must adapt fluidly between breakpoints
+
+---
+
+# Motion Guidelines
+
+- Motion must reinforce feedback
+- Avoid decorative animation
+- Transitions must feel natural and responsive
+
+---
+
+# Token Update Rules
+
+If new values are needed:
+
+1. Propose change
+2. Get approval
+3. Add token here
+4. Implement using token
+EOF
+)
+
+ensure_managed_file "$DESIGN_SYSTEM_FILE" "DESIGN_SYSTEM.md" "$DESIGN_SYSTEM_MARKER" "$DESIGN_SYSTEM_CONTENT"
+
+UI_AUDIT_FILE="$PLUGIN_DIR/UI_AUDIT.md"
+UI_AUDIT_MARKER="<!-- GENERATED_BY_CODEX_YOLO_UI_AUDIT_V1 -->"
+UI_AUDIT_CONTENT=$(cat <<'EOF'
+<!-- GENERATED_BY_CODEX_YOLO_UI_AUDIT_V1 -->
+# UI_AUDIT.md
+
+## Purpose
+Tracks UI design audits, phased improvements, and approval status.
+
+---
+
+# Latest Audit
+
+## Overall Assessment
+[Summary of current UI quality]
+
+---
+
+# PHASE 1 — Critical Fixes
+Usability blockers and layout issues.
+
+- [ ] Component:
+  - Problem:
+  - Recommended Fix:
+  - Reason:
+
+---
+
+# PHASE 2 — Refinement
+Improves visual hierarchy and consistency.
+
+- [ ] Component:
+  - Problem:
+  - Recommended Fix:
+  - Reason:
+
+---
+
+# PHASE 3 — Polish
+Premium feel enhancements.
+
+- [ ] Component:
+  - Problem:
+  - Recommended Fix:
+  - Reason:
+
+---
+
+# Approval Log
+
+| Phase | Approved By | Date |
+|-----------|---------------|------------|
+
+---
+
+# Implementation Notes
+
+Detailed instructions for build agent.
+
+---
+
+# Design Scorecard
+
+| Category | Score |
+|---------------|-----------|
+| Hierarchy | |
+| Consistency | |
+| Accessibility | |
+| Responsiveness | |
+| Visual Polish | |
+EOF
+)
+
+ensure_managed_file "$UI_AUDIT_FILE" "UI_AUDIT.md" "$UI_AUDIT_MARKER" "$UI_AUDIT_CONTENT"
+
+APP_FLOW_FILE="$PLUGIN_DIR/APP_FLOW.md"
+APP_FLOW_MARKER="<!-- GENERATED_BY_CODEX_YOLO_APP_FLOW_V1 -->"
+APP_FLOW_CONTENT=$(cat <<'EOF'
+<!-- GENERATED_BY_CODEX_YOLO_APP_FLOW_V1 -->
+# APP_FLOW.md
+
+## Purpose
+Documents user journeys and screen behavior expectations.
+
+---
+
+# Admin User Flow
+
+## Settings Configuration
+
+1. User opens plugin settings
+2. User updates configuration
+3. User saves changes
+4. Confirmation message displayed
+
+---
+
+# Data Management Flow
+
+1. User opens list view
+2. User filters or searches entries
+3. User edits or deletes item
+4. System confirms changes
+
+---
+
+# Front-End Flow
+
+## Form Submission
+
+1. User loads page
+2. User selects location or option
+3. User completes form
+4. Success message appears
+5. Follow-up instructions displayed
+
+---
+
+# Error States
+
+- Display clear and friendly messaging
+- Offer recovery path
+
+---
+
+# Loading States
+
+- Provide spinner or skeleton UI
+- Avoid blank screens
+
+---
+
+# Empty States
+
+- Provide explanation of empty data
+- Provide action to create first entry
+EOF
+)
+
+ensure_managed_file "$APP_FLOW_FILE" "APP_FLOW.md" "$APP_FLOW_MARKER" "$APP_FLOW_CONTENT"
+
+FRONTEND_GUIDELINES_FILE="$PLUGIN_DIR/FRONTEND_GUIDELINES.md"
+FRONTEND_GUIDELINES_MARKER="<!-- GENERATED_BY_CODEX_YOLO_FRONTEND_GUIDELINES_V1 -->"
+FRONTEND_GUIDELINES_CONTENT=$(cat <<'EOF'
+<!-- GENERATED_BY_CODEX_YOLO_FRONTEND_GUIDELINES_V1 -->
+# FRONTEND_GUIDELINES.md
+
+## Purpose
+Defines engineering standards for UI implementation.
+
+---
+
+# Framework Standards
+
+- Bootstrap 5 is the primary UI framework.
+- Use Bootstrap utilities before custom CSS.
+- Avoid overriding Bootstrap core classes unless necessary.
+
+---
+
+# Markup Rules
+
+- Use semantic HTML elements.
+- Avoid div-only structures when semantic elements exist.
+- Maintain consistent indentation.
+
+---
+
+# CSS Rules
+
+- Use token values from DESIGN_SYSTEM.md
+- Avoid hardcoded spacing or color values
+- Group component styles logically
+
+---
+
+# JavaScript UI Behavior
+
+- Avoid heavy UI frameworks unless required
+- Use progressive enhancement
+- Ensure accessibility in dynamic UI
+
+---
+
+# WordPress Admin Styling
+
+- Respect WP admin UI patterns
+- Avoid breaking native admin experience
+- Maintain consistency with WordPress design language
+
+---
+
+# Component Structure
+
+- Each UI component should be reusable
+- Avoid duplicating markup patterns
+- Maintain consistent naming conventions
+
+---
+
+# Accessibility Engineering
+
+- Ensure ARIA labels exist
+- Maintain keyboard navigation
+- Avoid hover-only interactions
+
+---
+
+# Responsiveness
+
+- Validate layouts across:
+  - Mobile
+  - Tablet
+  - Desktop
+
+---
+
+# Testing UI Changes
+
+Before shipping:
+- Verify accessibility
+- Validate responsive layout
+- Confirm token compliance
+EOF
+)
+
+ensure_managed_file "$FRONTEND_GUIDELINES_FILE" "FRONTEND_GUIDELINES.md" "$FRONTEND_GUIDELINES_MARKER" "$FRONTEND_GUIDELINES_CONTENT"
+
+DESIGN_LESSONS_FILE="$PLUGIN_DIR/DESIGN_LESSONS.md"
+DESIGN_LESSONS_MARKER="<!-- GENERATED_BY_CODEX_YOLO_DESIGN_LESSONS_V1 -->"
+DESIGN_LESSONS_CONTENT=$(cat <<'EOF'
+<!-- GENERATED_BY_CODEX_YOLO_DESIGN_LESSONS_V1 -->
+# DESIGN_LESSONS.md
+
+## Purpose
+Stores learned design patterns and recurring mistakes to avoid.
+
+---
+
+# Spacing Lessons
+
+- Avoid stacking multiple spacing utilities.
+- Use consistent vertical rhythm tokens.
+
+---
+
+# Typography Lessons
+
+- Limit number of font sizes on a screen.
+- Use size hierarchy for importance.
+
+---
+
+# Component Lessons
+
+- Reuse button styles consistently.
+- Avoid creating multiple card variations unnecessarily.
+
+---
+
+# Table Lessons
+
+- Maintain readable density.
+- Avoid overcrowded data layouts.
+
+---
+
+# Modal Lessons
+
+- Keep modals focused on single tasks.
+- Avoid multi-step workflows inside modals.
+
+---
+
+# Accessibility Lessons
+
+- Always test keyboard navigation.
+- Ensure contrast compliance.
+
+---
+
+# Interaction Lessons
+
+- Provide feedback for user actions.
+- Avoid decorative animation.
+
+---
+
+# Future Improvements
+
+- Track emerging UI patterns
+- Document reusable design strategies
+EOF
+)
+
+ensure_managed_file "$DESIGN_LESSONS_FILE" "DESIGN_LESSONS.md" "$DESIGN_LESSONS_MARKER" "$DESIGN_LESSONS_CONTENT"
 
 # 0.35 Ensure .gitignore exists with WordPress defaults and Codex artifacts excluded
 GITIGNORE_FILE="$PLUGIN_DIR/.gitignore"

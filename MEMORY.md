@@ -92,3 +92,8 @@ Append a brief recap after each run:
 - Notable changes: Button flashes "Scored" with green styling after insertion.
 - Tool results: npm run fix (clean), npm run check (clean).
 - Remaining gaps: None noted.
+- Date: 2026-02-01
+- Summary: Expanded .gitignore to keep the repo lean by excluding local test and Codex artifacts.
+- Notable changes: Ignored .wp-core/.wp-tests, Codex metadata, coverage, screenshots, and local tooling files.
+- Tool results: Not run (docs/config only).
+- Remaining gaps: None noted.

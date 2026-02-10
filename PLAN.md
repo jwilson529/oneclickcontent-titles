@@ -4,23 +4,22 @@
 Codex must keep this file updated during each run.
 
 ## Goal
-Provide a clear success indicator when scoring the current title.
+Slim the repository by ignoring local test/runtime folders and artifacts.
 
 ## Assumptions
-- A short-lived button state is sufficient.
+- .wp-core and .wp-tests are local-only.
 
 ## Questions (non-blocking)
 - None.
 
 ## Files to change
-- admin/js/occ-titles-admin.js
-- admin/css/occ-titles-admin.css
+- .gitignore
 - PLAN.md
 - MEMORY.md
 
 ## Steps
-1. Add a success state to the Score Current Title button.
-2. Run npm run fix and npm run check.
+1. Add local test/runtime folders and artifacts to .gitignore.
+2. Confirm ignore coverage for Codex artifacts and screenshots.
 
 ## Commands to run
 - npm run fix
@@ -28,5 +27,4 @@ Provide a clear success indicator when scoring the current title.
 - phpunit (if configured)
 
 ## Acceptance criteria
-- Button shows a temporary success state after scoring.
-- PHPCS clean (0 errors, 0 warnings) or explain why not possible.
+- .gitignore excludes .wp-core, .wp-tests, and related local artifacts.

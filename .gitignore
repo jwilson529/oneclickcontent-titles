@@ -27,6 +27,8 @@ oneclickcontent-titles/
 .sass-cache/
 .npm/
 .yarn/
+.wp-core/
+.wp-tests/
 .phpunit.result.cache
 .phpcs.cache
 .eslintcache
@@ -36,6 +38,21 @@ oneclickcontent-titles/
 *.tmp
 *.swp
 *.bak
+session_id.txt
+.codex_index.json
+.codex_run_meta.json
+.codex_tasks.csv
+.codex-backups/
+coverage/
+.wp-core/
+.wp-tests/
+phpcs.xml.dist
+phpunit.xml.dist
+docker-compose.yml
+bin/
+Screenshot*.png
+UX_SUGGESTIONS.md
+codex-yolo
 
 # Test/QA outputs
 check.txt
