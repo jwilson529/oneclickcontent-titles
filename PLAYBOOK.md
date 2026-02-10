@@ -15,6 +15,7 @@ This file captures reusable lessons from building WordPress plugins in this repo
 - WP test config must define required constants (e.g., `WP_TESTS_DOMAIN`, `WP_TESTS_EMAIL`, `WP_TESTS_TITLE`, `WP_PHP_BINARY`).
 - The WP tests config must be environment-aware (local vs Docker paths) instead of hardcoding `/work/...`.
 - For Docker DB creation, prefer a `mysql` invocation that works with MariaDB clients (avoid unsupported flags).
+- If local tests depend on a `.wp-tests` directory, ensure bootstrap guards for missing paths and fail with a clear error to avoid confusing PHPUnit failures.
 
 ## Tooling and Standards
 - Use WPCS (Core/Docs/Extra) with `phpcs.xml.dist` and `npm run check` writing to `check.txt`.
@@ -28,6 +29,7 @@ This file captures reusable lessons from building WordPress plugins in this repo
 - Avoid anonymous hooks when named methods help testability and unhooking.
 - Implement settings and logging classes early because they affect admin UX and diagnostics.
 - Make internationalization explicit with a text domain and `load_plugin_textdomain` in the main bootstrap.
+- Provide a logger early and make it configurable via a constant or filter so tests can redirect logs to a temp file.
 
 ## Caching and Performance
 - Use object cache + transients with a cache-buster option for invalidation.
@@ -72,3 +74,4 @@ This file captures reusable lessons from building WordPress plugins in this repo
 - Maintain a lightweight repo index file to avoid re-reading the full tree on every pass.
 - Update the index after structural or tooling changes.
 - Prefer conservative defaults and keep moving forward without blocking on confirmations.
+[2026-02-10 09:06:37] oneclickcontent-titles | exit=130 | docker=pass | phpcs=dirty | port=33067 | 

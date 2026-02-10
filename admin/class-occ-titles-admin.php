@@ -279,6 +279,19 @@ class Occ_Titles_Admin {
 		$intent     = isset( $_POST['intent'] ) ? sanitize_text_field( wp_unslash( $_POST['intent'] ) ) : '';
 		$ellipsis   = isset( $_POST['ellipsis'] ) ? absint( $_POST['ellipsis'] ) : 0;
 		$keywords   = isset( $_POST['keywords'] ) ? wp_unslash( $_POST['keywords'] ) : array();
+		$post_id    = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+
+		if ( $post_id > 0 && ! current_user_can( 'edit_post', $post_id ) ) {
+			Occ_Titles_Logger::get_instance()->warning(
+				'Title generation denied for post due to insufficient permissions.',
+				array(
+					'post_id'    => $post_id,
+					'capability' => 'edit_post',
+					'request_id' => $request_id,
+				)
+			);
+			wp_send_json_error( array( 'message' => __( 'Permission denied for this post.', 'oneclickcontent-titles' ) ) );
+		}
 
 		if ( is_string( $keywords ) ) {
 			$keywords = array_filter( array_map( 'sanitize_text_field', explode( ',', $keywords ) ) );
@@ -403,13 +416,12 @@ class Occ_Titles_Admin {
 			wp_send_json_error( array( 'message' => __( 'Nonce verification failed.', 'oneclickcontent-titles' ) ) );
 		}
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'oneclickcontent-titles' ) ) );
-		}
-
 		$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
 		if ( ! $post_id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid post ID.', 'oneclickcontent-titles' ) ) );
+		}
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied for this post.', 'oneclickcontent-titles' ) ) );
 		}
 
 		$raw_results = isset( $_POST['results'] ) ? wp_unslash( $_POST['results'] ) : '';
@@ -446,13 +458,12 @@ class Occ_Titles_Admin {
 			wp_send_json_error( array( 'message' => __( 'Nonce verification failed.', 'oneclickcontent-titles' ) ) );
 		}
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'oneclickcontent-titles' ) ) );
-		}
-
 		$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
 		if ( ! $post_id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid post ID.', 'oneclickcontent-titles' ) ) );
+		}
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied for this post.', 'oneclickcontent-titles' ) ) );
 		}
 
 		$results = get_post_meta( $post_id, '_occ_titles_results', true );
@@ -474,11 +485,17 @@ class Occ_Titles_Admin {
 			wp_send_json_error( array( 'message' => __( 'Nonce verification failed.', 'oneclickcontent-titles' ) ) );
 		}
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'oneclickcontent-titles' ) ) );
 		}
 
-		$title = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
+		$title   = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
+		$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+
+		if ( $post_id && ! current_user_can( 'edit_post', $post_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied for this post.', 'oneclickcontent-titles' ) ) );
+		}
+
 		if ( '' === $title ) {
 			wp_send_json_error( array( 'message' => __( 'Missing title.', 'oneclickcontent-titles' ) ) );
 		}

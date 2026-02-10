@@ -1,11 +1,13 @@
 {
   "plugin_slug": "oneclickcontent-titles",
-  "started_at": "2026-01-28T18:30:14Z",
-  "ended_at": "2026-01-28T18:30:14Z",
-  "exit_code": 0,
-  "php_version": "",
+  "started_at": "2026-02-10T14:01:54Z",
+  "ended_at": "2026-02-10T15:06:37Z",
+  "exit_code": 130,
+  "php_version": "8.4.6",
   "git_branch": "main",
-  "git_commit": "5d5986e8bfbe01725b21221baed1517e05e5ddee",
-  "phpcs_errors": 0,
+  "git_commit": "53cde26c2a4c1fd36dbd31475d2ac1248fb15e4b",
+  "phpcs_errors": 0
+0,
   "phpcs_warnings": 0
+0
 }

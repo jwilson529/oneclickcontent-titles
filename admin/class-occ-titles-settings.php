@@ -919,6 +919,17 @@ class Occ_Titles_Settings {
 			wp_send_json_error( array( 'message' => __( 'Invalid nonce', 'oneclickcontent-titles' ) ) );
 		}
 
+		if ( ! current_user_can( 'manage_options' ) ) {
+			Occ_Titles_Logger::get_instance()->warning(
+				'Settings autosave denied due to insufficient permissions.',
+				array(
+					'action'     => 'occ_titles_auto_save',
+					'capability' => 'manage_options',
+				)
+			);
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'oneclickcontent-titles' ) ) );
+		}
+
 		$allowed_fields = array(
 			'occ_titles_ai_provider',
 			'occ_titles_openai_api_key',

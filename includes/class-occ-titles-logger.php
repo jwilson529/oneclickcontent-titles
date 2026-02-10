@@ -132,6 +132,7 @@ class Occ_Titles_Logger {
 
 		$timestamp = current_time( 'mysql' );
 		$context   = is_array( $context ) ? $context : array( 'context' => $context );
+		$context   = $this->sanitize_context( $context );
 		$encoded   = ! empty( $context ) ? wp_json_encode( $context ) : '';
 		$line      = sprintf(
 			'[%1$s] %2$s: %3$s%4$s' . PHP_EOL,
@@ -184,6 +185,13 @@ class Occ_Titles_Logger {
 	private function get_log_file_path() {
 		$default = plugin_dir_path( __DIR__ ) . 'occ-titles.log';
 
+		if ( function_exists( 'wp_upload_dir' ) ) {
+			$upload_dir = wp_upload_dir( null, false );
+			if ( ! empty( $upload_dir['basedir'] ) ) {
+				$default = trailingslashit( $upload_dir['basedir'] ) . 'occ-titles-logs/occ-titles.log';
+			}
+		}
+
 		/**
 		 * Filter the log file path.
 		 *
@@ -212,11 +220,75 @@ class Occ_Titles_Logger {
 			$filesystem->mkdir( $directory );
 		}
 
+		$this->protect_log_directory( $filesystem, $directory );
+
 		if ( $filesystem->exists( $this->log_file ) ) {
 			return $filesystem->is_writable( $this->log_file );
 		}
 
 		return $filesystem->is_writable( $directory );
+	}
+
+	/**
+	 * Protect the log directory from direct access.
+	 *
+	 * @since 1.1.1
+	 * @param WP_Filesystem_Base $filesystem Filesystem instance.
+	 * @param string             $directory  Directory path.
+	 * @return void
+	 */
+	private function protect_log_directory( $filesystem, $directory ) {
+		if ( ! $filesystem->is_dir( $directory ) ) {
+			return;
+		}
+
+		$mode             = defined( 'FS_CHMOD_FILE' ) ? FS_CHMOD_FILE : 0644;
+		$index_file       = trailingslashit( $directory ) . 'index.php';
+		$htaccess_file    = trailingslashit( $directory ) . '.htaccess';
+		$index_contents   = "<?php\n// Silence is golden.\n";
+		$htaccess_content = "Deny from all\n";
+
+		if ( ! $filesystem->exists( $index_file ) ) {
+			$filesystem->put_contents( $index_file, $index_contents, $mode );
+		}
+
+		if ( ! $filesystem->exists( $htaccess_file ) ) {
+			$filesystem->put_contents( $htaccess_file, $htaccess_content, $mode );
+		}
+	}
+
+	/**
+	 * Remove sensitive values from log context.
+	 *
+	 * @since 1.1.1
+	 * @param array $context Log context.
+	 * @return array
+	 */
+	private function sanitize_context( $context ) {
+		$sensitive_terms = array( 'api_key', 'authorization', 'token', 'secret', 'password' );
+		$sanitized       = array();
+
+		foreach ( $context as $key => $value ) {
+			$normalized_key = strtolower( (string) $key );
+			$is_sensitive   = false;
+
+			foreach ( $sensitive_terms as $term ) {
+				if ( false !== strpos( $normalized_key, $term ) ) {
+					$is_sensitive = true;
+					break;
+				}
+			}
+
+			if ( $is_sensitive ) {
+				$sanitized[ $key ] = '[redacted]';
+			} elseif ( is_array( $value ) ) {
+				$sanitized[ $key ] = $this->sanitize_context( $value );
+			} else {
+				$sanitized[ $key ] = $value;
+			}
+		}
+
+		return $sanitized;
 	}
 
 	/**

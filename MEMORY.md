@@ -97,3 +97,19 @@ Append a brief recap after each run:
 - Notable changes: Ignored .wp-core/.wp-tests, Codex metadata, coverage, screenshots, and local tooling files.
 - Tool results: Not run (docs/config only).
 - Remaining gaps: None noted.
+- Date: 2026-02-10
+- Summary: Converged plugin baseline for WPPB structure, lint/test wiring, and metadata sync.
+- Notable changes: Added full `public/` directory scaffold with a public class + assets; wired public hooks in `Occ_Titles`; updated `test:local` script to use Composer PHPUnit.
+- Tool results: `npm run fix` clean, `npm run check` clean (`check.txt` empty), `npm run test:local` passed (12 tests).
+- Remaining gaps: None identified against current SPEC/AGENTS baseline requirements.
+- Date: 2026-02-10
+- Summary: Cleaned packaging workflow and removed generated clutter from repository root.
+- Notable changes: Rewrote `.gitignore` for local artifacts; added `bin/build-dist.sh` allowlist packager; switched `npm run dist` to script; deleted generated screenshots/logs/check outputs and local zip artifacts.
+- Tool results: `npm run dist` created archive; zip listing confirmed no test/dev files included.
+- Remaining gaps: None identified for packaging scope.
+
+## Run recap (2026-02-10 09:06:37)
+- Exit code: 130
+- Docker: pass
+- PHPCS: dirty
+- MySQL port: 33067

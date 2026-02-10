@@ -395,6 +395,24 @@
         }
 
         /**
+         * Escape HTML entities in text.
+         *
+         * @param {string} text Raw text.
+         * @return {string} Escaped text.
+         */
+        function escape_html( text ) {
+            return String( text ).replace( /[&<>"']/g, function( char ) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    '\'': '&#039;'
+                }[ char ];
+            } );
+        }
+
+        /**
          * Normalize titles into a consistent object format.
          *
          * @param {Array} titles Raw titles list.
@@ -464,9 +482,11 @@
         function build_serp_preview( title ) {
             var slug = occ_titles_admin_vars.post_slug || 'sample-slug';
             var url = occ_titles_admin_vars.post_permalink || ( window.location.origin + '/' + slug );
+            var safe_title = escape_html( title );
+            var safe_url = escape_html( url );
             return '<div class="occ_titles-serp">' +
-                '<div class="occ_titles-serp-url">' + url + '</div>' +
-                '<div class="occ_titles-serp-title">' + title + '</div>' +
+                '<div class="occ_titles-serp-url">' + safe_url + '</div>' +
+                '<div class="occ_titles-serp-title">' + safe_title + '</div>' +
                 '</div>';
         }
 
@@ -479,18 +499,21 @@
         function build_discover_preview( title ) {
             var source = window.location.hostname || 'Example News';
             var domain_initial = source ? source.charAt( 0 ).toUpperCase() : 'G';
+            var safe_title = escape_html( title );
+            var safe_source = escape_html( source );
+            var safe_domain_initial = escape_html( domain_initial );
             return '<div class="occ_titles-discover-card">' +
                 '<div class="occ_titles-discover-image">' +
                     '<span class="occ_titles-discover-image-label">Top stories</span>' +
                 '</div>' +
                 '<div class="occ_titles-discover-body">' +
                     '<div class="occ_titles-discover-meta">' +
-                        '<span class="occ_titles-discover-favicon">' + domain_initial + '</span>' +
-                        '<span class="occ_titles-discover-source">' + source + '</span>' +
+                        '<span class="occ_titles-discover-favicon">' + safe_domain_initial + '</span>' +
+                        '<span class="occ_titles-discover-source">' + safe_source + '</span>' +
                         '<span class="occ_titles-discover-dot">•</span>' +
                         '<span class="occ_titles-discover-time">3h</span>' +
                     '</div>' +
-                    '<div class="occ_titles-discover-title">' + title + '</div>' +
+                    '<div class="occ_titles-discover-title">' + safe_title + '</div>' +
                     '<div class="occ_titles-discover-desc">Discover is image-led and scroll-based. Use curiosity and strong entities, but keep the title clear and true.</div>' +
                 '</div>' +
                 '</div>';
@@ -716,9 +739,9 @@
             var $header = $( '<div class="occ_titles-results-header"></div>' );
             var $header_left = $( '<div class="occ_titles-results-summary"></div>' );
             $header_left.append( '<h3 class="occ_titles-results-title">Title Recommendations</h3>' );
-            $header_left.append( '<p class="occ_titles-results-meta">' + header_subtitle + '</p>' );
+            $header_left.append( '<p class="occ_titles-results-meta">' + escape_html( header_subtitle ) + '</p>' );
             if ( provider_label ) {
-                $header_left.append( '<p class="occ_titles-results-provider">' + provider_label + '</p>' );
+                $header_left.append( '<p class="occ_titles-results-provider">' + escape_html( provider_label ) + '</p>' );
             }
 
             var $header_actions = $( '<div class="occ_titles-results-actions"></div>' );
@@ -944,22 +967,22 @@
                 $meter.find( 'span' ).css( 'width', Math.min( 100, overall_score_formatted ) + '%' );
                 $score_cell.append( $meter );
                 $score_cell.append( '<div class="occ_titles-score-value">' + overall_score_formatted + '</div>' );
-                $score_cell.append( '<div class="occ_titles-grade occ_titles-grade-' + row_data.grade.toLowerCase() + '">Grade ' + row_data.grade + '</div>' );
+                $score_cell.append( '<div class="occ_titles-grade occ_titles-grade-' + row_data.grade.toLowerCase() + '">Grade ' + escape_html( row_data.grade ) + '</div>' );
 
                 var $insights_cell = $( '<td class="occ_titles-col-insights"></td>' );
                 var $signal_breakdown = $( '<div class="occ_titles-signal-breakdown"></div>' );
                 $signal_breakdown.text( row_data.signal_summary );
                 var $chips = $( '<div class="occ_titles-chips"></div>' );
-                $chips.append( '<span class="occ_titles-chip occ_titles-gate ' + ( row_data.gate === 'Pass' ? 'is-pass' : 'is-warning' ) + '">' + row_data.gate + '</span>' );
-                $chips.append( '<span class="occ_titles-chip">Sentiment: ' + row_data.sentiment + ' ' + row_data.sentiment_emoji + '</span>' );
+                $chips.append( '<span class="occ_titles-chip occ_titles-gate ' + ( row_data.gate === 'Pass' ? 'is-pass' : 'is-warning' ) + '">' + escape_html( row_data.gate ) + '</span>' );
+                $chips.append( '<span class="occ_titles-chip">Sentiment: ' + escape_html( row_data.sentiment ) + ' ' + escape_html( row_data.sentiment_emoji ) + '</span>' );
                 if ( row_data.style ) {
-                    $chips.append( '<span class="occ_titles-chip">Style: ' + row_data.style + '</span>' );
+                    $chips.append( '<span class="occ_titles-chip">Style: ' + escape_html( row_data.style ) + '</span>' );
                 }
-                $chips.append( '<span class="occ_titles-chip">Length: ' + length_label + '</span>' );
-                $chips.append( '<span class="occ_titles-chip">Keyword fit: ' + keyword_fit + '</span>' );
-                $chips.append( '<span class="occ_titles-chip">Readability: ' + readability_formatted + '</span>' );
-                $chips.append( '<span class="occ_titles-chip">Density: ' + keyword_density_pct + '</span>' );
-                $chips.append( '<span class="occ_titles-chip">Profile: ' + score_profile.label + '</span>' );
+                $chips.append( '<span class="occ_titles-chip">Length: ' + escape_html( length_label ) + '</span>' );
+                $chips.append( '<span class="occ_titles-chip">Keyword fit: ' + escape_html( keyword_fit ) + '</span>' );
+                $chips.append( '<span class="occ_titles-chip">Readability: ' + escape_html( readability_formatted ) + '</span>' );
+                $chips.append( '<span class="occ_titles-chip">Density: ' + escape_html( keyword_density_pct ) + '</span>' );
+                $chips.append( '<span class="occ_titles-chip">Profile: ' + escape_html( score_profile.label ) + '</span>' );
                 $insights_cell.append( $signal_breakdown );
                 $insights_cell.append( $chips );
 
@@ -989,7 +1012,7 @@
                 '<div class="occ_titles-guidance-card">' +
                     '<strong>Score logic:</strong> 9 signals are weighted by goal (' + score_profile.label + ' profile). Grade bands: A (85+), B (70-84), C (&lt;70).' +
                 '</div>' +
-                '<div class="occ_titles-guidance-card"><strong>Keywords used:</strong> ' + keywords_summary + '</div>'
+                '<div class="occ_titles-guidance-card"><strong>Keywords used:</strong> ' + escape_html( keywords_summary ) + '</div>'
             );
             $container.find( '.occ_titles-guidance' ).remove();
             $container.find( '.occ_titles-controls' ).after( $guidance );
@@ -1065,7 +1088,8 @@
                 data: {
                     action: 'occ_titles_save_voice_sample',
                     nonce: occ_titles_admin_vars.occ_titles_ajax_nonce,
-                    title: title
+                    title: title,
+                    post_id: get_post_id()
                 }
             } );
         }

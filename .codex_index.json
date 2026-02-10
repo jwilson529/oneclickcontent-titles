@@ -1,5 +1,5 @@
 {
-  "current_commit": "e035eec0078e712424f5e19da32c184de851153c",
+  "current_commit": "70a6a917691d409b6bb7e910f974ceae6e850d72",
   "working_tree_dirty": true,
   "files": {
     "main_plugin_file": "oneclickcontent-titles.php",
@@ -20,6 +20,11 @@
       "admin/js/occ-titles-settings.js",
       "admin/css/occ-titles-admin.css"
     ],
+    "public_ui": [
+      "public/class-occ-titles-public.php",
+      "public/css/occ-titles-public.css",
+      "public/js/occ-titles-public.js"
+    ],
     "tests": [
       "tests/bootstrap.php",
       "tests/test-case.php",
@@ -38,6 +43,7 @@
       "plugin-error.log"
     ],
     "build_tooling": [
+      "bin/build-dist.sh",
       "composer.json",
       "package.json",
       "phpcs.xml",

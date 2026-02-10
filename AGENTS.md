@@ -19,6 +19,29 @@ This repository will always be a WordPress plugin. Plugin specific details, such
 
 ---
 
+## Available Skills (Local)
+
+When a task matches a skill name or description, open its `SKILL.md` and follow it for that turn. If multiple skills apply, use the minimal set that covers the request, in a clear order.
+
+- pdf: Read/create/review PDFs with layout-sensitive checks. (file: /Users/jameswilson/.codex/skills/pdf/SKILL.md)
+- wordpress-router: Classify WordPress repos and route to the right workflow. (file: /Users/jameswilson/.codex/skills/wordpress-router/SKILL.md)
+- wp-abilities-api: Use for WordPress Abilities API definitions and REST exposure. (file: /Users/jameswilson/.codex/skills/wp-abilities-api/SKILL.md)
+- wp-block-development: Gutenberg block development workflows. (file: /Users/jameswilson/.codex/skills/wp-block-development/SKILL.md)
+- wp-block-themes: Block theme workflows including theme.json/templates/patterns. (file: /Users/jameswilson/.codex/skills/wp-block-themes/SKILL.md)
+- wp-interactivity-api: Interactivity API directives/store/actions. (file: /Users/jameswilson/.codex/skills/wp-interactivity-api/SKILL.md)
+- wp-performance: Backend performance profiling and optimization. (file: /Users/jameswilson/.codex/skills/wp-performance/SKILL.md)
+- wp-phpstan: PHPStan config and fixes for WP projects. (file: /Users/jameswilson/.codex/skills/wp-phpstan/SKILL.md)
+- wp-playground: WP Playground workflows and blueprints. (file: /Users/jameswilson/.codex/skills/wp-playground/SKILL.md)
+- wp-plugin-development: WordPress plugin architecture, hooks, security, packaging. (file: /Users/jameswilson/.codex/skills/wp-plugin-development/SKILL.md)
+- wp-project-triage: Deterministic repo inspection and JSON report. (file: /Users/jameswilson/.codex/skills/wp-project-triage/SKILL.md)
+- wp-rest-api: REST API endpoints, schemas, permissions. (file: /Users/jameswilson/.codex/skills/wp-rest-api/SKILL.md)
+- wp-wpcli-and-ops: WP-CLI operations and automation. (file: /Users/jameswilson/.codex/skills/wp-wpcli-and-ops/SKILL.md)
+- wpds: WordPress Design System UI guidance. (file: /Users/jameswilson/.codex/skills/wpds/SKILL.md)
+- skill-creator: Create or update skills. (file: /Users/jameswilson/.codex/skills/.system/skill-creator/SKILL.md)
+- skill-installer: Install skills from curated list or repo. (file: /Users/jameswilson/.codex/skills/.system/skill-installer/SKILL.md)
+
+---
+
 ## Repository Indexing and State Detection
 
 Before writing or modifying code, you must understand the project structure and important files. Use a cached index when possible instead of re-reading every file on every pass.

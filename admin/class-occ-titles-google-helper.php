@@ -347,6 +347,14 @@ class Occ_Titles_Google_Helper {
 	public function occ_titles_ajax_validate_google_api_key() {
 		check_ajax_referer( 'occ_titles_ajax_nonce', 'nonce' );
 
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Permission denied.', 'oneclickcontent-titles' ),
+				)
+			);
+		}
+
 		$api_key  = isset( $_POST['api_key'] ) ? sanitize_text_field( wp_unslash( $_POST['api_key'] ) ) : '';
 		$is_valid = self::validate_google_api_key( $api_key );
 

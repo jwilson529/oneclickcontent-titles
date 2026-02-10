@@ -4,27 +4,34 @@
 Codex must keep this file updated during each run.
 
 ## Goal
-Slim the repository by ignoring local test/runtime folders and artifacts.
+Remove unnecessary local artifacts, harden `.gitignore`, and ensure distribution zips include only runtime plugin files.
 
 ## Assumptions
-- .wp-core and .wp-tests are local-only.
+- Generated screenshots/logs/check outputs are not required source files.
+- Runtime plugin package should only include files needed for WordPress execution and plugin directory metadata.
 
 ## Questions (non-blocking)
-- None.
+- None for this pass.
 
 ## Files to change
 - .gitignore
+- package.json
+- bin/build-dist.sh
+- .codex_index.json
 - PLAN.md
 - MEMORY.md
 
 ## Steps
-1. Add local test/runtime folders and artifacts to .gitignore.
-2. Confirm ignore coverage for Codex artifacts and screenshots.
+1. Clean generated artifacts from repo root.
+2. Tighten `.gitignore` to ignore local/runtime clutter and build outputs.
+3. Replace dist blacklist with an allowlist packager script.
+4. Build and inspect zip contents to confirm no test/dev files ship.
 
 ## Commands to run
-- npm run fix
-- npm run check
-- phpunit (if configured)
+- npm run dist
+- unzip -l oneclickcontent-titles.zip
 
 ## Acceptance criteria
-- .gitignore excludes .wp-core, .wp-tests, and related local artifacts.
+- `.gitignore` blocks generated artifacts and local harness folders.
+- `npm run dist` produces a zip with runtime plugin files only.
+- No tests/dev/config artifacts are included in zip.
