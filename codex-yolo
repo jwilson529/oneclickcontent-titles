@@ -165,6 +165,26 @@ ensure_managed_file() {
     fi
 }
 
+# Write once: create if missing, never overwrite.
+ensure_once_file() {
+    local path="$1"
+    local label="$2"
+    local content="$3"
+
+    if [ -f "$path" ]; then
+        echo "🧠 $label exists. Leaving as-is."
+        return 0
+    fi
+
+    echo "🧠 Creating $label"
+    if [ "$DRY_RUN" = false ]; then
+        local tmp
+        tmp="$(mktemp)"
+        printf '%s\n' "$content" > "$tmp"
+        mv "$tmp" "$path"
+    fi
+}
+
 # Docker test harness (managed outputs).
 ensure_docker_harness() {
     local compose_file="$PLUGIN_DIR/docker-compose.yml"
@@ -1272,6 +1292,8 @@ When you walk the repository to build or refresh the index:
    - For each relevant file, read only as much as necessary to classify it.
    - Write or overwrite `.codex_index.json`.
 
+   Exception: If the working tree is dirty solely because this runner just created or updated managed files (AGENTS.md, SPEC.md, MEMORY.md, PLAN.md, PLAYBOOK.md, DESIGN_SYSTEM.md, UI_AUDIT.md, APP_FLOW.md, FRONTEND_GUIDELINES.md, DESIGN_LESSONS.md, .gitignore, .codex_index.json, .codex_run_meta.json), treat the index as valid and skip a full re-index. In that case, only update the manifest entries that changed.
+
 3. If `.codex_index.json` exists and is valid:
    - The stored commit hash matches current_commit, and
    - The working tree is clean, and
@@ -1619,8 +1641,6 @@ EOF
 ensure_managed_file "$SPEC_FILE" "SPEC.md" "$SPEC_MARKER" "$SPEC_CONTENT"
 
 # 0.2 Ensure MEMORY.md exists
-MEMORY_MARKER="<!-- GENERATED_BY_CODEX_YOLO_MEMORY_V1 -->"
-
 MEMORY_CONTENT=$(cat <<EOF
 <!-- GENERATED_BY_CODEX_YOLO_MEMORY_V1 -->
 # Project Memory
@@ -1658,11 +1678,9 @@ Append a brief recap after each run:
 EOF
 )
 
-ensure_managed_file "$MEMORY_FILE" "MEMORY.md" "$MEMORY_MARKER" "$MEMORY_CONTENT"
+ensure_once_file "$MEMORY_FILE" "MEMORY.md" "$MEMORY_CONTENT"
 
 # 0.3 Ensure PLAN.md exists
-PLAN_MARKER="<!-- GENERATED_BY_CODEX_YOLO_PLAN_V1 -->"
-
 PLAN_CONTENT=$(cat <<'EOF'
 <!-- GENERATED_BY_CODEX_YOLO_PLAN_V1 -->
 # Plan
@@ -1698,10 +1716,9 @@ List the files intended to be modified.
 EOF
 )
 
-ensure_managed_file "$PLAN_FILE" "PLAN.md" "$PLAN_MARKER" "$PLAN_CONTENT"
+ensure_once_file "$PLAN_FILE" "PLAN.md" "$PLAN_CONTENT"
 
 # 0.35 Ensure PLAYBOOK.md exists for reusable learnings
-PLAYBOOK_MARKER="<!-- GENERATED_BY_CODEX_YOLO_PLAYBOOK_V1 -->"
 PLAYBOOK_CONTENT=$(cat <<'EOF'
 <!-- GENERATED_BY_CODEX_YOLO_PLAYBOOK_V1 -->
 # Plugin Build Notes (Reusable)
@@ -1782,11 +1799,10 @@ This file captures reusable lessons from building WordPress plugins in this repo
 EOF
 )
 
-ensure_managed_file "$PLAYBOOK_FILE" "PLAYBOOK.md" "$PLAYBOOK_MARKER" "$PLAYBOOK_CONTENT"
+ensure_once_file "$PLAYBOOK_FILE" "PLAYBOOK.md" "$PLAYBOOK_CONTENT"
 
 # 0.36 Ensure UI governance docs exist (design/system/flow)
 DESIGN_SYSTEM_FILE="$PLUGIN_DIR/DESIGN_SYSTEM.md"
-DESIGN_SYSTEM_MARKER="<!-- GENERATED_BY_CODEX_YOLO_DESIGN_SYSTEM_V1 -->"
 DESIGN_SYSTEM_CONTENT=$(cat <<'EOF'
 <!-- GENERATED_BY_CODEX_YOLO_DESIGN_SYSTEM_V1 -->
 # DESIGN_SYSTEM.md
@@ -1982,10 +1998,9 @@ If new values are needed:
 EOF
 )
 
-ensure_managed_file "$DESIGN_SYSTEM_FILE" "DESIGN_SYSTEM.md" "$DESIGN_SYSTEM_MARKER" "$DESIGN_SYSTEM_CONTENT"
+ensure_once_file "$DESIGN_SYSTEM_FILE" "DESIGN_SYSTEM.md" "$DESIGN_SYSTEM_CONTENT"
 
 UI_AUDIT_FILE="$PLUGIN_DIR/UI_AUDIT.md"
-UI_AUDIT_MARKER="<!-- GENERATED_BY_CODEX_YOLO_UI_AUDIT_V1 -->"
 UI_AUDIT_CONTENT=$(cat <<'EOF'
 <!-- GENERATED_BY_CODEX_YOLO_UI_AUDIT_V1 -->
 # UI_AUDIT.md
@@ -2057,10 +2072,9 @@ Detailed instructions for build agent.
 EOF
 )
 
-ensure_managed_file "$UI_AUDIT_FILE" "UI_AUDIT.md" "$UI_AUDIT_MARKER" "$UI_AUDIT_CONTENT"
+ensure_once_file "$UI_AUDIT_FILE" "UI_AUDIT.md" "$UI_AUDIT_CONTENT"
 
 APP_FLOW_FILE="$PLUGIN_DIR/APP_FLOW.md"
-APP_FLOW_MARKER="<!-- GENERATED_BY_CODEX_YOLO_APP_FLOW_V1 -->"
 APP_FLOW_CONTENT=$(cat <<'EOF'
 <!-- GENERATED_BY_CODEX_YOLO_APP_FLOW_V1 -->
 # APP_FLOW.md
@@ -2123,10 +2137,9 @@ Documents user journeys and screen behavior expectations.
 EOF
 )
 
-ensure_managed_file "$APP_FLOW_FILE" "APP_FLOW.md" "$APP_FLOW_MARKER" "$APP_FLOW_CONTENT"
+ensure_once_file "$APP_FLOW_FILE" "APP_FLOW.md" "$APP_FLOW_CONTENT"
 
 FRONTEND_GUIDELINES_FILE="$PLUGIN_DIR/FRONTEND_GUIDELINES.md"
-FRONTEND_GUIDELINES_MARKER="<!-- GENERATED_BY_CODEX_YOLO_FRONTEND_GUIDELINES_V1 -->"
 FRONTEND_GUIDELINES_CONTENT=$(cat <<'EOF'
 <!-- GENERATED_BY_CODEX_YOLO_FRONTEND_GUIDELINES_V1 -->
 # FRONTEND_GUIDELINES.md
@@ -2210,10 +2223,9 @@ Before shipping:
 EOF
 )
 
-ensure_managed_file "$FRONTEND_GUIDELINES_FILE" "FRONTEND_GUIDELINES.md" "$FRONTEND_GUIDELINES_MARKER" "$FRONTEND_GUIDELINES_CONTENT"
+ensure_once_file "$FRONTEND_GUIDELINES_FILE" "FRONTEND_GUIDELINES.md" "$FRONTEND_GUIDELINES_CONTENT"
 
 DESIGN_LESSONS_FILE="$PLUGIN_DIR/DESIGN_LESSONS.md"
-DESIGN_LESSONS_MARKER="<!-- GENERATED_BY_CODEX_YOLO_DESIGN_LESSONS_V1 -->"
 DESIGN_LESSONS_CONTENT=$(cat <<'EOF'
 <!-- GENERATED_BY_CODEX_YOLO_DESIGN_LESSONS_V1 -->
 # DESIGN_LESSONS.md
@@ -2279,7 +2291,7 @@ Stores learned design patterns and recurring mistakes to avoid.
 EOF
 )
 
-ensure_managed_file "$DESIGN_LESSONS_FILE" "DESIGN_LESSONS.md" "$DESIGN_LESSONS_MARKER" "$DESIGN_LESSONS_CONTENT"
+ensure_once_file "$DESIGN_LESSONS_FILE" "DESIGN_LESSONS.md" "$DESIGN_LESSONS_CONTENT"
 
 # 0.35 Ensure .gitignore exists with WordPress defaults and Codex artifacts excluded
 GITIGNORE_FILE="$PLUGIN_DIR/.gitignore"

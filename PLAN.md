@@ -4,34 +4,38 @@
 Codex must keep this file updated during each run.
 
 ## Goal
-Remove unnecessary local artifacts, harden `.gitignore`, and ensure distribution zips include only runtime plugin files.
+Converge the plugin to SPEC/AGENTS baseline with deterministic tooling and tests: WPCS clean, WPPB structure validated, PHPUnit and logger wired.
 
 ## Assumptions
-- Generated screenshots/logs/check outputs are not required source files.
-- Runtime plugin package should only include files needed for WordPress execution and plugin directory metadata.
+- Existing plugin architecture and feature behavior should remain unchanged (safe modernization).
+- Current repository has intentional non-task edits in docs and should not be reverted.
 
 ## Questions (non-blocking)
-- None for this pass.
+- None.
 
 ## Files to change
-- .gitignore
 - package.json
-- bin/build-dist.sh
+- phpunit.xml.dist
 - .codex_index.json
 - PLAN.md
 - MEMORY.md
 
 ## Steps
-1. Clean generated artifacts from repo root.
-2. Tighten `.gitignore` to ignore local/runtime clutter and build outputs.
-3. Replace dist blacklist with an allowlist packager script.
-4. Build and inspect zip contents to confirm no test/dev files ship.
+1. Read AGENTS/SPEC plus run-state files; validate plugin structure and guardrails.
+2. Run `npm run fix` and `npm run check`; use `check.txt` as backlog until clean.
+3. Validate local PHPUnit execution path and lock scripts/config to repo-pinned runner.
+4. Refresh index and run-memory artifacts.
 
 ## Commands to run
-- npm run dist
-- unzip -l oneclickcontent-titles.zip
+- npm run fix
+- npm run check
+- phpunit (if configured)
 
 ## Acceptance criteria
-- `.gitignore` blocks generated artifacts and local harness folders.
-- `npm run dist` produces a zip with runtime plugin files only.
-- No tests/dev/config artifacts are included in zip.
+- PHPCS clean (0 errors, 0 warnings) or explain why not possible.
+- Tests pass (if configured).
+
+## Run status
+- `npm run fix`: pass
+- `npm run check`: pass (`check.txt` empty)
+- `npm run test:local`: pass (12 tests, 26 assertions)

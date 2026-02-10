@@ -74,4 +74,8 @@ This file captures reusable lessons from building WordPress plugins in this repo
 - Maintain a lightweight repo index file to avoid re-reading the full tree on every pass.
 - Update the index after structural or tooling changes.
 - Prefer conservative defaults and keep moving forward without blocking on confirmations.
-[2026-02-10 09:06:37] oneclickcontent-titles | exit=130 | docker=pass | phpcs=dirty | port=33067 | 
+
+## PHPUnit Runner Stability
+- Prefer `vendor/bin/phpunit` in npm scripts to avoid accidental use of incompatible global PHPUnit versions.
+- If test bootstrap uses `defined( 'ABSPATH' ) || exit;`, ensure `phpunit.xml` and `phpunit.xml.dist` define `ABSPATH`.
+[2026-02-10 12:33:07] oneclickcontent-titles | exit=130 | docker=pass | phpcs=dirty | port=33067 | 
