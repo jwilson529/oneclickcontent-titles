@@ -15,7 +15,6 @@ Converge the plugin to SPEC/AGENTS baseline with deterministic tooling and tests
 
 ## Files to change
 - package.json
-- phpunit.xml.dist
 - .codex_index.json
 - PLAN.md
 - MEMORY.md
@@ -29,7 +28,7 @@ Converge the plugin to SPEC/AGENTS baseline with deterministic tooling and tests
 ## Commands to run
 - npm run fix
 - npm run check
-- phpunit (if configured)
+- npm run test:local
 
 ## Acceptance criteria
 - PHPCS clean (0 errors, 0 warnings) or explain why not possible.
@@ -38,4 +37,4 @@ Converge the plugin to SPEC/AGENTS baseline with deterministic tooling and tests
 ## Run status
 - `npm run fix`: pass
 - `npm run check`: pass (`check.txt` empty)
-- `npm run test:local`: pass (12 tests, 26 assertions)
+- `npm run test:local`: pass (12 tests, 26 assertions) after pinning runner to `vendor/bin/phpunit -c phpunit.xml`

@@ -68,7 +68,7 @@ class Occ_Titles {
 		if ( defined( 'OCC_TITLES_VERSION' ) ) {
 			$this->version = OCC_TITLES_VERSION;
 		} else {
-			$this->version = '1.0.0';
+			$this->version = '2.0.0';
 		}
 		$this->plugin_name = 'oneclickcontent-titles';
 

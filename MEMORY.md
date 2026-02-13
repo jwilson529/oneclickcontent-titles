@@ -43,3 +43,10 @@ Append a brief recap after each run:
 - Docker: pass
 - PHPCS: dirty
 - MySQL port: 33067
+
+## Run recap (2026-02-10 12:40:00)
+- Exit code: 0
+- Summary: Re-converged baseline and fixed local test runner drift.
+- Notable changes: Updated `package.json` `test:local` to `vendor/bin/phpunit -c phpunit.xml`; refreshed `.codex_index.json`; updated `PLAN.md`.
+- Tool results: `npm run fix` clean; `npm run check` clean (`check.txt` empty); `npm run test:local` passed (12 tests, 26 assertions).
+- Remaining gaps: None identified for current SPEC baseline.

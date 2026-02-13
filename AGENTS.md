@@ -100,6 +100,8 @@ When you walk the repository to build or refresh the index:
    - For each relevant file, read only as much as necessary to classify it.
    - Write or overwrite `.codex_index.json`.
 
+   Exception: If the working tree is dirty solely because this runner just created or updated managed files (AGENTS.md, SPEC.md, MEMORY.md, PLAN.md, PLAYBOOK.md, DESIGN_SYSTEM.md, UI_AUDIT.md, APP_FLOW.md, FRONTEND_GUIDELINES.md, DESIGN_LESSONS.md, .gitignore, .codex_index.json, .codex_run_meta.json), treat the index as valid and skip a full re-index. In that case, only update the manifest entries that changed.
+
 3. If `.codex_index.json` exists and is valid:
    - The stored commit hash matches current_commit, and
    - The working tree is clean, and

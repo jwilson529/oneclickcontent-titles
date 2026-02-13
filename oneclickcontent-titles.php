@@ -15,7 +15,7 @@
  * Plugin Name:       OneClickContent - Titles
  * Plugin URI:        https://oneclickcontent.com
  * Description:       Generate and score titles for SEO
- * Version:           1.1.0
+ * Version:           2.0.0
  * Author:            James Wilson
  * Author URI:        https://oneclickcontent.com/
  * License:           GPL-2.0+
@@ -30,10 +30,9 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Currently plugin version.
- * Start at version 1.0.0 and use SemVer - https://semver.org
- * Rename this for your plugin and update it as you release new versions.
+ * Use SemVer - https://semver.org
  */
-define( 'OCC_TITLES_VERSION', '1.1.0' );
+define( 'OCC_TITLES_VERSION', '2.0.0' );
 
 /**
  * The code that runs during plugin activation.
