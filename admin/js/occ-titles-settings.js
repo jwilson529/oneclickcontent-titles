@@ -229,21 +229,20 @@
         });
     }
 
-    // Monitor OpenAI API key field
-    openAiKeyField.on('input paste', debounce(function() {
+    // Validate keys on explicit field completion instead of each keystroke.
+    openAiKeyField.on('change blur', function() {
         const provider = providerField.val();
         if (provider === 'openai') {
             validateApiKey($(this), 'openai');
         }
-    }, 500));
+    });
 
-    // Monitor Google Gemini API key field
-    googleKeyField.on('input paste', debounce(function() {
+    googleKeyField.on('change blur', function() {
         const provider = providerField.val();
         if (provider === 'google') {
             validateApiKey($(this), 'google');
         }
-    }, 500));
+    });
 
     // Monitor provider field change to refresh the page and validate visible key
     providerField.on('change', function() {

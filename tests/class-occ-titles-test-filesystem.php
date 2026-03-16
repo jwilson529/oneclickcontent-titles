@@ -84,6 +84,51 @@ class Occ_Titles_Test_Filesystem extends WP_Filesystem_Base {
 	}
 
 	/**
+	 * Append file contents.
+	 *
+	 * @since 2.0.1
+	 * @param string $path    File path.
+	 * @param string $content Content.
+	 * @param int    $mode    Mode.
+	 * @return bool
+	 */
+	public function append_contents( $path, $content, $mode = 0644 ) {
+		$existing = $this->get_contents( $path );
+		return $this->put_contents( $path, $existing . $content, $mode );
+	}
+
+	/**
+	 * Delete a file.
+	 *
+	 * @since 2.0.1
+	 * @param string $path      Path.
+	 * @param bool   $recursive Optional recursive flag.
+	 * @param string $type      Optional type.
+	 * @return bool
+	 */
+	public function delete( $path, $recursive = false, $type = false ) {
+		unset( $recursive, $type );
+		$path = $this->normalize_path( $path );
+		unset( $this->files[ $path ] );
+		return true;
+	}
+
+	/**
+	 * Remove a directory.
+	 *
+	 * @since 2.0.1
+	 * @param string $path      Path.
+	 * @param bool   $recursive Optional recursive flag.
+	 * @return bool
+	 */
+	public function rmdir( $path, $recursive = false ) {
+		unset( $recursive );
+		$path = $this->normalize_path( $path );
+		unset( $this->directories[ $path ] );
+		return true;
+	}
+
+	/**
 	 * Check if path is writable.
 	 *
 	 * @since 1.1.1

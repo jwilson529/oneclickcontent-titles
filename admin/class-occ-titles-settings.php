@@ -79,36 +79,32 @@ class Occ_Titles_Settings {
 	public function occ_titles_help_page() {
 		$training_steps = array(
 			array(
-				'step'    => __( 'Step 1', 'oneclickcontent-titles' ),
-				'title'   => __( 'Step 1: Open your post and click Generate Titles', 'oneclickcontent-titles' ),
-				'content' => __( 'In the post editor, click the spark icon next to the title field. This opens the title panel where you can generate and score options.', 'oneclickcontent-titles' ),
-				'image'   => 'https://placehold.co/1200x675?text=Step+1:+Open+Post+Editor+and+Click+Generate+Titles',
-				'alt'     => __( 'Placeholder screenshot for opening the title generator', 'oneclickcontent-titles' ),
-				'focus'   => __( 'Focus: open the panel and confirm content context before generating.', 'oneclickcontent-titles' ),
+				'step'        => __( 'Step 1', 'oneclickcontent-titles' ),
+				'title'       => __( 'Step 1: Open your post and click Generate Titles', 'oneclickcontent-titles' ),
+				'content'     => __( 'In the post editor, click the spark icon next to the title field. This opens the title panel where you can generate and score options.', 'oneclickcontent-titles' ),
+				'placeholder' => __( 'Editor launch point preview', 'oneclickcontent-titles' ),
+				'focus'       => __( 'Focus: open the panel and confirm content context before generating.', 'oneclickcontent-titles' ),
 			),
 			array(
-				'step'    => __( 'Step 2', 'oneclickcontent-titles' ),
-				'title'   => __( 'Step 2: Set Goal, Style, and optional keyword targets', 'oneclickcontent-titles' ),
-				'content' => __( 'Choose a goal and style before generating. Select keyword chips that must appear in your headlines for better alignment with your SEO strategy.', 'oneclickcontent-titles' ),
-				'image'   => 'https://placehold.co/1200x675?text=Step+2:+Set+Goal+Style+and+Keywords',
-				'alt'     => __( 'Placeholder screenshot for title controls', 'oneclickcontent-titles' ),
-				'focus'   => __( 'Focus: align controls with the real publishing objective.', 'oneclickcontent-titles' ),
+				'step'        => __( 'Step 2', 'oneclickcontent-titles' ),
+				'title'       => __( 'Step 2: Set Goal, Style, and optional keyword targets', 'oneclickcontent-titles' ),
+				'content'     => __( 'Choose a goal and style before generating. Select keyword chips that must appear in your headlines for better alignment with your SEO strategy.', 'oneclickcontent-titles' ),
+				'placeholder' => __( 'Goal, style, and keyword controls preview', 'oneclickcontent-titles' ),
+				'focus'       => __( 'Focus: align controls with the real publishing objective.', 'oneclickcontent-titles' ),
 			),
 			array(
-				'step'    => __( 'Step 3', 'oneclickcontent-titles' ),
-				'title'   => __( 'Step 3: Generate, compare, and apply the best title', 'oneclickcontent-titles' ),
-				'content' => __( 'Review score, insights, keyword fit, and preview width. Click Apply on the row you want to use, or iterate with Shorter, Punchier, More benefit, and Add keyword.', 'oneclickcontent-titles' ),
-				'image'   => 'https://placehold.co/1200x675?text=Step+3:+Compare+Rows+and+Apply+Best+Title',
-				'alt'     => __( 'Placeholder screenshot for generated title rows', 'oneclickcontent-titles' ),
-				'focus'   => __( 'Focus: select the strongest option, not just the most dramatic one.', 'oneclickcontent-titles' ),
+				'step'        => __( 'Step 3', 'oneclickcontent-titles' ),
+				'title'       => __( 'Step 3: Generate, compare, and apply the best title', 'oneclickcontent-titles' ),
+				'content'     => __( 'Review score, insights, keyword fit, and preview width. Click Apply on the row you want to use, or iterate with Shorter, Punchier, More benefit, and Add keyword.', 'oneclickcontent-titles' ),
+				'placeholder' => __( 'Generated title comparison preview', 'oneclickcontent-titles' ),
+				'focus'       => __( 'Focus: select the strongest option, not just the most dramatic one.', 'oneclickcontent-titles' ),
 			),
 			array(
-				'step'    => __( 'Step 4', 'oneclickcontent-titles' ),
-				'title'   => __( 'Step 4: Validate in preview and finalize', 'oneclickcontent-titles' ),
-				'content' => __( 'Use the preview column and pixel meter to keep titles in a clean display range. Save or publish your post once your selected title matches the goal.', 'oneclickcontent-titles' ),
-				'image'   => 'https://placehold.co/1200x675?text=Step+4:+Check+Preview+and+Publish',
-				'alt'     => __( 'Placeholder screenshot for preview validation', 'oneclickcontent-titles' ),
-				'focus'   => __( 'Focus: confirm quality and clarity before publishing.', 'oneclickcontent-titles' ),
+				'step'        => __( 'Step 4', 'oneclickcontent-titles' ),
+				'title'       => __( 'Step 4: Validate in preview and finalize', 'oneclickcontent-titles' ),
+				'content'     => __( 'Use the preview column and pixel meter to keep titles in a clean display range. Save or publish your post once your selected title matches the goal.', 'oneclickcontent-titles' ),
+				'placeholder' => __( 'Preview and publish check', 'oneclickcontent-titles' ),
+				'focus'       => __( 'Focus: confirm quality and clarity before publishing.', 'oneclickcontent-titles' ),
 			),
 		);
 
@@ -277,7 +273,7 @@ class Occ_Titles_Settings {
 			<section class="occ_titles_help__section">
 				<div class="occ_titles_help__section_header">
 					<h2><?php esc_html_e( 'Training Steps', 'oneclickcontent-titles' ); ?></h2>
-					<p><?php esc_html_e( 'Replace each placeholder with your own screenshots after recording your internal process.', 'oneclickcontent-titles' ); ?></p>
+					<p><?php esc_html_e( 'These built-in placeholders keep the help page self-contained. Replace them with local plugin assets if you want product-specific screenshots later.', 'oneclickcontent-titles' ); ?></p>
 				</div>
 				<div class="occ_titles_help__step_grid">
 					<?php foreach ( $training_steps as $step ) : ?>
@@ -289,8 +285,10 @@ class Occ_Titles_Settings {
 							<p><?php echo esc_html( $step['content'] ); ?></p>
 							<p class="occ_titles_help__step_focus"><?php echo esc_html( $step['focus'] ); ?></p>
 							<figure class="occ_titles_help__media">
-								<img src="<?php echo esc_url( $step['image'] ); ?>" alt="<?php echo esc_attr( $step['alt'] ); ?>" />
-								<figcaption><?php esc_html_e( 'Placeholder image. Replace with your real screenshot.', 'oneclickcontent-titles' ); ?></figcaption>
+								<div class="occ_titles_help__media_placeholder" aria-hidden="true">
+									<span class="occ_titles_help__media_label"><?php echo esc_html( $step['placeholder'] ); ?></span>
+								</div>
+								<figcaption><?php esc_html_e( 'Placeholder panel. Replace with a local screenshot if needed.', 'oneclickcontent-titles' ); ?></figcaption>
 							</figure>
 						</article>
 					<?php endforeach; ?>

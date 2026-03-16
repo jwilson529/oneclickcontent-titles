@@ -28,7 +28,6 @@ class LoggerTest extends Occ_Titles_Test_Case {
 	 */
 	private function reset_logger_instance() {
 		$reflection = new ReflectionProperty( 'Occ_Titles_Logger', 'instance' );
-		$reflection->setAccessible( true );
 		$reflection->setValue( null, null );
 	}
 
@@ -82,10 +81,12 @@ class LoggerTest extends Occ_Titles_Test_Case {
 		$logger = Occ_Titles_Logger::get_instance();
 
 		$this->assertTrue( $logger->info( 'Test message', array( 'foo' => 'bar' ) ) );
+		$this->assertTrue( $logger->warning( 'Another message' ) );
 
 		$contents = $filesystem->get_contents( $log_file );
 		$this->assertStringContainsString( 'INFO', $contents );
 		$this->assertStringContainsString( 'Test message', $contents );
+		$this->assertStringContainsString( 'WARNING', $contents );
 	}
 
 	/**

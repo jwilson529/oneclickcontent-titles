@@ -348,6 +348,9 @@ class Occ_Titles_Admin {
 				);
 				wp_send_json_error( array( 'message' => __( 'Missing OpenAI API key.', 'oneclickcontent-titles' ) ) );
 			}
+
+			$this->enforce_generation_rate_limit( $post_id, $request_id );
+
 			$helper = new Occ_Titles_OpenAI_Helper();
 			$result = $helper->generate_titles_openai( $api_key, $content, $style, $request_id, $count, $seed_title, $variation, $keyword, $voice_profile, $voice_samples, $intent, $keywords, $ellipsis );
 		} elseif ( 'google' === $provider ) {
@@ -359,7 +362,9 @@ class Occ_Titles_Admin {
 				);
 				wp_send_json_error( array( 'message' => __( 'Missing Google Gemini API key.', 'oneclickcontent-titles' ) ) );
 			}
-			// Occ_Titles_Google_Helper should be implemented similarly.
+
+			$this->enforce_generation_rate_limit( $post_id, $request_id );
+
 			$helper = new Occ_Titles_Google_Helper();
 			$result = $helper->generate_titles_google( $api_key, $content, $style, $request_id, $count, $seed_title, $variation, $keyword, $voice_profile, $voice_samples, $intent, $keywords, $ellipsis );
 		} else {
@@ -518,5 +523,46 @@ class Occ_Titles_Admin {
 		);
 
 		wp_send_json_success( array( 'message' => __( 'Voice sample saved.', 'oneclickcontent-titles' ) ) );
+	}
+
+	/**
+	 * Enforce a short cooldown between title generation requests per user/post pair.
+	 *
+	 * @since 1.1.2
+	 * @param int    $post_id    Current post ID.
+	 * @param string $request_id Request identifier for logs.
+	 * @return void
+	 */
+	private function enforce_generation_rate_limit( $post_id, $request_id ) {
+		$user_id          = get_current_user_id();
+		$cooldown_seconds = (int) apply_filters( 'occ_titles_generation_cooldown_seconds', 8, $post_id, $user_id );
+
+		if ( $cooldown_seconds < 1 ) {
+			$cooldown_seconds = 1;
+		}
+
+		$rate_limit_key = 'occ_titles_gen_' . md5( $user_id . '|' . $post_id );
+		$is_limited     = (bool) get_transient( $rate_limit_key );
+
+		if ( $is_limited ) {
+			Occ_Titles_Logger::get_instance()->warning(
+				'Title generation rate limited.',
+				array(
+					'request_id'       => $request_id,
+					'user_id'          => $user_id,
+					'post_id'          => $post_id,
+					'cooldown_seconds' => $cooldown_seconds,
+				)
+			);
+
+			wp_send_json_error(
+				array(
+					/* translators: %d: cooldown in seconds before retrying generation. */
+					'message' => sprintf( __( 'Please wait %d seconds before generating titles again.', 'oneclickcontent-titles' ), $cooldown_seconds ),
+				)
+			);
+		}
+
+		set_transient( $rate_limit_key, 1, $cooldown_seconds );
 	}
 }

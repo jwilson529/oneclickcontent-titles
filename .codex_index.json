@@ -1,10 +1,11 @@
 {
-  "current_commit": "2d2b3819615ff0bc9fe35ac0cd3c3e455e1b6397",
+  "current_commit": "531bbf3078e3e4c269f387b9779039573b28c5f2",
   "working_tree_dirty": true,
   "files": {
     "main_plugin_file": "oneclickcontent-titles.php",
     "loader": "includes/class-occ-titles-loader.php",
     "main_plugin_class": "includes/class-occ-titles.php",
+    "uninstaller": "includes/class-occ-titles-uninstaller.php",
     "settings": "admin/class-occ-titles-settings.php",
     "logger": "includes/class-occ-titles-logger.php",
     "providers": [
@@ -32,6 +33,7 @@
       "tests/class-mainclasstest.php",
       "tests/class-optionstest.php",
       "tests/class-loggertest.php",
+      "tests/class-uninstallertest.php",
       "tests/class-adminresultstest.php",
       "tests/class-occ-titles-test-component.php",
       "tests/class-wp-filesystem-base.php",

@@ -147,14 +147,7 @@ class Occ_Titles_Logger {
 			return false;
 		}
 
-		$existing = '';
-		if ( $filesystem->exists( $this->log_file ) ) {
-			$existing = (string) $filesystem->get_contents( $this->log_file );
-		}
-
-		$mode = defined( 'FS_CHMOD_FILE' ) ? FS_CHMOD_FILE : 0644;
-
-		return (bool) $filesystem->put_contents( $this->log_file, $existing . $line, $mode );
+		return $this->write_line( $filesystem, $line );
 	}
 
 	/**
@@ -289,6 +282,34 @@ class Occ_Titles_Logger {
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Append a log line using the most efficient available method.
+	 *
+	 * @since 2.0.1
+	 * @param WP_Filesystem_Base $filesystem Filesystem instance.
+	 * @param string             $line       Log line.
+	 * @return bool
+	 */
+	private function write_line( $filesystem, $line ) {
+		$mode = defined( 'FS_CHMOD_FILE' ) ? FS_CHMOD_FILE : 0644;
+
+		if ( is_object( $filesystem ) && method_exists( $filesystem, 'append_contents' ) ) {
+			return (bool) $filesystem->append_contents( $this->log_file, $line, $mode );
+		}
+
+		if ( class_exists( 'WP_Filesystem_Direct' ) && $filesystem instanceof WP_Filesystem_Direct ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Native append with file locking avoids whole-file rewrites for direct filesystem access.
+			return false !== file_put_contents( $this->log_file, $line, FILE_APPEND | LOCK_EX );
+		}
+
+		$existing = '';
+		if ( $filesystem->exists( $this->log_file ) ) {
+			$existing = (string) $filesystem->get_contents( $this->log_file );
+		}
+
+		return (bool) $filesystem->put_contents( $this->log_file, $existing . $line, $mode );
 	}
 
 	/**

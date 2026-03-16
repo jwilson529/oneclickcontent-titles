@@ -3,8 +3,8 @@ Contributors: jwilson529
 Donate link: https://oneclickcontent.com/donate/
 Tags: ai, seo, titles, content-optimization, content-enhancement
 Requires at least: 5.0
-Tested up to: 6.6.1
-Stable tag: 2.0.0
+Tested up to: 6.8
+Stable tag: 2.0.1
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -60,6 +60,13 @@ The plugin sends post content to your selected provider for title generation.
 
 == Changelog ==
 
+= 2.0.1 =
+* Added server-side cooldown protection for title generation requests to reduce accidental bursts.
+* Updated API key validation to run on field completion (blur/change) instead of per-keystroke events.
+* Production hardening and stability improvements.
+* Added deterministic uninstall cleanup for plugin options, saved title results, and log artifacts.
+* Reworked help and training content so wp-admin no longer depends on remote placeholder assets.
+
 = 2.0.0 =
 * Major release with substantial workflow, scoring, and settings improvements.
 * Refined editor experience for generating, comparing, and applying titles.
@@ -71,6 +78,9 @@ The plugin sends post content to your selected provider for title generation.
 * Added richer scoring and title comparison experience.
 
 == Upgrade Notice ==
+
+= 2.0.1 =
+Hardening release with generation cooldown protection, uninstall cleanup, and reduced API key validation request volume.
 
 = 2.0.0 =
 Major release with improved title generation, scoring, and editor workflows.

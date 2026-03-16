@@ -30,3 +30,7 @@ defined( 'ABSPATH' ) || exit;
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
+
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-occ-titles-uninstaller.php';
+
+Occ_Titles_Uninstaller::uninstall();

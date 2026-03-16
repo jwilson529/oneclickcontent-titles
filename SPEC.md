@@ -175,6 +175,15 @@ A session is considered converged when:
 - AGENTS.md rules are satisfied
 - the repo is in a better state than it started
 
+## 9.1 Production Readiness Gate
+
+Before a plugin can be treated as ready to use on a real site, Codex must also verify:
+
+- No wp-admin page depends on third-party placeholder assets or remote screenshots.
+- Uninstall behavior removes plugin-owned options, post meta, and other persisted data that should not survive plugin deletion.
+- Logging avoids whole-file rewrite patterns on common local/direct filesystem paths.
+- The primary local validation path (`npm run check` and at least one PHPUnit path) is green, and any blocked secondary path is documented with the concrete environment reason.
+
 ---
 
 ## 10. Summary of Required Behavior

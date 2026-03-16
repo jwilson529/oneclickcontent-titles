@@ -2,7 +2,7 @@
 
 ![Plugin Banner](assets/banner-772x250.png)
 
-Version: 2.0.0
+Version: 2.0.1
 
 Generate, score, and apply SEO-friendly post titles directly in the WordPress editor using OpenAI or Google Gemini.
 
@@ -14,12 +14,13 @@ Generate, score, and apply SEO-friendly post titles directly in the WordPress ed
 - Support for OpenAI and Google Gemini providers.
 - Built-in training page for editorial teams.
 
-## What Is New In v2.0.0
+## What Is New In v2.0.1
 
-- Major workflow refinement for title generation and review.
-- Improved scoring and comparison experience in the editor.
-- Expanded provider and settings experience for production use.
-- Added and improved training documentation for teams.
+- Added server-side cooldown protection for title generation requests to reduce accidental bursts and API cost spikes.
+- Updated settings behavior so API key validation runs on field completion (blur/change) instead of per-keystroke.
+- Added deterministic uninstall cleanup for plugin-owned options, saved title results, and log artifacts.
+- Reworked the help page so wp-admin no longer depends on remote placeholder assets.
+- Continued hardening of production readiness while preserving existing editor workflows.
 
 ## Quick Start
 
@@ -41,7 +42,7 @@ It includes:
 - Step-by-step usage guidance.
 - Title quality best practices.
 - Control and label definitions.
-- Placeholder image links your team can replace with internal screenshots.
+- Self-contained placeholder panels your team can replace with local screenshots later.
 
 ## Privacy
 
@@ -51,6 +52,12 @@ This plugin sends post content to your selected provider for title generation.
 - Google: https://policies.google.com/privacy
 
 ## Changelog
+
+### 2.0.1
+
+- Added per-user/per-post generation cooldown enforcement on AJAX title generation.
+- Changed API key validation trigger to field completion (`change`/`blur`) instead of continuous typing events.
+- Stability and hardening update for production deployments.
 
 ### 2.0.0
 
