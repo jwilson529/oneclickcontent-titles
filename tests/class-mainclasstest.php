@@ -29,7 +29,7 @@ class MainClassTest extends Occ_Titles_Test_Case {
 		$plugin_root = dirname( __DIR__ ) . '/';
 
 		if ( ! defined( 'OCC_TITLES_VERSION' ) ) {
-			define( 'OCC_TITLES_VERSION', '1.1.0' );
+			define( 'OCC_TITLES_VERSION', '1.1.1' );
 		}
 
 		Functions\when( 'plugin_dir_path' )->alias(
@@ -41,6 +41,6 @@ class MainClassTest extends Occ_Titles_Test_Case {
 		$plugin = new Occ_Titles();
 
 		$this->assertSame( 'oneclickcontent-titles', $plugin->get_plugin_name() );
-		$this->assertSame( '1.1.0', $plugin->get_version() );
+		$this->assertSame( '1.1.1', $plugin->get_version() );
 	}
 }

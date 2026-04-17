@@ -43,3 +43,9 @@ Append a brief recap after each run:
 - Docker: pass
 - PHPCS: dirty
 - MySQL port: 33067
+
+- Date: 2026-04-17
+- Summary: Completed a release-hardening pass for the free BYO-key relaunch with explicit SPEC slices, safer provider handling, stabilized tests, and refreshed release copy/assets.
+- Notable changes: Expanded `SPEC.md` with PR-sized release slices and acceptance criteria; sanitized provider error handling and admin rendering; moved Gemini API keys from URLs into request headers; added `bin/ensure-composer-deps.sh`; updated Docker/local test bootstrapping; switched shipped help images to bundled assets; renamed `readme.txt`; refreshed plugin/readme metadata to version `1.1.1`.
+- Tool results: `npm run fix` pass; `npm run check` pass; `npm run test:local` pass (18 tests, 36 assertions); `npm test` pass (18 tests, 36 assertions).
+- Remaining gaps: None identified in the current release-hardening scope.

@@ -54,6 +54,8 @@ class Occ_Titles_Settings {
 	public function occ_titles_options_page() {
 		?>
 		<div id="occ_titles" class="wrap">
+			<h1><?php esc_html_e( 'OneClickContent - Titles', 'oneclickcontent-titles' ); ?></h1>
+			<p><?php esc_html_e( 'Use the free, bring-your-own-key workflow to generate, score, and apply AI-assisted headlines directly in WordPress.', 'oneclickcontent-titles' ); ?></p>
 			<p>
 				<a class="button button-secondary" href="<?php echo esc_url( admin_url( 'options-general.php?page=occ_titles-help' ) ); ?>">
 					<?php esc_html_e( 'Open Title Help', 'oneclickcontent-titles' ); ?>
@@ -82,32 +84,32 @@ class Occ_Titles_Settings {
 				'step'    => __( 'Step 1', 'oneclickcontent-titles' ),
 				'title'   => __( 'Step 1: Open your post and click Generate Titles', 'oneclickcontent-titles' ),
 				'content' => __( 'In the post editor, click the spark icon next to the title field. This opens the title panel where you can generate and score options.', 'oneclickcontent-titles' ),
-				'image'   => 'https://placehold.co/1200x675?text=Step+1:+Open+Post+Editor+and+Click+Generate+Titles',
-				'alt'     => __( 'Placeholder screenshot for opening the title generator', 'oneclickcontent-titles' ),
+				'image'   => self::get_help_asset_url( 'OneClickContentTitles-Block.png' ),
+				'alt'     => __( 'Screenshot of the title generator in the block editor', 'oneclickcontent-titles' ),
 				'focus'   => __( 'Focus: open the panel and confirm content context before generating.', 'oneclickcontent-titles' ),
 			),
 			array(
 				'step'    => __( 'Step 2', 'oneclickcontent-titles' ),
 				'title'   => __( 'Step 2: Set Goal, Style, and optional keyword targets', 'oneclickcontent-titles' ),
 				'content' => __( 'Choose a goal and style before generating. Select keyword chips that must appear in your headlines for better alignment with your SEO strategy.', 'oneclickcontent-titles' ),
-				'image'   => 'https://placehold.co/1200x675?text=Step+2:+Set+Goal+Style+and+Keywords',
-				'alt'     => __( 'Placeholder screenshot for title controls', 'oneclickcontent-titles' ),
+				'image'   => self::get_help_asset_url( 'OneClickContentTitles-Block.png' ),
+				'alt'     => __( 'Screenshot of title controls in the editor', 'oneclickcontent-titles' ),
 				'focus'   => __( 'Focus: align controls with the real publishing objective.', 'oneclickcontent-titles' ),
 			),
 			array(
 				'step'    => __( 'Step 3', 'oneclickcontent-titles' ),
 				'title'   => __( 'Step 3: Generate, compare, and apply the best title', 'oneclickcontent-titles' ),
 				'content' => __( 'Review score, insights, keyword fit, and preview width. Click Apply on the row you want to use, or iterate with Shorter, Punchier, More benefit, and Add keyword.', 'oneclickcontent-titles' ),
-				'image'   => 'https://placehold.co/1200x675?text=Step+3:+Compare+Rows+and+Apply+Best+Title',
-				'alt'     => __( 'Placeholder screenshot for generated title rows', 'oneclickcontent-titles' ),
+				'image'   => self::get_help_asset_url( 'OneClickContentTitles.png' ),
+				'alt'     => __( 'Screenshot of generated title suggestions', 'oneclickcontent-titles' ),
 				'focus'   => __( 'Focus: select the strongest option, not just the most dramatic one.', 'oneclickcontent-titles' ),
 			),
 			array(
 				'step'    => __( 'Step 4', 'oneclickcontent-titles' ),
 				'title'   => __( 'Step 4: Validate in preview and finalize', 'oneclickcontent-titles' ),
 				'content' => __( 'Use the preview column and pixel meter to keep titles in a clean display range. Save or publish your post once your selected title matches the goal.', 'oneclickcontent-titles' ),
-				'image'   => 'https://placehold.co/1200x675?text=Step+4:+Check+Preview+and+Publish',
-				'alt'     => __( 'Placeholder screenshot for preview validation', 'oneclickcontent-titles' ),
+				'image'   => self::get_help_asset_url( 'OneClickContentTitles.png' ),
+				'alt'     => __( 'Screenshot of title preview and validation signals', 'oneclickcontent-titles' ),
 				'focus'   => __( 'Focus: confirm quality and clarity before publishing.', 'oneclickcontent-titles' ),
 			),
 		);
@@ -339,6 +341,19 @@ class Occ_Titles_Settings {
 			</section>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Build the URL for a bundled help asset.
+	 *
+	 * @since 1.1.2
+	 * @param string $filename Asset filename.
+	 * @return string
+	 */
+	public static function get_help_asset_url( $filename ) {
+		$filename = sanitize_file_name( $filename );
+
+		return plugin_dir_url( dirname( __DIR__ ) . '/oneclickcontent-titles.php' ) . 'assets/' . rawurlencode( $filename );
 	}
 
 	/**
@@ -708,7 +723,7 @@ class Occ_Titles_Settings {
 		$value = get_option( 'occ_titles_openai_api_key', '' );
 		echo '<input type="password" name="occ_titles_openai_api_key" value="' . esc_attr( $value ) . '" />';
 		$this->render_api_key_badge( 'openai' );
-		echo '<p class="description">' . wp_kses_post( __( 'Get your OpenAI API Key <a href="https://beta.openai.com/signup/">here</a>.', 'oneclickcontent-titles' ) ) . '</p>';
+		echo '<p class="description">' . wp_kses_post( __( 'Get your OpenAI API key from the <a href="https://platform.openai.com/api-keys">OpenAI API keys page</a>.', 'oneclickcontent-titles' ) ) . '</p>';
 	}
 
 	/**

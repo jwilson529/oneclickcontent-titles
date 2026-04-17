@@ -32,7 +32,7 @@ services:
       - ./:/var/www/html/wp-content/plugins/current-plugin:rw
 
   tests:
-    image: php:8.2-cli
+    image: php:8.4-cli
     depends_on:
       db:
         condition: service_healthy

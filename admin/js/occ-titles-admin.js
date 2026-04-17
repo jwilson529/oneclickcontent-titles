@@ -1150,14 +1150,21 @@
             }
 
             var settings_url = occ_titles_admin_vars.settings_url || '';
-            var cta = settings_url ? '<a class="button button-secondary" href="' + settings_url + '">Open settings</a>' : '';
+            var $content = $( '<div class="occ_titles-error-content"></div>' );
+            var $actions = $( '<div class="occ_titles-error-actions"></div>' );
 
-            $panel.html(
-                '<div class="occ_titles-error-content">' +
-                    '<strong>Generation issue:</strong> ' + message +
-                '</div>' +
-                '<div class="occ_titles-error-actions">' + cta + '</div>'
-            );
+            $content.append( $( '<strong></strong>' ).text( 'Generation issue: ' ) );
+            $content.append( document.createTextNode( message || '' ) );
+
+            if ( settings_url ) {
+                $actions.append(
+                    $( '<a class="button button-secondary"></a>' )
+                        .attr( 'href', settings_url )
+                        .text( 'Open settings' )
+                );
+            }
+
+            $panel.empty().append( $content, $actions );
             $panel.fadeIn();
         }
 
@@ -1345,7 +1352,7 @@
                 .hide()
                 .removeClass( 'occ-spinner-text' )
                 .addClass( 'occ-error-text' )
-                .html( error_message )
+                .text( error_message || '' )
                 .fadeIn();
             setTimeout( function() {
                 $( '#occ_titles_spinner_wrapper' ).fadeOut();

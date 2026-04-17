@@ -14,10 +14,12 @@
  * @wordpress-plugin
  * Plugin Name:       OneClickContent - Titles
  * Plugin URI:        https://oneclickcontent.com
- * Description:       Generate and score titles for SEO
- * Version:           1.1.0
+ * Description:       Free BYO-key AI title generator and scorer for WordPress
+ * Version:           1.1.1
  * Author:            James Wilson
  * Author URI:        https://oneclickcontent.com/
+ * Requires at least: 5.0
+ * Requires PHP:      7.2
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       oneclickcontent-titles
@@ -33,7 +35,7 @@ defined( 'ABSPATH' ) || exit;
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'OCC_TITLES_VERSION', '1.1.0' );
+define( 'OCC_TITLES_VERSION', '1.1.1' );
 
 /**
  * The code that runs during plugin activation.

@@ -14,7 +14,7 @@ cp -R \
 	oneclickcontent-titles.php \
 	index.php \
 	uninstall.php \
-	README.txt \
+	readme.txt \
 	LICENSE.txt \
 	admin \
 	assets \

@@ -1,7 +1,7 @@
 {
   "name": "oneclickcontent-titles",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.1.1",
+  "description": "Free BYO-key AI title generator and scorer for WordPress.",
   "main": "index.js",
   "scripts": {
     "test": "docker compose up --abort-on-container-exit --exit-code-from tests tests",
@@ -13,7 +13,7 @@
     "update-wpcs": "composer global require wp-coding-standards/wpcs --update-with-all-dependencies",
     "update-phpcs": "composer global require squizlabs/php_codesniffer --update-with-all-dependencies",
     "refresh-phpcs": "phpcs --clear-cache && phpcs --config-set installed_paths ~/.composer/vendor/wp-coding-standards/wpcs",
-    "test:local": "vendor/bin/phpunit -c phpunit.xml"
+    "test:local": "bash bin/ensure-composer-deps.sh && vendor/bin/phpunit -c phpunit.xml"
   },
   "repository": {
     "type": "git",

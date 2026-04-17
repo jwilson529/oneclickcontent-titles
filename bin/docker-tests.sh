@@ -17,10 +17,15 @@ echo "==> Installing system deps"
 apt-get update -qq
 apt-get install -y -qq git unzip mariadb-client curl rsync
 
+echo "==> Installing Composer"
+curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
+php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
+composer --version
+
 echo "==> Installing PHPUnit ${PHPUNIT_VERSION}"
 curl -Ls -o /usr/local/bin/phpunit "https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar"
 chmod +x /usr/local/bin/phpunit
-phpunit --version
+php -d error_reporting="E_ALL&~E_DEPRECATED" /usr/local/bin/phpunit --version
 
 echo "==> Installing WP core for tests"
 mkdir -p "${WP_TESTS_DIR}" "${WP_CORE_DIR}"
@@ -68,4 +73,5 @@ mysql ${MYSQL_SSL_FLAG} -h "${DB_HOST}" -u "${DB_USER}" -p"${DB_PASS}" -e "CREAT
 
 echo "==> Running PHPUnit"
 cd "${WORKDIR}"
-phpunit
+bash ./bin/ensure-composer-deps.sh "${WORKDIR}"
+php -d error_reporting="E_ALL&~E_DEPRECATED" /usr/local/bin/phpunit

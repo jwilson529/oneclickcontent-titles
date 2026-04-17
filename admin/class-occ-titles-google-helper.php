@@ -162,7 +162,7 @@ class Occ_Titles_Google_Helper {
 		$system_instruction .= implode( ",\n", $format_lines );
 		$system_instruction .= "\n]";
 
-		$endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$api_key}";
+		$endpoint = self::get_generate_content_endpoint( $model );
 
 		$body = wp_json_encode(
 			array(
@@ -183,9 +183,7 @@ class Occ_Titles_Google_Helper {
 		);
 
 		$args = array(
-			'headers' => array(
-				'Content-Type' => 'application/json',
-			),
+			'headers' => self::get_request_headers( $api_key ),
 			'body'    => $body,
 			'method'  => 'POST',
 			'timeout' => 120,
@@ -194,7 +192,10 @@ class Occ_Titles_Google_Helper {
 		$response = wp_remote_post( $endpoint, $args );
 
 		if ( is_wp_error( $response ) ) {
-			$error_message = 'Request error: ' . $response->get_error_message();
+			$error_message = $this->normalize_remote_error_message(
+				$response->get_error_message(),
+				__( 'Unable to connect to Google Gemini.', 'oneclickcontent-titles' )
+			);
 			Occ_Titles_Logger::get_instance()->error(
 				'Google request failed.',
 				array(
@@ -219,6 +220,24 @@ class Occ_Titles_Google_Helper {
 
 		$decoded = json_decode( $response_body, true );
 
+		if ( 400 <= (int) $response_code ) {
+			$error_message = $this->normalize_remote_error_message(
+				isset( $decoded['error']['message'] ) ? $decoded['error']['message'] : '',
+				__( 'Google Gemini request failed.', 'oneclickcontent-titles' )
+			);
+
+			Occ_Titles_Logger::get_instance()->error(
+				'Google request returned error response.',
+				array(
+					'request_id'    => $request_id,
+					'response_code' => $response_code,
+					'error_message' => $error_message,
+				)
+			);
+
+			return $error_message;
+		}
+
 		if ( isset( $decoded['candidates'][0]['content']['parts'][0]['text'] ) ) {
 			$json_text = trim( $decoded['candidates'][0]['content']['parts'][0]['text'] );
 
@@ -230,7 +249,6 @@ class Occ_Titles_Google_Helper {
 			if ( json_last_error() === JSON_ERROR_NONE ) {
 				return $titles;
 			} else {
-				$json_error = 'JSON decode error: ' . json_last_error_msg() . '. Raw response: ' . $json_text;
 				Occ_Titles_Logger::get_instance()->error(
 					'Google response JSON decode failed.',
 					array(
@@ -238,7 +256,7 @@ class Occ_Titles_Google_Helper {
 						'json_error' => json_last_error_msg(),
 					)
 				);
-				return $json_error;
+				return __( 'Unable to parse the response from Google Gemini.', 'oneclickcontent-titles' );
 			}
 		} else {
 			Occ_Titles_Logger::get_instance()->error(
@@ -250,6 +268,55 @@ class Occ_Titles_Google_Helper {
 			);
 			return 'Unexpected response format.';
 		}
+	}
+
+	/**
+	 * Build the Gemini generateContent endpoint.
+	 *
+	 * @since 1.1.2
+	 * @param string $model Model slug.
+	 * @return string
+	 */
+	private static function get_generate_content_endpoint( $model ) {
+		return "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent";
+	}
+
+	/**
+	 * Build request headers for Gemini API calls.
+	 *
+	 * @since 1.1.2
+	 * @param string $api_key API key.
+	 * @return array
+	 */
+	private static function get_request_headers( $api_key ) {
+		return array(
+			'Content-Type'   =>
+				'application/json',
+			'x-goog-api-key' =>
+				$api_key,
+		);
+	}
+
+	/**
+	 * Normalize a remote error message to safe plain text.
+	 *
+	 * @since 1.1.2
+	 * @param string $message  Raw error message.
+	 * @param string $fallback Fallback message.
+	 * @return string
+	 */
+	private function normalize_remote_error_message( $message, $fallback ) {
+		$message = html_entity_decode( (string) $message, ENT_QUOTES, 'UTF-8' );
+		$message = preg_replace( '@<(script|style)[^>]*?>.*?</\\1>@si', ' ', $message );
+		$message = wp_strip_all_tags( $message );
+		$message = preg_replace( '/\s+/', ' ', $message );
+		$message = trim( (string) $message );
+
+		if ( '' === $message ) {
+			return $fallback;
+		}
+
+		return $message;
 	}
 
 	/**
@@ -291,7 +358,7 @@ class Occ_Titles_Google_Helper {
 
 		// Use a basic model for validation (e.g., gemini-1.5-flash).
 		$model    = 'gemini-1.5-flash';
-		$endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$api_key}";
+		$endpoint = self::get_generate_content_endpoint( $model );
 
 		// Simple "Hello" prompt.
 		$body = wp_json_encode(
@@ -312,9 +379,7 @@ class Occ_Titles_Google_Helper {
 		);
 
 		$args = array(
-			'headers' => array(
-				'Content-Type' => 'application/json',
-			),
+			'headers' => self::get_request_headers( $api_key ),
 			'body'    => $body,
 			'method'  => 'POST',
 			'timeout' => 30,

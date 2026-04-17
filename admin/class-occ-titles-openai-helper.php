@@ -193,7 +193,10 @@ class Occ_Titles_OpenAI_Helper {
 		$response = wp_remote_post( $endpoint, $args );
 
 		if ( is_wp_error( $response ) ) {
-			$error_message = 'Request error: ' . $response->get_error_message();
+			$error_message = $this->normalize_remote_error_message(
+				$response->get_error_message(),
+				__( 'Unable to connect to OpenAI.', 'oneclickcontent-titles' )
+			);
 			Occ_Titles_Logger::get_instance()->error(
 				'OpenAI request failed.',
 				array(
@@ -219,9 +222,15 @@ class Occ_Titles_OpenAI_Helper {
 		$decoded = json_decode( $response_body, true );
 
 		if ( 400 <= (int) $response_code ) {
-			$error_message = __( 'OpenAI request failed.', 'oneclickcontent-titles' );
+			$error_message = $this->normalize_remote_error_message(
+				isset( $decoded['error']['message'] ) ? $decoded['error']['message'] : '',
+				__( 'OpenAI request failed.', 'oneclickcontent-titles' )
+			);
 			if ( isset( $decoded['error']['message'] ) ) {
-				$error_message = $decoded['error']['message'];
+				$error_message = $this->normalize_remote_error_message(
+					$decoded['error']['message'],
+					$error_message
+				);
 			}
 
 			Occ_Titles_Logger::get_instance()->error(
@@ -265,7 +274,6 @@ class Occ_Titles_OpenAI_Helper {
 			if ( json_last_error() === JSON_ERROR_NONE ) {
 				return $titles;
 			} else {
-				$json_error = 'JSON decode error: ' . json_last_error_msg() . '. Raw response: ' . $json_text;
 				Occ_Titles_Logger::get_instance()->error(
 					'OpenAI response JSON decode failed.',
 					array(
@@ -273,7 +281,7 @@ class Occ_Titles_OpenAI_Helper {
 						'json_error' => json_last_error_msg(),
 					)
 				);
-				return $json_error;
+				return __( 'Unable to parse the response from OpenAI.', 'oneclickcontent-titles' );
 			}
 		} else {
 			Occ_Titles_Logger::get_instance()->error(
@@ -285,6 +293,28 @@ class Occ_Titles_OpenAI_Helper {
 			);
 			return 'Unexpected response format.';
 		}
+	}
+
+	/**
+	 * Normalize a remote error message to safe plain text.
+	 *
+	 * @since 1.1.2
+	 * @param string $message  Raw error message.
+	 * @param string $fallback Fallback message.
+	 * @return string
+	 */
+	private function normalize_remote_error_message( $message, $fallback ) {
+		$message = html_entity_decode( (string) $message, ENT_QUOTES, 'UTF-8' );
+		$message = preg_replace( '@<(script|style)[^>]*?>.*?</\\1>@si', ' ', $message );
+		$message = wp_strip_all_tags( $message );
+		$message = preg_replace( '/\s+/', ' ', $message );
+		$message = trim( (string) $message );
+
+		if ( '' === $message ) {
+			return $fallback;
+		}
+
+		return $message;
 	}
 
 	/**

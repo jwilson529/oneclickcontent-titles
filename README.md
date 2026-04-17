@@ -2,105 +2,54 @@
 
 ![Plugin Banner](assets/banner-772x250.png)
 
-Generate, score, and apply SEO-friendly post titles directly in the WordPress editor using OpenAI or Google Gemini.
+Free, bring-your-own-key AI title generation and scoring for WordPress. Use your own OpenAI or Google Gemini API key, generate headline options in the editor, compare score and preview signals, and apply the best title without a subscription layer in the middle.
 
-## What This Plugin Does
+## Why This Plugin
 
-OneClickContent - Titles helps editors run a repeatable headline workflow:
+- Free plugin, BYO API key model.
+- Works directly inside the WordPress editor.
+- Supports OpenAI and Google Gemini.
+- Scores titles for clarity, intent, keyword fit, and preview width.
+- Includes bundled Title Help training for editors and content teams.
 
-1. Click the title generator button in the editor.
-2. Generate multiple title options.
-3. Compare score, insights, keywords, and preview width.
-4. Apply the best title.
+## Workflow
 
-## New Training Area: Title Help
+1. Open a post in the editor.
+2. Click **Generate Titles**.
+3. Choose a goal, style, and optional keyword targets.
+4. Compare score, insights, keywords, and preview width.
+5. Apply the best title.
 
-You now get a built-in training page at:
+## Bundled Help Screens
 
-- `Settings -> Title Help`
+### Open the generator
 
-This page includes:
+![Block editor screenshot](assets/OneClickContentTitles-Block.png)
 
-- Step-by-step training for writers and editors.
-- Best practices for strong, honest, high-CTR titles.
-- A label reference for every major control and score signal.
-- Placeholder screenshots using `placehold.co` so your team can replace them with real UI captures.
+### Compare suggestions
+
+![Generated titles screenshot](assets/OneClickContentTitles.png)
+
+### Configure provider and post types
+
+![Settings screenshot](assets/OneClickContentTitles-Settings.png)
 
 ## Quick Start
 
 1. Install and activate the plugin.
 2. Go to `Settings -> OCC - Titles`.
-3. Configure:
-   - AI Provider (`OpenAI` or `Google Gemini`)
-   - API key
-   - Post types
-4. Open a post in the editor.
-5. Click **Generate Titles**.
-6. Choose and apply the best option.
+3. Choose `OpenAI` or `Google Gemini`.
+4. Add your API key.
+5. Select the post types where title generation should be available.
+6. Open a post and start generating titles.
 
-## Training Workflow for Teams
+## Positioning
 
-Use this as your internal SOP when training writers.
-
-### Step 1: Open the panel
-
-- In the editor, click the spark icon/button near the title field.
-
-![Step 1 Placeholder](https://placehold.co/1200x675?text=Step+1:+Open+Post+Editor+and+Click+Generate+Titles)
-
-### Step 2: Set generation controls
-
-- Select a **Goal**.
-- Select a **Style**.
-- Optionally enable **Curiosity ellipsis**.
-- Select **Keyword targets**.
-
-![Step 2 Placeholder](https://placehold.co/1200x675?text=Step+2:+Set+Goal+Style+and+Keywords)
-
-### Step 3: Compare outputs
-
-- Review **Score**, **Insights**, **Keyword fit**, and **Preview**.
-- Use iterate actions (`Shorter`, `Punchier`, `More benefit`, `Add keyword`) when needed.
-
-![Step 3 Placeholder](https://placehold.co/1200x675?text=Step+3:+Compare+Rows+and+Apply+Best+Title)
-
-### Step 4: Apply and publish
-
-- Click **Apply** on the winning row.
-- Confirm final SERP/Discover preview width.
-- Publish or update the post.
-
-![Step 4 Placeholder](https://placehold.co/1200x675?text=Step+4:+Check+Preview+and+Publish)
-
-## Label Guide
-
-Use this to train new users quickly.
-
-- `Goal`: Optimization intent (CTR, ranking, Discover, social, thought leadership, lead gen).
-- `Style`: Headline structure template (How-to, Listicle, Question, etc.).
-- `Curiosity ellipsis`: Allows `...` endings when appropriate.
-- `Keyword targets`: Content-derived terms prioritized during generation.
-- `Score`: Overall composite quality score.
-- `Pass / Needs work`: Quick quality gate.
-- `Length`: Short, ideal, or long title length indicator.
-- `Keyword fit`: Low, High, or Too High keyword density fit.
-- `Density`: Exact keyword density percentage.
-- `Preview + Pixel meter`: Visual truncation risk guidance (target around 560-600 px).
-- `Best / Current`: Best-scored candidate and current live title markers.
-- `Apply / Undo / Iterate`: Actions to set, revert, or refine a title.
-
-## Best Practices
-
-- Match `Goal` to the post’s real intent.
-- Prefer clarity first, curiosity second.
-- Use one clear primary keyword naturally.
-- Avoid vague language and clickbait.
-- Use pixel-width guidance, not just character count.
-- Score current title before replacing high-performing headlines.
+This plugin is intended to be the free, practical BYO-key option for WordPress teams that want AI-assisted headline ideation without a hosted credit system or lock-in layer. Your API usage is billed by your provider, not by this plugin.
 
 ## Privacy and External Services
 
-This plugin sends post content to the selected AI provider for generation.
+This plugin sends post content to the AI provider you select for title generation and validation.
 
 - OpenAI: https://openai.com/privacy
 - Google: https://policies.google.com/privacy
