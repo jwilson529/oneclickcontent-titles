@@ -5,7 +5,7 @@ This file is persistent context for Codex runs. Keep it short and practical.
 
 ## Project
 - Plugin slug: oneclickcontent-titles
-- Repo root: /Users/jameswilson/Local Sites/wp-clean-install/app/public/wp-content/plugins/oneclickcontent-titles
+- Repo root: /home/jameswilson/Documents/github/jwilson529/occ-titles
 
 ## Non-negotiables
 - WordPress Coding Standards (WPCS).
@@ -23,6 +23,13 @@ This file is persistent context for Codex runs. Keep it short and practical.
 
 ## Packaging
 - The build zip process uses .gitignore to decide what ships. Do not add dev artifacts to the distributable.
+
+## Folder Move Handoff
+- Active working copy is the Git repo at `/home/jameswilson/Documents/github/jwilson529/occ-titles`.
+- Release-hardening work is complete in this folder for the free BYO-key relaunch.
+- Verified state before handoff: `npm run fix`, `npm run check`, `npm run test:local`, and `npm test` all passed.
+- Current release target is version `1.1.1` with refreshed BYO-key messaging, sanitized provider/admin error handling, header-based Gemini API key transport, bundled help assets, and a stabilized local/Docker PHPUnit path.
+- Start the next session from this folder instead of the older Local Sites plugin path above.
 
 ## Run recap log
 Append a brief recap after each run:
