@@ -56,7 +56,7 @@ class Occ_Titles_Settings {
 		$provider_label      = $this->get_provider_label( $provider );
 		$status_data         = $this->get_api_key_status_data( $provider );
 		$status_label        = $this->get_api_key_status_label( $status_data['status'] );
-		$selected_post_types = (array) get_option( 'occ_titles_post_types', array( 'post' ) );
+		$selected_post_types = (array) get_option( 'occ_titles_post_types', array( 'post', 'page' ) );
 		$voice_profile       = get_option( 'occ_titles_voice_profile', array() );
 		$voice_signal_count  = $this->get_voice_profile_signal_count( $voice_profile );
 		$post_type_count     = count( $selected_post_types );
@@ -680,6 +680,8 @@ class Occ_Titles_Settings {
 	 * @return void
 	 */
 	public function occ_titles_register_settings() {
+		self::maybe_normalize_post_type_defaults();
+
 		// Always register the AI Provider and Post Types settings.
 		register_setting(
 			'occ_titles_settings',
@@ -824,10 +826,44 @@ class Occ_Titles_Settings {
 	 * @return array The sanitized array of post types.
 	 */
 	public static function occ_titles_sanitize_post_types( $input ) {
+		update_option( 'occ_titles_post_types_customized', 1 );
+
 		if ( ! is_array( $input ) ) {
 			return array();
 		}
-		return array_map( 'sanitize_text_field', $input );
+
+		return array_values( array_unique( array_map( 'sanitize_text_field', $input ) ) );
+	}
+
+	/**
+	 * Normalize legacy post-type defaults for installs that never customized them.
+	 *
+	 * Older builds only enabled posts by default, which hides the editor UI on
+	 * pages for fresh installs. Expand that legacy default to posts and pages
+	 * unless the setting has been explicitly customized.
+	 *
+	 * @since 2.1.1
+	 * @return void
+	 */
+	public static function maybe_normalize_post_type_defaults() {
+		$selected_post_types = get_option( 'occ_titles_post_types', false );
+		$customized          = (int) get_option( 'occ_titles_post_types_customized', 0 );
+
+		if ( false === $selected_post_types ) {
+			update_option( 'occ_titles_post_types', array( 'post', 'page' ) );
+			update_option( 'occ_titles_post_types_customized', 0 );
+			return;
+		}
+
+		if ( 1 === $customized ) {
+			return;
+		}
+
+		$selected_post_types = array_values( array_unique( array_map( 'sanitize_text_field', (array) $selected_post_types ) ) );
+
+		if ( array( 'post' ) === $selected_post_types ) {
+			update_option( 'occ_titles_post_types', array( 'post', 'page' ) );
+		}
 	}
 
 	/**
@@ -1289,7 +1325,7 @@ class Occ_Titles_Settings {
 	 * @return void
 	 */
 	public function occ_titles_post_types_callback() {
-		$selected_post_types = (array) get_option( 'occ_titles_post_types', array( 'post' ) );
+		$selected_post_types = (array) get_option( 'occ_titles_post_types', array( 'post', 'page' ) );
 		$post_types          = get_post_types( array( 'public' => true ), 'objects', 'and' );
 		unset( $post_types['attachment'] );
 
@@ -1387,6 +1423,8 @@ class Occ_Titles_Settings {
 				$field_value = self::occ_titles_sanitize_google_api_key( sanitize_text_field( wp_unslash( $_POST['field_value'] ) ) );
 			} elseif ( 'occ_titles_google_model' === $field_name ) {
 				$field_value = self::occ_titles_sanitize_google_model( sanitize_text_field( wp_unslash( $_POST['field_value'] ) ) );
+			} elseif ( 'occ_titles_post_types' === $field_name ) {
+				$field_value = self::occ_titles_sanitize_post_types( wp_unslash( $_POST['field_value'] ) );
 			} else {
 				$field_value = is_array( $_POST['field_value'] )
 					? array_map( 'sanitize_text_field', wp_unslash( $_POST['field_value'] ) )

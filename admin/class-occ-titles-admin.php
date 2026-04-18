@@ -115,7 +115,7 @@ class Occ_Titles_Admin {
 	 */
 	public function enqueue_styles() {
 		$screen              = get_current_screen();
-		$selected_post_types = (array) get_option( 'occ_titles_post_types', array() );
+		$selected_post_types = (array) get_option( 'occ_titles_post_types', array( 'post', 'page' ) );
 
 		if ( 'post' === $screen->base && in_array( $screen->post_type, $selected_post_types, true ) && ! wp_should_load_block_editor_scripts_and_styles() ) {
 			wp_enqueue_style(
@@ -146,8 +146,12 @@ class Occ_Titles_Admin {
 	 * @since 1.0.0
 	 */
 	public function enqueue_scripts() {
-		$screen              = get_current_screen(); // Get current screen object.
-		$selected_post_types = (array) get_option( 'occ_titles_post_types', array() );
+		$screen = get_current_screen(); // Get current screen object.
+		if ( ! $screen ) {
+			return;
+		}
+
+		$selected_post_types = (array) get_option( 'occ_titles_post_types', array( 'post', 'page' ) );
 		$post_id             = 0;
 
 		if ( isset( $_GET['post'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -159,21 +163,12 @@ class Occ_Titles_Admin {
 		$post_slug      = $post_id ? get_post_field( 'post_name', $post_id ) : '';
 		$post_permalink = $post_id ? get_permalink( $post_id ) : '';
 
-		// Enqueue the settings script on all admin pages.
-		wp_enqueue_script(
-			'occ-titles-settings',
-			plugin_dir_url( __FILE__ ) . 'js/occ-titles-settings.js',
-			array( 'jquery' ),
-			$this->version,
-			true
-		);
-
 		$localization = array(
 			'ajax_url'              => admin_url( 'admin-ajax.php' ),
 			'occ_titles_ajax_nonce' => wp_create_nonce( 'occ_titles_ajax_nonce' ),
 			'selected_post_types'   => $selected_post_types,
 			'current_post_type'     => isset( $screen->post_type ) ? $screen->post_type : '',
-			'svg_url'               => plugin_dir_url( __DIR__ ) . 'img/ai-sparkle.svg',
+			'svg_url'               => plugin_dir_url( dirname( __DIR__ ) . '/oneclickcontent-titles.php' ) . 'img/ai-sparkle.svg',
 			'now'                   => current_time( 'mysql' ),
 			'settings_url'          => admin_url( 'options-general.php?page=occ_titles-settings' ),
 			'post_id'               => $post_id,
@@ -219,29 +214,29 @@ class Occ_Titles_Admin {
 			),
 		);
 
-		wp_localize_script( 'occ-titles-settings', 'occ_titles_admin_vars', $localization );
+		if ( in_array( $screen->base, array( 'settings_page_occ_titles-settings', 'settings_page_occ_titles-help' ), true ) ) {
+			wp_enqueue_script(
+				'occ-titles-settings',
+				plugin_dir_url( __FILE__ ) . 'js/occ-titles-settings.js',
+				array( 'jquery' ),
+				$this->version,
+				true
+			);
+
+			wp_localize_script( 'occ-titles-settings', 'occ_titles_admin_vars', $localization );
+		}
 
 		// Enqueue scripts on the selected post type edit pages.
 		if ( 'post' === $screen->base && in_array( $screen->post_type, $selected_post_types, true ) ) {
 			wp_enqueue_script(
 				'occ-titles-admin',
 				plugin_dir_url( __FILE__ ) . 'js/occ-titles-admin.js',
-				array( 'jquery', 'occ-titles-settings' ),
+				array( 'jquery' ),
 				$this->version,
 				true
 			);
 
 			wp_localize_script( 'occ-titles-admin', 'occ_titles_admin_vars', $localization );
-		} elseif ( 'settings_page_occ_titles-settings' === $screen->base ) {
-			wp_enqueue_script(
-				'occ-titles-admin-post',
-				plugin_dir_url( __FILE__ ) . 'js/occ-titles-admin.js',
-				array( 'jquery', 'occ-titles-settings' ),
-				$this->version,
-				true
-			);
-
-			wp_localize_script( 'occ-titles-admin-post', 'occ_titles_admin_vars', $localization );
 		}
 	}
 	/**

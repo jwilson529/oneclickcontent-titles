@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
 use Brain\Monkey\Functions;
 
 require_once dirname( __DIR__ ) . '/admin/class-occ-titles-settings.php';
+require_once dirname( __DIR__ ) . '/includes/class-occ-titles-activator.php';
 
 /**
  * Settings sanitization tests.
@@ -26,6 +27,8 @@ class OptionsTest extends Occ_Titles_Test_Case {
 	 * @return void
 	 */
 	public function test_sanitize_post_types_requires_array() {
+		Functions\when( 'update_option' )->justReturn( true );
+
 		$result = Occ_Titles_Settings::occ_titles_sanitize_post_types( 'post' );
 
 		$this->assertSame( array(), $result );
@@ -38,6 +41,8 @@ class OptionsTest extends Occ_Titles_Test_Case {
 	 * @return void
 	 */
 	public function test_sanitize_post_types_sanitizes_values() {
+		Functions\when( 'update_option' )->justReturn( true );
+
 		Functions\when( 'sanitize_text_field' )->alias(
 			function ( $value ) {
 				return trim( $value );
@@ -47,6 +52,110 @@ class OptionsTest extends Occ_Titles_Test_Case {
 		$result = Occ_Titles_Settings::occ_titles_sanitize_post_types( array( ' post ', 'page' ) );
 
 		$this->assertSame( array( 'post', 'page' ), $result );
+	}
+
+	/**
+	 * Ensure activation enables posts and pages by default.
+	 *
+	 * @since 2.1.1
+	 * @return void
+	 */
+	public function test_activator_defaults_to_posts_and_pages() {
+		$updated_options = array();
+
+		Functions\when( 'get_option' )->alias(
+			function () {
+				return false;
+			}
+		);
+
+		Functions\when( 'update_option' )->alias(
+			function ( $option_name, $option_value ) use ( &$updated_options ) {
+				$updated_options[ $option_name ] = $option_value;
+				return true;
+			}
+		);
+
+		Occ_Titles_Activator::activate();
+
+		$this->assertSame( array( 'post', 'page' ), $updated_options['occ_titles_post_types'] );
+		$this->assertSame( 0, $updated_options['occ_titles_post_types_customized'] );
+	}
+
+	/**
+	 * Ensure legacy defaults expand to pages unless customized.
+	 *
+	 * @since 2.1.1
+	 * @return void
+	 */
+	public function test_normalize_post_type_defaults_expands_legacy_default() {
+		$updated_options = array();
+
+		Functions\when( 'get_option' )->alias(
+			function ( $option_name, $fallback = false ) {
+				if ( 'occ_titles_post_types' === $option_name ) {
+					return array( 'post' );
+				}
+
+				if ( 'occ_titles_post_types_customized' === $option_name ) {
+					return 0;
+				}
+
+				return $fallback;
+			}
+		);
+
+		Functions\when( 'update_option' )->alias(
+			function ( $option_name, $option_value ) use ( &$updated_options ) {
+				$updated_options[ $option_name ] = $option_value;
+				return true;
+			}
+		);
+
+		Functions\when( 'sanitize_text_field' )->alias(
+			function ( $value ) {
+				return trim( (string) $value );
+			}
+		);
+
+		Occ_Titles_Settings::maybe_normalize_post_type_defaults();
+
+		$this->assertSame( array( 'post', 'page' ), $updated_options['occ_titles_post_types'] );
+	}
+
+	/**
+	 * Ensure legacy defaults are not changed after customization.
+	 *
+	 * @since 2.1.1
+	 * @return void
+	 */
+	public function test_normalize_post_type_defaults_respects_customization() {
+		$updated_options = array();
+
+		Functions\when( 'get_option' )->alias(
+			function ( $option_name, $fallback = false ) {
+				if ( 'occ_titles_post_types' === $option_name ) {
+					return array( 'post' );
+				}
+
+				if ( 'occ_titles_post_types_customized' === $option_name ) {
+					return 1;
+				}
+
+				return $fallback;
+			}
+		);
+
+		Functions\when( 'update_option' )->alias(
+			function ( $option_name, $option_value ) use ( &$updated_options ) {
+				$updated_options[ $option_name ] = $option_value;
+				return true;
+			}
+		);
+
+		Occ_Titles_Settings::maybe_normalize_post_type_defaults();
+
+		$this->assertArrayNotHasKey( 'occ_titles_post_types', $updated_options );
 	}
 
 	/**

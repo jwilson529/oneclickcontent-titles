@@ -4,7 +4,7 @@ Donate link: https://oneclickcontent.com/donate/
 Tags: ai, seo, titles, openai, gemini
 Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 2.1.0
+Stable tag: 2.1.1
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -74,6 +74,12 @@ The plugin sends post content to your selected provider for title generation.
 - Google privacy policy: https://policies.google.com/privacy
 
 == Changelog ==
+
+= 2.1.1 =
+
+- Enable posts and pages by default for new installs.
+- Normalize the old posts-only default to include pages unless the post-type setting was manually customized.
+- Fix missing editor controls on page edit screens caused by the legacy default.
 
 = 2.1.0 =
 * Repositioned the plugin as a free, bring-your-own-key AI title assistant for WordPress.

@@ -36,7 +36,12 @@ class Occ_Titles_Activator {
 
 		// Set default post types if they don't exist.
 		if ( false === get_option( 'occ_titles_post_types' ) ) {
-			update_option( 'occ_titles_post_types', array( 'post' ) ); // Set 'post' as the default post type.
+			update_option( 'occ_titles_post_types', array( 'post', 'page' ) ); // Enable posts and pages by default.
+		}
+
+		// Track whether the post type selection has been manually customized.
+		if ( false === get_option( 'occ_titles_post_types_customized' ) ) {
+			update_option( 'occ_titles_post_types_customized', 0 );
 		}
 
 		// Set default model if it doesn't exist.

@@ -394,6 +394,33 @@
         }
 
         /**
+         * Backward-compatible overall score helper.
+         *
+         * Supports either:
+         * - precomputed signal scores plus an explicit weight map
+         * - a metrics object that can be converted into signal scores
+         *
+         * @param {Object} input   Signal scores or metrics object.
+         * @param {Object} weights Optional weight map.
+         * @return {number} Overall score.
+         */
+        function calculate_overall_score( input, weights ) {
+            var signal_scores = input || {};
+            var score_weights = weights || {};
+
+            if ( input && ( Object.prototype.hasOwnProperty.call( input, 'seo_data' ) || Object.prototype.hasOwnProperty.call( input, 'pixel_width' ) ) ) {
+                signal_scores = calculate_signal_scores( input );
+                score_weights = weights || get_goal_weight_profile( input.goal || '' ).weights;
+            }
+
+            if ( ! score_weights || ! Object.keys( score_weights ).length ) {
+                score_weights = get_goal_weight_profile( ( input && input.goal ) || '' ).weights;
+            }
+
+            return clamp_score( calculate_weighted_score( signal_scores, score_weights ) );
+        }
+
+        /**
          * Convert score to letter grade.
          *
          * @param {number} score Numeric score.
@@ -1387,7 +1414,23 @@
          * @return {string} SVG image HTML.
          */
         function get_svg_image() {
-            return '<img src="' + occ_titles_admin_vars.svg_url + '" alt="Generate Titles" />';
+            return '<img class="occ_titles_sparkle_icon" src="' + occ_titles_admin_vars.svg_url + '" alt="Generate Titles" />';
+        }
+
+        /**
+         * Get the markup for the block-editor generate button.
+         *
+         * @param {Object} context Button context.
+         * @return {string} Button HTML.
+         */
+        function get_generate_button_markup( context ) {
+            var label = '';
+
+            if ( context && 'occ_titles_header_button' === context.button_class ) {
+                label = '<span class="occ_titles_header_button_label">Titles</span>';
+            }
+
+            return '<button id="occ_titles_svg_button" class="' + ( ( context && context.button_class ) || '' ) + '" type="button" title="Generate Titles" aria-label="Generate Titles">' + get_svg_image() + label + '</button>';
         }
 
         /**
@@ -1411,18 +1454,264 @@
         }
 
         /**
+         * Find the best block editor title target and insertion anchors.
+         *
+         * @return {Object|null} Title context data.
+         */
+        function get_block_editor_anchor( $title ) {
+            var anchor_selectors = [
+                '.editor-visual-editor__post-title-wrapper',
+                '.edit-post-visual-editor__post-title-wrapper',
+                '.edit-post-post-title',
+                '.editor-post-title',
+                '.block-editor-block-list__block'
+            ];
+
+            for ( var i = 0; i < anchor_selectors.length; i++ ) {
+                var $anchor = $title.closest( anchor_selectors[ i ] );
+                if ( $anchor.length ) {
+                    return $anchor;
+                }
+            }
+
+            return $title;
+        }
+
+        /**
+         * Get the block editor iframe document when the canvas is iframed.
+         *
+         * @return {Document|null} Iframe document.
+         */
+        function get_block_editor_canvas_document() {
+            var iframe = document.querySelector( 'iframe[name="editor-canvas"]' );
+
+            if ( iframe && iframe.contentDocument ) {
+                return iframe.contentDocument;
+            }
+
+            return null;
+        }
+
+        /**
+         * Style the generate button when it is placed inside the block-editor canvas.
+         *
+         * @param {jQuery} $button Generate button.
+         * @param {jQuery} $anchor Title wrapper anchor.
+         */
+        function style_canvas_generate_button( $button, $anchor ) {
+            $anchor.css( {
+                position: 'relative',
+                'padding-right': '88px'
+            } );
+
+            $button.css( {
+                position: 'absolute',
+                top: '18px',
+                right: '24px',
+                margin: '0',
+                padding: '0',
+                width: '42px',
+                height: '42px',
+                border: '1px solid #d9ddd8',
+                'border-radius': '12px',
+                background: 'linear-gradient(180deg, #ffffff 0%, #f5efe4 100%)',
+                'box-shadow': '0 10px 22px rgba(89, 74, 44, 0.16)',
+                display: 'inline-flex',
+                'align-items': 'center',
+                'justify-content': 'center',
+                cursor: 'pointer',
+                'z-index': '12'
+            } );
+
+            $button.find( 'img' ).css( {
+                width: '26px',
+                height: '26px'
+            } );
+        }
+
+        /**
+         * Bind iframe-local events for controls rendered inside the editor canvas.
+         *
+         * @param {Document} canvas_document Iframe document.
+         */
+        function bind_block_editor_canvas_events( canvas_document ) {
+            var $canvas_doc;
+
+            if ( ! canvas_document ) {
+                return;
+            }
+
+            $canvas_doc = $( canvas_document );
+
+            if ( $canvas_doc.data( 'occTitlesBound' ) ) {
+                return;
+            }
+
+            $canvas_doc.on( 'click', '#occ_titles_svg_button', handle_generate_button_click );
+            $canvas_doc.data( 'occTitlesBound', true );
+        }
+
+        function get_block_editor_title_context() {
+            var $visual_editor   = $( '.editor-visual-editor' ).first();
+            var canvas_document = get_block_editor_canvas_document();
+            var contexts = [
+                {
+                    title: 'textarea.editor-post-title__input'
+                },
+                {
+                    title: '.editor-post-title__input'
+                },
+                {
+                    title: 'h1.wp-block-post-title'
+                }
+            ];
+
+            for ( var i = 0; i < contexts.length; i++ ) {
+                var $title = $( [] );
+
+                if ( canvas_document ) {
+                    $title = $( canvas_document ).find( contexts[ i ].title ).first();
+                }
+
+                if ( ! $title.length ) {
+                    $title = $( contexts[ i ].title ).first();
+                }
+
+                if ( $title.length ) {
+                    var $anchor = get_block_editor_anchor( $title );
+                    return {
+                        $title: $title,
+                        $button_anchor: $anchor,
+                        $container_anchor: $visual_editor.length ? $visual_editor : $anchor,
+                        button_mode: 'after',
+                        button_class: '',
+                        is_canvas: !! canvas_document && $title[ 0 ] && $title[ 0 ].ownerDocument === canvas_document,
+                        document: canvas_document || document
+                    };
+                }
+            }
+
+            var $header_settings = $( '.editor-header__settings' ).first();
+
+            if ( $header_settings.length ) {
+                return {
+                    $title: $( [] ),
+                    $button_anchor: $header_settings,
+                    $container_anchor: $visual_editor.length ? $visual_editor : $( '.interface-interface-skeleton__content' ).first(),
+                    button_mode: 'prepend',
+                    button_class: 'occ_titles_header_button',
+                    is_canvas: false,
+                    document: document
+                };
+            }
+
+            return null;
+        }
+
+        /**
+         * Inject the title controls into the block editor when the title field is available.
+         *
+         * @return {boolean} True when inserted.
+         */
+        function inject_block_editor_elements() {
+            var canvas_document;
+            var $canvas_button;
+            var $header_button;
+            var context;
+            var svg_button;
+            canvas_document = get_block_editor_canvas_document();
+            $canvas_button  = canvas_document ? $( canvas_document ).find( '#occ_titles_svg_button' ) : $( [] );
+            $header_button  = $( '#occ_titles_svg_button.occ_titles_header_button' );
+
+            context = get_block_editor_title_context();
+            if ( ! context || ( ! context.$title.length && ! context.$button_anchor.length ) ) {
+                return false;
+            }
+
+            if ( context.is_canvas ) {
+                if ( $header_button.length ) {
+                    $header_button.remove();
+                }
+
+                if ( $canvas_button.length ) {
+                    bind_block_editor_canvas_events( context.document );
+                }
+            } else if ( $canvas_button.length || $( '#occ_titles_svg_button' ).length ) {
+                return true;
+            }
+
+            if ( context.is_canvas && $canvas_button.length ) {
+                if ( ! $( '#occ_titles_table_container' ).length ) {
+                    if ( context.$container_anchor.length ) {
+                        context.$container_anchor.after( '<div id="occ_titles_table_container" style="margin-top: 20px;"></div>' );
+                    } else {
+                        context.$title.after( '<div id="occ_titles_table_container" style="margin-top: 20px;"></div>' );
+                    }
+                }
+                load_saved_results();
+                return true;
+            }
+
+            svg_button = get_generate_button_markup( context );
+
+            if ( context.is_canvas && context.$button_anchor.length ) {
+                var $canvas_svg_button = $( svg_button );
+                style_canvas_generate_button( $canvas_svg_button, context.$button_anchor );
+                context.$button_anchor.append( $canvas_svg_button );
+                bind_block_editor_canvas_events( context.document );
+            } else if ( context.$button_anchor.length ) {
+                if ( 'prepend' === context.button_mode ) {
+                    context.$button_anchor.prepend( svg_button );
+                } else if ( 'append' === context.button_mode ) {
+                    context.$button_anchor.append( svg_button );
+                } else {
+                    context.$button_anchor.css( 'position', 'relative' );
+                    $( svg_button ).insertAfter( context.$button_anchor );
+                }
+            } else {
+                $( svg_button ).insertAfter( context.$title );
+            }
+
+            if ( ! $( '#occ_titles_table_container' ).length ) {
+                if ( context.$container_anchor.length ) {
+                    context.$container_anchor.after( '<div id="occ_titles_table_container" style="margin-top: 20px;"></div>' );
+                } else {
+                    context.$title.after( '<div id="occ_titles_table_container" style="margin-top: 20px;"></div>' );
+                }
+            }
+
+            load_saved_results();
+            return true;
+        }
+
+        /**
+         * Keep checking while Gutenberg finishes loading the iframe canvas.
+         *
+         * @param {number} attempt Poll attempt count.
+         */
+        function schedule_block_editor_refresh( attempt ) {
+            var tries = attempt || 0;
+
+            if ( tries > 20 ) {
+                return;
+            }
+
+            setTimeout( function() {
+                inject_block_editor_elements();
+                schedule_block_editor_refresh( tries + 1 );
+            }, 400 );
+        }
+
+        /**
          * Adds elements for the Block Editor.
          */
         function add_block_editor_elements() {
+            inject_block_editor_elements();
+            schedule_block_editor_refresh( 0 );
+
             var observer = new MutationObserver( function( mutations ) {
-                var $block_title = $( 'h1.wp-block-post-title' );
-                if ( $block_title.length && $( '#occ_titles_svg_button' ).length === 0 ) {
-                    var svg_button = '<button id="occ_titles_svg_button" title="Generate Titles">' + get_svg_image() + '</button>';
-                    $block_title.parent().css( 'position', 'relative' );
-                    $( svg_button ).insertAfter( $block_title );
-                    $block_title.closest( '.wp-block-post-title' ).after( '<div id="occ_titles_table_container" style="margin-top: 20px;"></div>' );
-                    observer.disconnect();
-                    load_saved_results();
+                if ( mutations ) {
+                    inject_block_editor_elements();
                 }
             } );
             observer.observe( document.body, { childList: true, subtree: true } );
@@ -1557,9 +1846,11 @@
         }
 
         /**
-         * Event listener for initial generate buttons.
+         * Handle generate button clicks from either the main admin document or the iframe canvas.
+         *
+         * @param {Object} e Event object.
          */
-        $( document ).on( 'click', '#occ_titles_generate_button, #occ_titles_button, #occ_titles_svg_button, #occ_titles_generate_button_top', function( e ) {
+        function handle_generate_button_click( e ) {
             e.preventDefault();
             if ( isProcessing ) {
                 return;
@@ -1594,7 +1885,12 @@
             } ).always( function() {
                 isProcessing = false;
             } );
-        } );
+        }
+
+        /**
+         * Event listener for initial generate buttons.
+         */
+        $( document ).on( 'click', '#occ_titles_generate_button, #occ_titles_button, #occ_titles_svg_button, #occ_titles_generate_button_top', handle_generate_button_click );
 
         /**
          * Toggle keyword selection for targeting.

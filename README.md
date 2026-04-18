@@ -2,7 +2,7 @@
 
 ![Plugin Banner](assets/banner-772x250.png)
 
-Version: 2.1.0
+Version: 2.1.1
 
 Free AI title assistant for WordPress. Bring your own OpenAI or Google Gemini API key to generate, compare, and apply post titles directly in the editor.
 
@@ -15,6 +15,12 @@ Free AI title assistant for WordPress. Bring your own OpenAI or Google Gemini AP
 - Support for OpenAI and Google Gemini providers.
 - Load Google Gemini model choices from the API when available.
 - Built-in training and help screens for editorial teams.
+
+## What Is New In v2.1.1
+
+- Posts and pages are enabled by default on fresh installs.
+- Legacy installs that were still using the old posts-only default now normalize to include pages unless the post-type setting was explicitly customized.
+- Fixes the missing editor control on page edit screens caused by the old default.
 
 ## What Is New In v2.1.0
 
@@ -58,6 +64,12 @@ This plugin sends post content to your selected provider for title generation.
 - Google: https://policies.google.com/privacy
 
 ## Changelog
+
+### 2.1.1
+
+- Enable posts and pages by default for new installs.
+- Normalize the old posts-only default to include pages unless the post-type setting was manually customized.
+- Fix missing editor controls on page edit screens caused by the legacy default.
 
 ### 2.1.0
 
