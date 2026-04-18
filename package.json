@@ -17,12 +17,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jwilson529/OneClickContent---Titles.git"
+    "url": "git+https://github.com/jwilson529/oneclickcontent-titles.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jwilson529/OneClickContent---Titles/issues"
+    "url": "https://github.com/jwilson529/oneclickcontent-titles/issues"
   },
-  "homepage": "https://github.com/jwilson529/OneClickContent---Titles#readme"
+  "homepage": "https://github.com/jwilson529/oneclickcontent-titles#readme"
 }

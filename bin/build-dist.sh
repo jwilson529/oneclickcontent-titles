@@ -3,11 +3,12 @@
 set -euo pipefail
 
 PLUGIN_SLUG="oneclickcontent-titles"
-STAGING_ROOT=".dist"
-STAGING_DIR="${STAGING_ROOT}/${PLUGIN_SLUG}"
+DIST_ROOT="dist"
+STAGING_DIR="${DIST_ROOT}/${PLUGIN_SLUG}"
 ARCHIVE_NAME="${PLUGIN_SLUG}.zip"
+ARCHIVE_PATH="${DIST_ROOT}/${ARCHIVE_NAME}"
 
-rm -rf "${STAGING_ROOT}" "${ARCHIVE_NAME}"
+rm -rf "${DIST_ROOT}"
 mkdir -p "${STAGING_DIR}"
 
 cp -R \
@@ -31,18 +32,16 @@ find "${STAGING_DIR}" -name "*.swp" -delete
 find "${STAGING_DIR}" -name "*.tmp" -delete
 
 (
-	cd "${STAGING_ROOT}"
-	zip -rq "../${ARCHIVE_NAME}" "${PLUGIN_SLUG}"
+	cd "${DIST_ROOT}"
+	zip -rq "${ARCHIVE_NAME}" "${PLUGIN_SLUG}"
 )
 
 # Ensure dev-only artifacts did not leak into distributable zip.
-if unzip -l "${ARCHIVE_NAME}" | grep -E "oneclickcontent-titles/(tests/|vendor/|node_modules/|\.wp-core/|\.wp-tests/|\.git/|\.github/|check\.txt|phpmd\.txt)" > /dev/null; then
+if unzip -l "${ARCHIVE_PATH}" | grep -E "oneclickcontent-titles/(tests/|vendor/|node_modules/|\.wp-core/|\.wp-tests/|\.git/|\.github/|check\.txt|phpmd\.txt)" > /dev/null; then
 	echo "Release archive contains disallowed development artifacts."
-	rm -f "${ARCHIVE_NAME}"
-	rm -rf "${STAGING_ROOT}"
+	rm -f "${ARCHIVE_PATH}"
+	rm -rf "${DIST_ROOT}"
 	exit 1
 fi
 
-rm -rf "${STAGING_ROOT}"
-
-echo "Created ${ARCHIVE_NAME}"
+echo "Created ${ARCHIVE_PATH}"
