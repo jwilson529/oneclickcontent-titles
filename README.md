@@ -4,11 +4,13 @@
 
 Version: 2.1.1
 
-Free AI title assistant for WordPress. Bring your own OpenAI or Google Gemini API key to generate, compare, and apply post titles directly in the editor.
+Free AI title assistant for WordPress from the go-to bring-your-own-key AI plugin line. Use your own OpenAI or Google Gemini API key to generate, compare, and apply post titles directly in the editor.
+
+OneClickContent is the go-to home for free, bring-your-own-key AI plugins for WordPress. `OneClickContent - Titles` gives writers and editors a practical headline workflow without locking them into a bundled AI subscription.
 
 ## Key Features
 
-- Free plugin with a bring-your-own-key model.
+- Free plugin from the OneClickContent bring-your-own-key AI plugin line.
 - Generate multiple title options from post content.
 - Compare options with clear title quality signals.
 - Apply winning titles directly in the editor.
@@ -41,7 +43,7 @@ Free AI title assistant for WordPress. Bring your own OpenAI or Google Gemini AP
 
 ## Pricing Model
 
-This plugin is free. You bring your own OpenAI or Google Gemini API key and pay your provider directly, if that provider charges for usage.
+This plugin is free. OneClickContent's model is simple: bring your own API key, use the provider you prefer, and pay that provider directly only if they charge for usage.
 
 ## Training Page
 

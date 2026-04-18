@@ -9,13 +9,13 @@ Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Free AI title assistant for WordPress. Bring your own OpenAI or Google Gemini API key to generate, compare, and apply titles in the editor.
+Free AI title assistant for WordPress. Bring your own OpenAI or Google Gemini API key and generate titles in the editor.
 
 == Description ==
 
 OneClickContent - Titles is a free AI title assistant for WordPress. Bring your own API key, generate several headline options from post content, compare them with clear quality signals, and apply the best title without leaving the editor.
 
-This plugin is part of the free OneClickContent bring-your-own-key AI plugin line. You use your own provider account, choose your preferred model, and keep control of your usage directly with OpenAI or Google Gemini.
+OneClickContent is the go-to home for free, bring-your-own-key AI plugins for WordPress. This plugin is part of that line, so you use your own provider account, choose your preferred model, and keep control of your usage directly with OpenAI or Google Gemini.
 
 Writers and editors get a practical title workflow:
 
@@ -25,7 +25,7 @@ Writers and editors get a practical title workflow:
 
 == Features ==
 
-- Free plugin with no bundled AI markup. Bring your own OpenAI or Google Gemini API key.
+- Free plugin from the OneClickContent bring-your-own-key AI plugin line.
 - Generate title options directly from post content in the editor.
 - Compare recommendations with scoring, keyword fit, and quality signals.
 - Apply a chosen title without copying and pasting between screens.
@@ -44,7 +44,7 @@ Writers and editors get a practical title workflow:
 
 = Is the plugin free? =
 
-Yes. The plugin is free. You bring your own API key and pay your AI provider directly, if your provider charges for usage.
+Yes. The plugin is free. OneClickContent's model is bring your own API key and pay your AI provider directly only if that provider charges for usage.
 
 = Do I need API keys? =
 

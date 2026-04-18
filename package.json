@@ -1,7 +1,7 @@
 {
   "name": "oneclickcontent-titles",
   "version": "2.1.1",
-  "description": "Free bring-your-own-key AI title assistant plugin for WordPress.",
+  "description": "Free AI title assistant for WordPress from the OneClickContent bring-your-own-key AI plugin line.",
   "main": "index.js",
   "scripts": {
     "test": "docker compose up --abort-on-container-exit --exit-code-from tests tests",

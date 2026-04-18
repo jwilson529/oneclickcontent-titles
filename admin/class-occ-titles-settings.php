@@ -100,7 +100,7 @@ class Occ_Titles_Settings {
 				<div class="occ_titles-settings-copy">
 					<p class="occ_titles-settings-kicker"><?php esc_html_e( 'OneClickContent Titles', 'oneclickcontent-titles' ); ?></p>
 					<h1 class="occ_titles-settings-title"><?php esc_html_e( 'Set up AI title generation without guesswork', 'oneclickcontent-titles' ); ?></h1>
-					<p class="occ_titles-settings-intro"><?php esc_html_e( 'This page is where you connect your AI provider, decide where the tool appears, and teach it how your brand should sound. The goal is simple: one calm setup now, better titles every time your team writes.', 'oneclickcontent-titles' ); ?></p>
+					<p class="occ_titles-settings-intro"><?php esc_html_e( 'OneClickContent is the go-to home for free, bring-your-own-key AI plugins for WordPress. This page is where you connect your provider, decide where Titles appears, and teach it how your brand should sound.', 'oneclickcontent-titles' ); ?></p>
 					<div class="occ_titles-settings-pills">
 						<span class="occ_titles-settings-pill is-accent"><?php esc_html_e( 'Guided setup', 'oneclickcontent-titles' ); ?></span>
 						<span class="occ_titles-settings-pill"><?php echo esc_html( $provider_label ); ?></span>
@@ -1404,7 +1404,12 @@ class Occ_Titles_Settings {
 		);
 
 		if ( isset( $_POST['field_name'], $_POST['field_value'] ) ) {
-			$field_name = sanitize_text_field( wp_unslash( $_POST['field_name'] ) );
+			$field_name       = sanitize_text_field( wp_unslash( $_POST['field_name'] ) );
+			$field_value_raw  = wp_unslash( $_POST['field_value'] );
+			$field_value_safe = is_array( $field_value_raw )
+				? map_deep( $field_value_raw, 'sanitize_text_field' )
+				: sanitize_text_field( $field_value_raw );
+
 			if ( ! in_array( $field_name, $allowed_fields, true ) ) {
 				Occ_Titles_Logger::get_instance()->warning(
 					'Settings autosave rejected invalid field.',
@@ -1414,21 +1419,19 @@ class Occ_Titles_Settings {
 			}
 
 			if ( 'occ_titles_logging_enabled' === $field_name ) {
-				$field_value = self::occ_titles_sanitize_logging_enabled( sanitize_text_field( wp_unslash( $_POST['field_value'] ) ) );
+				$field_value = self::occ_titles_sanitize_logging_enabled( $field_value_safe );
 			} elseif ( 'occ_titles_voice_profile' === $field_name ) {
-				$field_value = self::occ_titles_sanitize_voice_profile( map_deep( wp_unslash( $_POST['field_value'] ), 'sanitize_text_field' ) );
+				$field_value = self::occ_titles_sanitize_voice_profile( is_array( $field_value_safe ) ? $field_value_safe : array() );
 			} elseif ( 'occ_titles_openai_api_key' === $field_name ) {
-				$field_value = self::occ_titles_sanitize_openai_api_key( sanitize_text_field( wp_unslash( $_POST['field_value'] ) ) );
+				$field_value = self::occ_titles_sanitize_openai_api_key( is_string( $field_value_safe ) ? $field_value_safe : '' );
 			} elseif ( 'occ_titles_google_api_key' === $field_name ) {
-				$field_value = self::occ_titles_sanitize_google_api_key( sanitize_text_field( wp_unslash( $_POST['field_value'] ) ) );
+				$field_value = self::occ_titles_sanitize_google_api_key( is_string( $field_value_safe ) ? $field_value_safe : '' );
 			} elseif ( 'occ_titles_google_model' === $field_name ) {
-				$field_value = self::occ_titles_sanitize_google_model( sanitize_text_field( wp_unslash( $_POST['field_value'] ) ) );
+				$field_value = self::occ_titles_sanitize_google_model( is_string( $field_value_safe ) ? $field_value_safe : '' );
 			} elseif ( 'occ_titles_post_types' === $field_name ) {
-				$field_value = self::occ_titles_sanitize_post_types( wp_unslash( $_POST['field_value'] ) );
+				$field_value = self::occ_titles_sanitize_post_types( is_array( $field_value_safe ) ? $field_value_safe : array() );
 			} else {
-				$field_value = is_array( $_POST['field_value'] )
-					? array_map( 'sanitize_text_field', wp_unslash( $_POST['field_value'] ) )
-					: sanitize_text_field( wp_unslash( $_POST['field_value'] ) );
+				$field_value = $field_value_safe;
 			}
 
 			update_option( $field_name, $field_value );
