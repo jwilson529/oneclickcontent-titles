@@ -392,6 +392,19 @@ class Occ_Titles_Settings {
 	}
 
 	/**
+	 * Build a local help asset URL within the plugin.
+	 *
+	 * @since 1.1.2
+	 * @param string $filename Asset filename.
+	 * @return string
+	 */
+	public static function get_help_asset_url( $filename ) {
+		$filename = sanitize_file_name( $filename );
+
+		return plugin_dir_url( dirname( __DIR__ ) . '/oneclickcontent-titles.php' ) . 'assets/' . $filename;
+	}
+
+	/**
 	 * Outputs the Title Help page content.
 	 *
 	 * @since 1.1.1

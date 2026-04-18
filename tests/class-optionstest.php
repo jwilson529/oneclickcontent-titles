@@ -157,4 +157,31 @@ class OptionsTest extends Occ_Titles_Test_Case {
 		$this->assertSame( array( 'alpha', 'beta' ), $result['must_use'] );
 		$this->assertSame( array( 'spam', 'clickbait' ), $result['avoid'] );
 	}
+
+	/**
+	 * Ensure bundled help assets resolve to local plugin URLs.
+	 *
+	 * @since 1.1.2
+	 * @return void
+	 */
+	public function test_get_help_asset_url_returns_local_plugin_asset() {
+		Functions\when( 'sanitize_file_name' )->alias(
+			function ( $value ) {
+				return basename( (string) $value );
+			}
+		);
+
+		Functions\when( 'plugin_dir_url' )->alias(
+			function () {
+				return 'https://example.com/wp-content/plugins/oneclickcontent-titles/';
+			}
+		);
+
+		$result = Occ_Titles_Settings::get_help_asset_url( 'OneClickContentTitles-Block.png' );
+
+		$this->assertSame(
+			'https://example.com/wp-content/plugins/oneclickcontent-titles/assets/OneClickContentTitles-Block.png',
+			$result
+		);
+	}
 }
