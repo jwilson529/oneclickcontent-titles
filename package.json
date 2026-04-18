@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "docker compose up --abort-on-container-exit --exit-code-from tests tests",
-    "fix": "phpcbf -d memory_limit=512M -d error_reporting=\"E_ALL&~E_DEPRECATED\" --standard=phpcs.xml.dist --extensions=php .",
-    "check": "phpcs -d memory_limit=512M -d error_reporting=\"E_ALL&~E_DEPRECATED\" --standard=phpcs.xml.dist --extensions=php . > check.txt",
-    "phpmd": "phpmd . text phpmd.xml --exclude vendor,node_modules > phpmd.txt",
+    "fix": "vendor/bin/phpcbf -d memory_limit=512M -d error_reporting=\"E_ALL&~E_DEPRECATED\" --standard=phpcs.xml.dist --extensions=php .",
+    "check": "vendor/bin/phpcs -d memory_limit=512M -d error_reporting=\"E_ALL&~E_DEPRECATED\" --standard=phpcs.xml.dist --extensions=php . > check.txt",
+    "phpmd": "vendor/bin/phpmd . text phpmd.xml --exclude vendor,node_modules > phpmd.txt",
     "dist": "bash bin/build-dist.sh",
     "plugin-check": "wp plugin check .",
     "update-wpcs": "composer global require wp-coding-standards/wpcs --update-with-all-dependencies",
