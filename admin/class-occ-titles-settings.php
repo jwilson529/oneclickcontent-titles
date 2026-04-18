@@ -28,8 +28,8 @@ class Occ_Titles_Settings {
 	 */
 	public function occ_titles_register_options_page() {
 		add_options_page(
-			__( 'OneClickContent - Titles Settings', 'oneclickcontent-titles' ),
-			__( 'OCC - Titles', 'oneclickcontent-titles' ),
+			__( 'OneClickContent Title Assistant', 'oneclickcontent-titles' ),
+			__( 'Title Assistant', 'oneclickcontent-titles' ),
 			'manage_options',
 			'occ_titles-settings',
 			array( $this, 'occ_titles_options_page' )
@@ -37,7 +37,7 @@ class Occ_Titles_Settings {
 
 		add_submenu_page(
 			'options-general.php',
-			__( 'OneClickContent - Title Help', 'oneclickcontent-titles' ),
+			__( 'OneClickContent Title Help & Training', 'oneclickcontent-titles' ),
 			__( 'Title Help', 'oneclickcontent-titles' ),
 			'manage_options',
 			'occ_titles-help',
@@ -52,22 +52,343 @@ class Occ_Titles_Settings {
 	 * @return void
 	 */
 	public function occ_titles_options_page() {
+		$provider            = get_option( 'occ_titles_ai_provider', 'openai' );
+		$provider_label      = $this->get_provider_label( $provider );
+		$status_data         = $this->get_api_key_status_data( $provider );
+		$status_label        = $this->get_api_key_status_label( $status_data['status'] );
+		$selected_post_types = (array) get_option( 'occ_titles_post_types', array( 'post' ) );
+		$voice_profile       = get_option( 'occ_titles_voice_profile', array() );
+		$voice_signal_count  = $this->get_voice_profile_signal_count( $voice_profile );
+		$post_type_count     = count( $selected_post_types );
+
+		$setup_checks = array(
+			array(
+				'label'    => __( 'Provider chosen', 'oneclickcontent-titles' ),
+				'complete' => ! empty( $provider ),
+				'detail'   => $provider_label,
+			),
+			array(
+				'label'    => __( 'API connection ready', 'oneclickcontent-titles' ),
+				'complete' => 'valid' === $status_data['status'],
+				'detail'   => $status_label,
+			),
+			array(
+				'label'    => __( 'Editor locations enabled', 'oneclickcontent-titles' ),
+				'complete' => $post_type_count > 0,
+				/* translators: %d: number of enabled post types. */
+				'detail'   => sprintf( _n( '%d post type enabled', '%d post types enabled', $post_type_count, 'oneclickcontent-titles' ), $post_type_count ),
+			),
+			array(
+				'label'    => __( 'Brand voice added', 'oneclickcontent-titles' ),
+				'complete' => $voice_signal_count > 0,
+				/* translators: %d: number of voice cues. */
+				'detail'   => sprintf( _n( '%d cue saved', '%d cues saved', $voice_signal_count, 'oneclickcontent-titles' ), $voice_signal_count ),
+			),
+		);
+
+		$ready_count = count(
+			array_filter(
+				$setup_checks,
+				static function ( $check ) {
+					return ! empty( $check['complete'] );
+				}
+			)
+		);
 		?>
-		<div id="occ_titles" class="wrap">
-			<p>
-				<a class="button button-secondary" href="<?php echo esc_url( admin_url( 'options-general.php?page=occ_titles-help' ) ); ?>">
-					<?php esc_html_e( 'Open Title Help', 'oneclickcontent-titles' ); ?>
-				</a>
-			</p>
-			<form class="occ_titles-settings-form" method="post" action="options.php">
-				<?php
-				settings_fields( 'occ_titles_settings' );
-				do_settings_sections( 'occ_titles_settings' );
-				submit_button();
-				?>
-			</form>
+		<div id="occ_titles" class="wrap occ_titles-settings-shell">
+			<section class="occ_titles-settings-hero">
+				<div class="occ_titles-settings-copy">
+					<p class="occ_titles-settings-kicker"><?php esc_html_e( 'OneClickContent Titles', 'oneclickcontent-titles' ); ?></p>
+					<h1 class="occ_titles-settings-title"><?php esc_html_e( 'Set up AI title generation without guesswork', 'oneclickcontent-titles' ); ?></h1>
+					<p class="occ_titles-settings-intro"><?php esc_html_e( 'This page is where you connect your AI provider, decide where the tool appears, and teach it how your brand should sound. The goal is simple: one calm setup now, better titles every time your team writes.', 'oneclickcontent-titles' ); ?></p>
+					<div class="occ_titles-settings-pills">
+						<span class="occ_titles-settings-pill is-accent"><?php esc_html_e( 'Guided setup', 'oneclickcontent-titles' ); ?></span>
+						<span class="occ_titles-settings-pill"><?php echo esc_html( $provider_label ); ?></span>
+						<span class="occ_titles-settings-pill"><?php echo esc_html( $status_label ); ?></span>
+					</div>
+				</div>
+				<div class="occ_titles-settings-hero-panel">
+					<div class="occ_titles-settings-save-state" aria-live="polite">
+						<span class="occ_titles-settings-save-state-label"><?php esc_html_e( 'Changes save automatically', 'oneclickcontent-titles' ); ?></span>
+						<strong class="occ_titles-settings-save-state-value is-ready"><?php esc_html_e( 'Ready', 'oneclickcontent-titles' ); ?></strong>
+					</div>
+					<div class="occ_titles-settings-progress">
+						<span class="occ_titles-settings-progress-label"><?php esc_html_e( 'Setup progress', 'oneclickcontent-titles' ); ?></span>
+						<strong class="occ_titles-settings-progress-value">
+							<?php
+							printf(
+								/* translators: 1: completed steps, 2: total steps. */
+								esc_html__( '%1$d of %2$d ready', 'oneclickcontent-titles' ),
+								esc_html( (string) $ready_count ),
+								esc_html( (string) count( $setup_checks ) )
+							);
+							?>
+						</strong>
+					</div>
+					<ul class="occ_titles-settings-checklist">
+						<?php foreach ( $setup_checks as $check ) : ?>
+							<li class="<?php echo ! empty( $check['complete'] ) ? 'is-complete' : 'is-pending'; ?>">
+								<span class="occ_titles-settings-checklist-title"><?php echo esc_html( $check['label'] ); ?></span>
+								<span class="occ_titles-settings-checklist-detail"><?php echo esc_html( $check['detail'] ); ?></span>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+					<div class="occ_titles-settings-actions">
+						<a class="button button-primary" href="<?php echo esc_url( admin_url( 'options-general.php?page=occ_titles-help' ) ); ?>">
+							<?php esc_html_e( 'Open Title Help', 'oneclickcontent-titles' ); ?>
+						</a>
+						<a class="button button-secondary" href="#occ_titles_connection_card">
+							<?php esc_html_e( 'Finish setup', 'oneclickcontent-titles' ); ?>
+						</a>
+					</div>
+				</div>
+			</section>
+
+			<div class="occ_titles-settings-layout">
+				<form class="occ_titles-settings-form" method="post" action="options.php">
+					<?php settings_fields( 'occ_titles_settings' ); ?>
+
+					<section id="occ_titles_connection_card" class="occ_titles-settings-card">
+						<div class="occ_titles-settings-card-header">
+							<div class="occ_titles-settings-step">1</div>
+							<div class="occ_titles-settings-card-copy">
+								<p class="occ_titles-settings-card-kicker"><?php esc_html_e( 'Connection', 'oneclickcontent-titles' ); ?></p>
+								<h2><?php esc_html_e( 'Connect your AI provider', 'oneclickcontent-titles' ); ?></h2>
+								<p><?php esc_html_e( 'Choose the service you want to use, paste the API key, and confirm that the connection is working before your team starts generating titles.', 'oneclickcontent-titles' ); ?></p>
+							</div>
+						</div>
+						<div class="occ_titles-settings-card-grid">
+							<?php
+							$this->render_settings_field(
+								array(
+									'label'       => __( 'AI Provider', 'oneclickcontent-titles' ),
+									'description' => __( 'Pick the service that will generate titles for this site.', 'oneclickcontent-titles' ),
+									'callback'    => array( $this, 'occ_titles_ai_provider_callback' ),
+								)
+							);
+
+							if ( 'openai' === $provider ) {
+								$this->render_settings_field(
+									array(
+										'label'       => __( 'OpenAI API Key', 'oneclickcontent-titles' ),
+										'description' => __( 'Paste your secret key. We validate it automatically so you know the connection is actually working.', 'oneclickcontent-titles' ),
+										'callback'    => array( $this, 'occ_titles_openai_api_key_callback' ),
+									)
+								);
+
+								$this->render_settings_field(
+									array(
+										'label'       => __( 'OpenAI Model', 'oneclickcontent-titles' ),
+										'description' => __( 'Choose the model this plugin should use for title generation.', 'oneclickcontent-titles' ),
+										'callback'    => array( $this, 'occ_titles_openai_model_callback' ),
+									)
+								);
+							} else {
+								$this->render_settings_field(
+									array(
+										'label'       => __( 'Google Gemini API Key', 'oneclickcontent-titles' ),
+										'description' => __( 'Paste your Gemini key. We validate it automatically and show the connection status right below the field.', 'oneclickcontent-titles' ),
+										'callback'    => array( $this, 'occ_titles_google_api_key_callback' ),
+									)
+								);
+
+								$this->render_settings_field(
+									array(
+										'label'       => __( 'Google Gemini Model', 'oneclickcontent-titles' ),
+										'description' => __( 'Choose the Gemini model this plugin should use. Flash is the safest default for quick title generation.', 'oneclickcontent-titles' ),
+										'callback'    => array( $this, 'occ_titles_google_model_callback' ),
+									)
+								);
+							}
+							?>
+						</div>
+					</section>
+
+					<section class="occ_titles-settings-card">
+						<div class="occ_titles-settings-card-header">
+							<div class="occ_titles-settings-step">2</div>
+							<div class="occ_titles-settings-card-copy">
+								<p class="occ_titles-settings-card-kicker"><?php esc_html_e( 'Placement', 'oneclickcontent-titles' ); ?></p>
+								<h2><?php esc_html_e( 'Choose where editors can use it', 'oneclickcontent-titles' ); ?></h2>
+								<p><?php esc_html_e( 'Turn the title helper on only where it is helpful. Keep the footprint small so the interface stays clean for everyone else.', 'oneclickcontent-titles' ); ?></p>
+							</div>
+						</div>
+						<div class="occ_titles-settings-card-grid">
+							<?php
+							$this->render_settings_field(
+								array(
+									'label'       => __( 'Editor Locations', 'oneclickcontent-titles' ),
+									'description' => __( 'Pick the post types where the title generator should appear.', 'oneclickcontent-titles' ),
+									'callback'    => array( $this, 'occ_titles_post_types_callback' ),
+									'classes'     => array( 'is-wide' ),
+								)
+							);
+
+							$this->render_settings_field(
+								array(
+									'label'       => __( 'Diagnostics', 'oneclickcontent-titles' ),
+									'description' => __( 'Keep logging on while you are testing providers, prompts, or workflows. You can turn it off later if you want a quieter setup.', 'oneclickcontent-titles' ),
+									'callback'    => array( $this, 'occ_titles_logging_enabled_callback' ),
+									'classes'     => array( 'is-wide' ),
+								)
+							);
+							?>
+						</div>
+					</section>
+
+					<section class="occ_titles-settings-card">
+						<div class="occ_titles-settings-card-header">
+							<div class="occ_titles-settings-step">3</div>
+							<div class="occ_titles-settings-card-copy">
+								<p class="occ_titles-settings-card-kicker"><?php esc_html_e( 'Brand Voice', 'oneclickcontent-titles' ); ?></p>
+								<h2><?php esc_html_e( 'Teach it how your titles should sound', 'oneclickcontent-titles' ); ?></h2>
+								<p><?php esc_html_e( 'This is where you keep the output from feeling generic. Add the tone, language, and examples that match your publication so editors get usable drafts on the first pass.', 'oneclickcontent-titles' ); ?></p>
+							</div>
+						</div>
+						<div class="occ_titles-settings-card-grid">
+							<?php
+							$this->render_settings_field(
+								array(
+									'label'       => __( 'Voice Profile', 'oneclickcontent-titles' ),
+									'description' => __( 'Fill in as much or as little as you need. Even a few examples can materially improve the output.', 'oneclickcontent-titles' ),
+									'callback'    => array( $this, 'occ_titles_voice_profile_callback' ),
+									'classes'     => array( 'is-wide' ),
+								)
+							);
+							?>
+						</div>
+					</section>
+
+					<div class="occ_titles-settings-submit">
+						<div class="occ_titles-settings-submit-copy">
+							<h2><?php esc_html_e( 'Manual save', 'oneclickcontent-titles' ); ?></h2>
+							<p><?php esc_html_e( 'You usually do not need this because the page auto-saves as you go. Use the button below if you prefer a traditional save step.', 'oneclickcontent-titles' ); ?></p>
+						</div>
+						<div class="occ_titles-settings-submit-action">
+							<?php submit_button( __( 'Save all settings', 'oneclickcontent-titles' ), 'primary', 'submit', false ); ?>
+						</div>
+					</div>
+				</form>
+
+				<aside class="occ_titles-settings-sidebar">
+					<section class="occ_titles-settings-sidebar-card">
+						<p class="occ_titles-settings-sidebar-kicker"><?php esc_html_e( 'Quick Start', 'oneclickcontent-titles' ); ?></p>
+						<h2><?php esc_html_e( 'If you only do four things', 'oneclickcontent-titles' ); ?></h2>
+						<ol class="occ_titles-settings-sidebar-list">
+							<li><?php esc_html_e( 'Pick your provider.', 'oneclickcontent-titles' ); ?></li>
+							<li><?php esc_html_e( 'Paste the API key and wait for a valid badge.', 'oneclickcontent-titles' ); ?></li>
+							<li><?php esc_html_e( 'Turn the plugin on for the post types your team actually edits.', 'oneclickcontent-titles' ); ?></li>
+							<li><?php esc_html_e( 'Add a few example titles so the voice feels like your brand, not everybody else’s.', 'oneclickcontent-titles' ); ?></li>
+						</ol>
+					</section>
+
+					<section class="occ_titles-settings-sidebar-card">
+						<p class="occ_titles-settings-sidebar-kicker"><?php esc_html_e( 'Current Setup', 'oneclickcontent-titles' ); ?></p>
+						<h2><?php esc_html_e( 'At a glance', 'oneclickcontent-titles' ); ?></h2>
+						<div class="occ_titles-settings-facts">
+							<div class="occ_titles-settings-fact">
+								<span class="occ_titles-settings-fact-label"><?php esc_html_e( 'Provider', 'oneclickcontent-titles' ); ?></span>
+								<strong><?php echo esc_html( $provider_label ); ?></strong>
+							</div>
+							<div class="occ_titles-settings-fact">
+								<span class="occ_titles-settings-fact-label"><?php esc_html_e( 'Connection', 'oneclickcontent-titles' ); ?></span>
+								<strong><?php echo esc_html( $status_label ); ?></strong>
+							</div>
+							<div class="occ_titles-settings-fact">
+								<span class="occ_titles-settings-fact-label"><?php esc_html_e( 'Enabled locations', 'oneclickcontent-titles' ); ?></span>
+								<strong><?php echo esc_html( (string) $post_type_count ); ?></strong>
+							</div>
+							<div class="occ_titles-settings-fact">
+								<span class="occ_titles-settings-fact-label"><?php esc_html_e( 'Voice cues', 'oneclickcontent-titles' ); ?></span>
+								<strong><?php echo esc_html( (string) $voice_signal_count ); ?></strong>
+							</div>
+						</div>
+					</section>
+				</aside>
+			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Render a wrapped settings field.
+	 *
+	 * @since 1.1.1
+	 * @param array $args Field arguments.
+	 * @return void
+	 */
+	private function render_settings_field( $args ) {
+		$classes     = array( 'occ_titles-settings-field' );
+		$extra_class = isset( $args['classes'] ) && is_array( $args['classes'] ) ? $args['classes'] : array();
+		$classes     = array_merge( $classes, $extra_class );
+		$label       = isset( $args['label'] ) ? $args['label'] : '';
+		$description = isset( $args['description'] ) ? $args['description'] : '';
+		$callback    = isset( $args['callback'] ) ? $args['callback'] : null;
+
+		if ( ! is_callable( $callback ) ) {
+			return;
+		}
+
+		ob_start();
+		call_user_func( $callback );
+		$field_markup = ob_get_clean();
+
+		echo '<section class="' . esc_attr( implode( ' ', $classes ) ) . '">';
+		echo '<div class="occ_titles-settings-field-head">';
+		echo '<h3 class="occ_titles-settings-field-title">' . esc_html( $label ) . '</h3>';
+		if ( ! empty( $description ) ) {
+			echo '<p class="occ_titles-settings-field-description">' . esc_html( $description ) . '</p>';
+		}
+		echo '</div>';
+		echo '<div class="occ_titles-settings-field-control">';
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Field markup is generated by trusted internal callbacks.
+		echo $field_markup;
+		echo '</div>';
+		echo '</section>';
+	}
+
+	/**
+	 * Get the display label for a provider.
+	 *
+	 * @since 1.1.1
+	 * @param string $provider Provider slug.
+	 * @return string
+	 */
+	private function get_provider_label( $provider ) {
+		if ( 'google' === $provider ) {
+			return __( 'Google Gemini', 'oneclickcontent-titles' );
+		}
+
+		return __( 'OpenAI', 'oneclickcontent-titles' );
+	}
+
+	/**
+	 * Count saved voice profile cues.
+	 *
+	 * @since 1.1.1
+	 * @param array $profile Voice profile data.
+	 * @return int
+	 */
+	private function get_voice_profile_signal_count( $profile ) {
+		$profile = is_array( $profile ) ? $profile : array();
+		$count   = 0;
+
+		foreach ( $profile as $value ) {
+			if ( is_array( $value ) ) {
+				$count += count(
+					array_filter(
+						$value,
+						static function ( $item ) {
+							return '' !== trim( (string) $item );
+						}
+					)
+				);
+			} elseif ( '' !== trim( (string) $value ) ) {
+				++$count;
+			}
+		}
+
+		return $count;
 	}
 
 	/**
@@ -371,7 +692,7 @@ class Occ_Titles_Settings {
 		// Add the settings section.
 		add_settings_section(
 			'occ_titles_settings_section',
-			__( 'OneClickContent - Titles Settings', 'oneclickcontent-titles' ),
+			__( 'Title Assistant Settings', 'oneclickcontent-titles' ),
 			array( $this, 'occ_titles_settings_section_callback' ),
 			'occ_titles_settings'
 		);
@@ -446,6 +767,11 @@ class Occ_Titles_Settings {
 				'occ_titles_google_api_key',
 				array( 'sanitize_callback' => array( __CLASS__, 'occ_titles_sanitize_google_api_key' ) )
 			);
+			register_setting(
+				'occ_titles_settings',
+				'occ_titles_google_model',
+				array( 'sanitize_callback' => array( __CLASS__, 'occ_titles_sanitize_google_model' ) )
+			);
 
 			add_settings_field(
 				'occ_titles_google_api_key',
@@ -454,6 +780,14 @@ class Occ_Titles_Settings {
 				'occ_titles_settings',
 				'occ_titles_settings_section',
 				array( 'label_for' => 'occ_titles_google_api_key' )
+			);
+			add_settings_field(
+				'occ_titles_google_model',
+				__( 'Google Gemini Model', 'oneclickcontent-titles' ),
+				array( $this, 'occ_titles_google_model_callback' ),
+				'occ_titles_settings',
+				'occ_titles_settings_section',
+				array( 'label_for' => 'occ_titles_google_model' )
 			);
 
 		}
@@ -593,6 +927,23 @@ class Occ_Titles_Settings {
 	}
 
 	/**
+	 * Sanitize the Google Gemini model.
+	 *
+	 * @since 2.0.1
+	 * @param string $input Raw input.
+	 * @return string Sanitized value.
+	 */
+	public static function occ_titles_sanitize_google_model( $input ) {
+		$model = sanitize_text_field( $input );
+
+		if ( '' === $model || 1 !== preg_match( '/^gemini[a-z0-9.\-]*$/i', $model ) ) {
+			return 'gemini-2.5-flash';
+		}
+
+		return $model;
+	}
+
+	/**
 	 * Update the stored API key validation status.
 	 *
 	 * @since 1.1.1
@@ -684,11 +1035,10 @@ class Occ_Titles_Settings {
 	 */
 	public function occ_titles_ai_provider_callback() {
 		$selected = get_option( 'occ_titles_ai_provider', 'openai' );
-		echo '<select id="occ_titles_ai_provider" name="occ_titles_ai_provider">';
+		echo '<select class="occ_titles-field-input" id="occ_titles_ai_provider" name="occ_titles_ai_provider">';
 		echo '<option value="openai"' . selected( $selected, 'openai', false ) . '>OpenAI</option>';
 		echo '<option value="google"' . selected( $selected, 'google', false ) . '>Google Gemini</option>';
 		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'Select the AI Provider to use for generating titles.', 'oneclickcontent-titles' ) . '</p>';
 	}
 
 	/**
@@ -704,9 +1054,9 @@ class Occ_Titles_Settings {
 			return;
 		}
 		$value = get_option( 'occ_titles_openai_api_key', '' );
-		echo '<input type="password" name="occ_titles_openai_api_key" value="' . esc_attr( $value ) . '" />';
+		echo '<input class="occ_titles-field-input occ_titles-field-input--secret" type="password" name="occ_titles_openai_api_key" value="' . esc_attr( $value ) . '" autocomplete="off" spellcheck="false" />';
 		$this->render_api_key_badge( 'openai' );
-		echo '<p class="description">' . wp_kses_post( __( 'Get your OpenAI API Key <a href="https://beta.openai.com/signup/">here</a>.', 'oneclickcontent-titles' ) ) . '</p>';
+		echo '<p class="occ_titles-field-inline-note">' . wp_kses_post( __( 'Need a key? Create one in your <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI account</a>.', 'oneclickcontent-titles' ) ) . '</p>';
 	}
 
 	/**
@@ -722,9 +1072,50 @@ class Occ_Titles_Settings {
 			return;
 		}
 		$value = get_option( 'occ_titles_google_api_key', '' );
-		echo '<input type="password" name="occ_titles_google_api_key" value="' . esc_attr( $value ) . '" />';
+		echo '<input class="occ_titles-field-input occ_titles-field-input--secret" type="password" name="occ_titles_google_api_key" value="' . esc_attr( $value ) . '" autocomplete="off" spellcheck="false" />';
 		$this->render_api_key_badge( 'google' );
-		echo '<p class="description">' . esc_html__( 'Get your Google Gemini API Key from your provider dashboard.', 'oneclickcontent-titles' ) . '</p>';
+		echo '<p class="occ_titles-field-inline-note">' . esc_html__( 'Create or copy your Gemini key from Google AI Studio, then paste it here.', 'oneclickcontent-titles' ) . '</p>';
+	}
+
+	/**
+	 * Callback function for the Google Gemini Model setting field.
+	 *
+	 * @since 2.0.1
+	 * @return void
+	 */
+	public function occ_titles_google_model_callback() {
+		$provider = get_option( 'occ_titles_ai_provider', 'openai' );
+		if ( 'google' !== $provider ) {
+			return;
+		}
+
+		$selected_model = get_option( 'occ_titles_google_model', 'gemini-2.5-flash' );
+		$api_key        = get_option( 'occ_titles_google_api_key', '' );
+		$models         = array();
+
+		if ( ! empty( $api_key ) ) {
+			$models = Occ_Titles_Google_Helper::get_available_google_models( $api_key );
+		}
+
+		if ( ! is_array( $models ) || empty( $models ) ) {
+			$models = array(
+				'gemini-2.5-flash'      => __( 'Gemini 2.5 Flash (recommended fallback)', 'oneclickcontent-titles' ),
+				'gemini-2.5-flash-lite' => __( 'Gemini 2.5 Flash-Lite', 'oneclickcontent-titles' ),
+				'gemini-2.5-pro'        => __( 'Gemini 2.5 Pro', 'oneclickcontent-titles' ),
+			);
+		}
+
+		if ( ! isset( $models[ $selected_model ] ) ) {
+			/* translators: %s: model slug currently saved in settings. */
+			$models = array( $selected_model => sprintf( __( '%s (saved model)', 'oneclickcontent-titles' ), $selected_model ) ) + $models;
+		}
+
+		echo '<select class="occ_titles-field-input" name="occ_titles_google_model" id="occ_titles_google_model">';
+		foreach ( $models as $model => $label ) {
+			echo '<option value="' . esc_attr( $model ) . '"' . selected( $selected_model, $model, false ) . '>' . esc_html( $label ) . '</option>';
+		}
+		echo '</select>';
+		echo '<p class="occ_titles-field-inline-note">' . esc_html__( 'This list is loaded from your Google Gemini account when possible, so new supported text-generation models can appear automatically.', 'oneclickcontent-titles' ) . '</p>';
 	}
 
 	/**
@@ -751,12 +1142,11 @@ class Occ_Titles_Settings {
 			return;
 		}
 
-		echo '<select name="occ_titles_openai_model" id="occ_titles_openai_model">';
+		echo '<select class="occ_titles-field-input" name="occ_titles_openai_model" id="occ_titles_openai_model">';
 		foreach ( $models as $model ) {
 			echo '<option value="' . esc_attr( $model ) . '"' . selected( $selected_model, $model, false ) . '>' . esc_html( $model ) . '</option>';
 		}
 		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'Select the OpenAI model to use for completions.', 'oneclickcontent-titles' ) . '</p>';
 	}
 
 	/**
@@ -767,9 +1157,14 @@ class Occ_Titles_Settings {
 	 */
 	public function occ_titles_logging_enabled_callback() {
 		$enabled = (int) get_option( 'occ_titles_logging_enabled', 1 );
-		echo '<label for="occ_titles_logging_enabled">';
+		echo '<label class="occ_titles-switch-card" for="occ_titles_logging_enabled">';
+		echo '<span class="occ_titles-switch-card-copy">';
+		echo '<strong>' . esc_html__( 'Keep troubleshooting logs', 'oneclickcontent-titles' ) . '</strong>';
+		echo '<span>' . esc_html__( 'Recommended while you are testing providers, prompts, or output quality.', 'oneclickcontent-titles' ) . '</span>';
+		echo '</span>';
+		echo '<span class="occ_titles-switch-card-toggle">';
 		echo '<input type="checkbox" id="occ_titles_logging_enabled" name="occ_titles_logging_enabled" value="1" ' . checked( 1, $enabled, false ) . '>';
-		echo esc_html__( 'Write diagnostic logs to the plugin log file.', 'oneclickcontent-titles' );
+		echo '<span class="occ_titles-switch-card-track" aria-hidden="true"></span>';
 		echo '</label>';
 	}
 
@@ -791,8 +1186,10 @@ class Occ_Titles_Settings {
 		$examples        = isset( $profile['examples'] ) ? implode( "\n", (array) $profile['examples'] ) : '';
 
 		echo '<div class="occ_titles-voice-grid">';
-		echo '<p><label for="occ_titles_voice_tone"><strong>' . esc_html__( 'Tone', 'oneclickcontent-titles' ) . '</strong></label></p>';
-		echo '<select id="occ_titles_voice_tone" name="occ_titles_voice_profile[tone]">';
+		echo '<div class="occ_titles-voice-field">';
+		echo '<label for="occ_titles_voice_tone"><strong>' . esc_html__( 'Tone', 'oneclickcontent-titles' ) . '</strong></label>';
+		echo '<p class="occ_titles-voice-field-description">' . esc_html__( 'Pick the overall personality you want the titles to have.', 'oneclickcontent-titles' ) . '</p>';
+		echo '<select class="occ_titles-field-input" id="occ_titles_voice_tone" name="occ_titles_voice_profile[tone]">';
 		echo '<option value="">' . esc_html__( 'Select tone', 'oneclickcontent-titles' ) . '</option>';
 		foreach ( array( 'casual', 'authoritative', 'playful', 'friendly', 'direct', 'journalistic' ) as $option ) {
 			printf(
@@ -803,9 +1200,12 @@ class Occ_Titles_Settings {
 			);
 		}
 		echo '</select>';
+		echo '</div>';
 
-		echo '<p><label for="occ_titles_voice_formality"><strong>' . esc_html__( 'Formality', 'oneclickcontent-titles' ) . '</strong></label></p>';
-		echo '<select id="occ_titles_voice_formality" name="occ_titles_voice_profile[formality]">';
+		echo '<div class="occ_titles-voice-field">';
+		echo '<label for="occ_titles_voice_formality"><strong>' . esc_html__( 'Formality', 'oneclickcontent-titles' ) . '</strong></label>';
+		echo '<p class="occ_titles-voice-field-description">' . esc_html__( 'Set how polished or conversational the writing should feel.', 'oneclickcontent-titles' ) . '</p>';
+		echo '<select class="occ_titles-field-input" id="occ_titles_voice_formality" name="occ_titles_voice_profile[formality]">';
 		echo '<option value="">' . esc_html__( 'Select formality', 'oneclickcontent-titles' ) . '</option>';
 		foreach ( array( 'informal', 'balanced', 'formal' ) as $option ) {
 			printf(
@@ -816,9 +1216,12 @@ class Occ_Titles_Settings {
 			);
 		}
 		echo '</select>';
+		echo '</div>';
 
-		echo '<p><label for="occ_titles_voice_sentence_length"><strong>' . esc_html__( 'Sentence Length', 'oneclickcontent-titles' ) . '</strong></label></p>';
-		echo '<select id="occ_titles_voice_sentence_length" name="occ_titles_voice_profile[sentence_length]">';
+		echo '<div class="occ_titles-voice-field">';
+		echo '<label for="occ_titles_voice_sentence_length"><strong>' . esc_html__( 'Sentence Length', 'oneclickcontent-titles' ) . '</strong></label>';
+		echo '<p class="occ_titles-voice-field-description">' . esc_html__( 'Guide how compact or explanatory the titles should read.', 'oneclickcontent-titles' ) . '</p>';
+		echo '<select class="occ_titles-field-input" id="occ_titles_voice_sentence_length" name="occ_titles_voice_profile[sentence_length]">';
 		echo '<option value="">' . esc_html__( 'Select length', 'oneclickcontent-titles' ) . '</option>';
 		foreach ( array( 'short', 'medium', 'long' ) as $option ) {
 			printf(
@@ -829,9 +1232,12 @@ class Occ_Titles_Settings {
 			);
 		}
 		echo '</select>';
+		echo '</div>';
 
-		echo '<p><label for="occ_titles_voice_cta"><strong>' . esc_html__( 'CTA Style', 'oneclickcontent-titles' ) . '</strong></label></p>';
-		echo '<select id="occ_titles_voice_cta" name="occ_titles_voice_profile[cta_style]">';
+		echo '<div class="occ_titles-voice-field">';
+		echo '<label for="occ_titles_voice_cta"><strong>' . esc_html__( 'CTA Style', 'oneclickcontent-titles' ) . '</strong></label>';
+		echo '<p class="occ_titles-voice-field-description">' . esc_html__( 'Decide whether titles should invite action and how direct that invitation should be.', 'oneclickcontent-titles' ) . '</p>';
+		echo '<select class="occ_titles-field-input" id="occ_titles_voice_cta" name="occ_titles_voice_profile[cta_style]">';
 		echo '<option value="">' . esc_html__( 'Select CTA', 'oneclickcontent-titles' ) . '</option>';
 		foreach ( array( 'none', 'soft', 'direct' ) as $option ) {
 			printf(
@@ -842,18 +1248,25 @@ class Occ_Titles_Settings {
 			);
 		}
 		echo '</select>';
+		echo '</div>';
 
-		echo '<p><label for="occ_titles_voice_must_use"><strong>' . esc_html__( 'Must-use words', 'oneclickcontent-titles' ) . '</strong></label></p>';
-		echo '<textarea id="occ_titles_voice_must_use" name="occ_titles_voice_profile[must_use]" rows="3" class="large-text">' . esc_textarea( $must_use ) . '</textarea>';
-		echo '<p class="description">' . esc_html__( 'One word or phrase per line. These should appear when possible.', 'oneclickcontent-titles' ) . '</p>';
+		echo '<div class="occ_titles-voice-field is-wide">';
+		echo '<label for="occ_titles_voice_must_use"><strong>' . esc_html__( 'Must-use words', 'oneclickcontent-titles' ) . '</strong></label>';
+		echo '<p class="occ_titles-voice-field-description">' . esc_html__( 'One word or phrase per line. Use this for terms that should show up whenever they fit naturally.', 'oneclickcontent-titles' ) . '</p>';
+		echo '<textarea id="occ_titles_voice_must_use" name="occ_titles_voice_profile[must_use]" rows="4" class="occ_titles-field-textarea">' . esc_textarea( $must_use ) . '</textarea>';
+		echo '</div>';
 
-		echo '<p><label for="occ_titles_voice_avoid"><strong>' . esc_html__( 'Avoid words', 'oneclickcontent-titles' ) . '</strong></label></p>';
-		echo '<textarea id="occ_titles_voice_avoid" name="occ_titles_voice_profile[avoid]" rows="3" class="large-text">' . esc_textarea( $avoid ) . '</textarea>';
-		echo '<p class="description">' . esc_html__( 'One word or phrase per line. The model should avoid these.', 'oneclickcontent-titles' ) . '</p>';
+		echo '<div class="occ_titles-voice-field is-wide">';
+		echo '<label for="occ_titles_voice_avoid"><strong>' . esc_html__( 'Avoid words', 'oneclickcontent-titles' ) . '</strong></label>';
+		echo '<p class="occ_titles-voice-field-description">' . esc_html__( 'One word or phrase per line. Use this to avoid jargon, hype, or phrases your team never wants to publish.', 'oneclickcontent-titles' ) . '</p>';
+		echo '<textarea id="occ_titles_voice_avoid" name="occ_titles_voice_profile[avoid]" rows="4" class="occ_titles-field-textarea">' . esc_textarea( $avoid ) . '</textarea>';
+		echo '</div>';
 
-		echo '<p><label for="occ_titles_voice_examples"><strong>' . esc_html__( 'Example titles', 'oneclickcontent-titles' ) . '</strong></label></p>';
-		echo '<textarea id="occ_titles_voice_examples" name="occ_titles_voice_profile[examples]" rows="4" class="large-text">' . esc_textarea( $examples ) . '</textarea>';
-		echo '<p class="description">' . esc_html__( 'Paste 3–10 example titles that represent your voice.', 'oneclickcontent-titles' ) . '</p>';
+		echo '<div class="occ_titles-voice-field is-wide">';
+		echo '<label for="occ_titles_voice_examples"><strong>' . esc_html__( 'Example titles', 'oneclickcontent-titles' ) . '</strong></label>';
+		echo '<p class="occ_titles-voice-field-description">' . esc_html__( 'Paste 3 to 10 titles you already love. This is the fastest way to make the output feel like your publication.', 'oneclickcontent-titles' ) . '</p>';
+		echo '<textarea id="occ_titles_voice_examples" name="occ_titles_voice_profile[examples]" rows="6" class="occ_titles-field-textarea">' . esc_textarea( $examples ) . '</textarea>';
+		echo '</div>';
 		echo '</div>';
 	}
 	/**
@@ -864,21 +1277,23 @@ class Occ_Titles_Settings {
 	 */
 	public function occ_titles_post_types_callback() {
 		$selected_post_types = (array) get_option( 'occ_titles_post_types', array( 'post' ) );
-		$post_types          = get_post_types( array( 'public' => true ), 'names', 'and' );
+		$post_types          = get_post_types( array( 'public' => true ), 'objects', 'and' );
 		unset( $post_types['attachment'] );
 
-		echo '<p>' . esc_html__( 'Select which post types OneClickContent - Titles should be enabled on:', 'oneclickcontent-titles' ) . '</p>';
-		echo '<p><em>' . esc_html__( 'Custom post types must have titles enabled.', 'oneclickcontent-titles' ) . '</em></p>';
-
-		foreach ( $post_types as $post_type ) {
-			$checked         = in_array( $post_type, $selected_post_types, true ) ? 'checked' : '';
-			$post_type_label = str_replace( '_', ' ', ucwords( $post_type ) );
-			echo '<label class="toggle-switch">';
-			echo '<input type="checkbox" name="occ_titles_post_types[]" value="' . esc_attr( $post_type ) . '" class="occ_titles-settings-checkbox" ' . esc_attr( $checked ) . '>';
-			echo '<span class="slider"></span>';
+		echo '<div class="occ_titles-post-type-grid">';
+		foreach ( $post_types as $post_type => $post_type_object ) {
+			$checked         = in_array( $post_type, $selected_post_types, true );
+			$post_type_label = ! empty( $post_type_object->labels->singular_name ) ? $post_type_object->labels->singular_name : str_replace( '_', ' ', ucwords( $post_type ) );
+			echo '<label class="occ_titles-post-type-card">';
+			echo '<input type="checkbox" name="occ_titles_post_types[]" value="' . esc_attr( $post_type ) . '" class="occ_titles-settings-checkbox" ' . checked( true, $checked, false ) . '>';
+			echo '<span class="occ_titles-post-type-card-body">';
+			echo '<span class="occ_titles-post-type-card-title">' . esc_html( $post_type_label ) . '</span>';
+			echo '<span class="occ_titles-post-type-card-description">' . esc_html__( 'Show the title helper in this editor.', 'oneclickcontent-titles' ) . '</span>';
+			echo '</span>';
+			echo '<span class="occ_titles-post-type-card-state">' . esc_html__( 'Select', 'oneclickcontent-titles' ) . '</span>';
 			echo '</label>';
-			echo '<span class="post-type-label">' . esc_html( $post_type_label ) . '</span><br>';
 		}
+		echo '</div>';
 	}
 
 	/**
@@ -934,7 +1349,9 @@ class Occ_Titles_Settings {
 			'occ_titles_post_types',
 			'occ_titles_openai_model',
 			'occ_titles_google_api_key',
+			'occ_titles_google_model',
 			'occ_titles_logging_enabled',
+			'occ_titles_voice_profile',
 		);
 
 		if ( isset( $_POST['field_name'], $_POST['field_value'] ) ) {
@@ -948,11 +1365,15 @@ class Occ_Titles_Settings {
 			}
 
 			if ( 'occ_titles_logging_enabled' === $field_name ) {
-				$field_value = self::occ_titles_sanitize_logging_enabled( wp_unslash( $_POST['field_value'] ) );
+				$field_value = self::occ_titles_sanitize_logging_enabled( sanitize_text_field( wp_unslash( $_POST['field_value'] ) ) );
+			} elseif ( 'occ_titles_voice_profile' === $field_name ) {
+				$field_value = self::occ_titles_sanitize_voice_profile( map_deep( wp_unslash( $_POST['field_value'] ), 'sanitize_text_field' ) );
 			} elseif ( 'occ_titles_openai_api_key' === $field_name ) {
-				$field_value = self::occ_titles_sanitize_openai_api_key( wp_unslash( $_POST['field_value'] ) );
+				$field_value = self::occ_titles_sanitize_openai_api_key( sanitize_text_field( wp_unslash( $_POST['field_value'] ) ) );
 			} elseif ( 'occ_titles_google_api_key' === $field_name ) {
-				$field_value = self::occ_titles_sanitize_google_api_key( wp_unslash( $_POST['field_value'] ) );
+				$field_value = self::occ_titles_sanitize_google_api_key( sanitize_text_field( wp_unslash( $_POST['field_value'] ) ) );
+			} elseif ( 'occ_titles_google_model' === $field_name ) {
+				$field_value = self::occ_titles_sanitize_google_model( sanitize_text_field( wp_unslash( $_POST['field_value'] ) ) );
 			} else {
 				$field_value = is_array( $_POST['field_value'] )
 					? array_map( 'sanitize_text_field', wp_unslash( $_POST['field_value'] ) )

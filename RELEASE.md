@@ -12,6 +12,7 @@ This repo ships WordPress.org releases through GitHub Actions. This is the relea
   - `SLUG=oneclickcontent-titles`
   - `BUILD_DIR=dist/oneclickcontent-titles`
   - `ASSETS_DIR=assets`
+- `assets/` stays in the repository for wordpress.org directory artwork and is not bundled into the install zip.
 - GitHub repo secrets required for deploy:
   - `WPORG_USERNAME`
   - `WPORG_PASSWORD`
@@ -27,11 +28,12 @@ This repo ships WordPress.org releases through GitHub Actions. This is the relea
 3. Verify the build output shape.
    - `dist/oneclickcontent-titles/` must be the plugin root.
    - `dist/oneclickcontent-titles.zip` must install with a top-level `oneclickcontent-titles/` folder.
+   - The zip must contain `oneclickcontent-titles/oneclickcontent-titles.php` and `oneclickcontent-titles/readme.txt`.
 4. Push `main`.
    - The tagged commit and default branch should match.
 5. Create and push an annotated version tag.
-   - Example: `git tag -a v1.3.0 -m "Release v1.3.0"`
-   - Example: `git push origin v1.3.0`
+   - Example: `git tag -a v2.1.0 -m "Release v2.1.0"`
+   - Example: `git push origin v2.1.0`
 6. Publish the GitHub Release from that tag.
    - The release workflow will re-run validation, deploy to wp.org SVN, and attach the generated zip to the GitHub Release.
 7. Verify the release outputs.

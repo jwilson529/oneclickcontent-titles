@@ -68,7 +68,7 @@ class Occ_Titles {
 		if ( defined( 'OCC_TITLES_VERSION' ) ) {
 			$this->version = OCC_TITLES_VERSION;
 		} else {
-			$this->version = '2.0.1';
+			$this->version = '2.1.0';
 		}
 		$this->plugin_name = 'oneclickcontent-titles';
 
@@ -122,19 +122,15 @@ class Occ_Titles {
 	}
 
 	/**
-	 * Define the locale for this plugin for internationalization.
+	 * Define the locale handling for this plugin.
 	 *
-	 * Uses the Occ_Titles_I18n class to set the domain and to register the hook
-	 * with WordPress.
+	 * WordPress.org-hosted plugins load translations just in time, so no
+	 * manual textdomain bootstrap is required here.
 	 *
 	 * @since 1.0.0
 	 * @access private
 	 */
 	private function set_locale() {
-
-		$plugin_i18n = new Occ_Titles_I18n();
-
-		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
 	}
 
 	/**

@@ -14,8 +14,8 @@
  * @wordpress-plugin
  * Plugin Name:       OneClickContent - Titles
  * Plugin URI:        https://oneclickcontent.com
- * Description:       Generate and score titles for SEO
- * Version:           2.0.1
+ * Description:       Free AI title assistant for WordPress. Bring your own OpenAI or Google Gemini API key.
+ * Version:           2.1.0
  * Author:            James Wilson
  * Author URI:        https://oneclickcontent.com/
  * License:           GPL-2.0+
@@ -32,7 +32,7 @@ defined( 'ABSPATH' ) || exit;
  * Currently plugin version.
  * Use SemVer - https://semver.org
  */
-define( 'OCC_TITLES_VERSION', '2.0.1' );
+define( 'OCC_TITLES_VERSION', '2.1.0' );
 
 /**
  * The code that runs during plugin activation.

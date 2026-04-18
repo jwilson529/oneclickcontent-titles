@@ -18,6 +18,7 @@ vendor/
 
 # Build artifacts
 .dist/
+dist/
 oneclickcontent-titles/
 *.zip
 *.tar.gz
@@ -39,6 +40,8 @@ coverage/
 
 # Logs and temp
 *.log
+occ-titles.log
+plugin-error.log
 *.tmp
 *.swp
 *.bak
@@ -51,6 +54,7 @@ pnpm-debug.log*
 session_id.txt
 
 # Local automation artifacts
+.codex
 .codex_index.json
 .codex_run_meta.json
 .codex_tasks.csv

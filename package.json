@@ -1,7 +1,7 @@
 {
   "name": "oneclickcontent-titles",
-  "version": "2.0.1",
-  "description": "",
+  "version": "2.1.0",
+  "description": "Free bring-your-own-key AI title assistant plugin for WordPress.",
   "main": "index.js",
   "scripts": {
     "test": "docker compose up --abort-on-container-exit --exit-code-from tests tests",
@@ -20,7 +20,7 @@
     "url": "git+https://github.com/jwilson529/oneclickcontent-titles.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "GPL-2.0-or-later",
   "bugs": {
     "url": "https://github.com/jwilson529/oneclickcontent-titles/issues"
   },

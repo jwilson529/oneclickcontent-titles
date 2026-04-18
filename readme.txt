@@ -1,51 +1,66 @@
 === OneClickContent - Titles ===
 Contributors: jwilson529
 Donate link: https://oneclickcontent.com/donate/
-Tags: ai, seo, titles, content-optimization, content-enhancement
+Tags: ai, seo, titles, openai, gemini
 Requires at least: 5.0
-Tested up to: 6.8
-Stable tag: 2.0.1
+Tested up to: 6.9
+Stable tag: 2.1.0
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Generate, score, and apply SEO-friendly titles in the editor with OpenAI or Google Gemini.
+Free AI title assistant for WordPress. Bring your own OpenAI or Google Gemini API key to generate, compare, and apply titles in the editor.
 
 == Description ==
 
-OneClickContent - Titles gives writers and editors a practical headline workflow:
+OneClickContent - Titles is a free AI title assistant for WordPress. Bring your own API key, generate several headline options from post content, compare them with clear quality signals, and apply the best title without leaving the editor.
+
+This plugin is part of the free OneClickContent bring-your-own-key AI plugin line. You use your own provider account, choose your preferred model, and keep control of your usage directly with OpenAI or Google Gemini.
+
+Writers and editors get a practical title workflow:
 
 1. Click Generate Titles.
 2. Compare recommended options with quality signals.
 3. Apply the best title.
 
-This release includes a major v2 refresh and built-in training support for teams.
-
 == Features ==
 
-- Generate title options from post content.
-- Score options for readability, structure, and keyword fit.
-- Preview options and apply directly in the editor.
-- Use OpenAI or Google Gemini as your provider.
-- Train editors with the built-in Title Help page.
+- Free plugin with no bundled AI markup. Bring your own OpenAI or Google Gemini API key.
+- Generate title options directly from post content in the editor.
+- Compare recommendations with scoring, keyword fit, and quality signals.
+- Apply a chosen title without copying and pasting between screens.
+- Load Google Gemini model choices from the API when available.
+- Train editors with the built-in Title Help page and guided settings experience.
 
 == Installation ==
 
 1. Upload plugin files to `/wp-content/plugins/oneclickcontent-titles`.
 2. Activate the plugin via the Plugins screen.
-3. Go to `Settings -> OCC - Titles`.
+3. Go to `Settings -> Title Assistant`.
 4. Add your API key and select your provider.
 5. Open a post and click Generate Titles.
 
 == Frequently Asked Questions ==
 
-= Where is the training page? =
+= Is the plugin free? =
 
-Go to `Settings -> Title Help`.
+Yes. The plugin is free. You bring your own API key and pay your AI provider directly, if your provider charges for usage.
 
 = Do I need API keys? =
 
 Yes. Add a valid OpenAI or Google Gemini API key in settings.
+
+= Which providers are supported? =
+
+OpenAI and Google Gemini are supported. Gemini model choices are loaded from the API when available so the list stays current without plugin updates.
+
+= Where is the training page? =
+
+Go to `Settings -> Title Help`.
+
+= Does the plugin store my content? =
+
+The plugin stores generated title suggestions inside WordPress so you can review and apply them later. Post content is sent to your selected provider only when you generate titles.
 
 = Does this replace writer judgment? =
 
@@ -59,6 +74,13 @@ The plugin sends post content to your selected provider for title generation.
 - Google privacy policy: https://policies.google.com/privacy
 
 == Changelog ==
+
+= 2.1.0 =
+* Repositioned the plugin as a free, bring-your-own-key AI title assistant for WordPress.
+* Added live Google Gemini model loading from the Models API with caching and safe fallbacks.
+* Switched Gemini generation to structured JSON output and improved provider error handling.
+* Refined the editor, settings, and help experiences for a clearer, simpler workflow.
+* Tightened release packaging and installable zip validation.
 
 = 2.0.1 =
 * Added server-side cooldown protection for title generation requests to reduce accidental bursts.
@@ -78,6 +100,9 @@ The plugin sends post content to your selected provider for title generation.
 * Added richer scoring and title comparison experience.
 
 == Upgrade Notice ==
+
+= 2.1.0 =
+Free bring-your-own-key release with live Gemini model loading, stronger Gemini response handling, and a more approachable admin experience.
 
 = 2.0.1 =
 Hardening release with generation cooldown protection, uninstall cleanup, and reduced API key validation request volume.

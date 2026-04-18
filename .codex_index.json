@@ -1,5 +1,5 @@
 {
-  "current_commit": "531bbf3078e3e4c269f387b9779039573b28c5f2",
+  "current_commit": "1db18d7afca5cf7d53d5913b96130c1a369ca0b4",
   "working_tree_dirty": true,
   "files": {
     "main_plugin_file": "oneclickcontent-titles.php",
@@ -33,6 +33,7 @@
       "tests/class-mainclasstest.php",
       "tests/class-optionstest.php",
       "tests/class-loggertest.php",
+      "tests/class-providerhelpertest.php",
       "tests/class-uninstallertest.php",
       "tests/class-adminresultstest.php",
       "tests/class-occ-titles-test-component.php",

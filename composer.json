@@ -1,7 +1,7 @@
 {
 	"name": "oneclickcontent/oneclickcontent-titles",
 	"type": "wordpress-plugin",
-	"description": "OneClickContent - Titles plugin.",
+	"description": "Free bring-your-own-key AI title assistant plugin for WordPress.",
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {

@@ -2,34 +2,40 @@
 
 ![Plugin Banner](assets/banner-772x250.png)
 
-Version: 2.0.1
+Version: 2.1.0
 
-Generate, score, and apply SEO-friendly post titles directly in the WordPress editor using OpenAI or Google Gemini.
+Free AI title assistant for WordPress. Bring your own OpenAI or Google Gemini API key to generate, compare, and apply post titles directly in the editor.
 
 ## Key Features
 
+- Free plugin with a bring-your-own-key model.
 - Generate multiple title options from post content.
-- Score each option with title quality signals.
+- Compare options with clear title quality signals.
 - Apply winning titles directly in the editor.
 - Support for OpenAI and Google Gemini providers.
-- Built-in training page for editorial teams.
+- Load Google Gemini model choices from the API when available.
+- Built-in training and help screens for editorial teams.
 
-## What Is New In v2.0.1
+## What Is New In v2.1.0
 
-- Added server-side cooldown protection for title generation requests to reduce accidental bursts and API cost spikes.
-- Updated settings behavior so API key validation runs on field completion (blur/change) instead of per-keystroke.
-- Added deterministic uninstall cleanup for plugin-owned options, saved title results, and log artifacts.
-- Reworked the help page so wp-admin no longer depends on remote placeholder assets.
-- Continued hardening of production readiness while preserving existing editor workflows.
+- Repositioned the plugin as a free, bring-your-own-key AI title assistant for WordPress.
+- Added live Google Gemini model loading from the Models API with caching and safe fallbacks.
+- Switched Gemini generation to structured JSON output and improved provider error handling.
+- Refined the editor, settings, and help screens for a simpler editorial workflow.
+- Tightened the release package so `npm run dist` produces an install-ready zip.
 
 ## Quick Start
 
 1. Install and activate the plugin.
-2. Go to `Settings -> OCC - Titles`.
+2. Go to `Settings -> Title Assistant`.
 3. Configure provider and API key.
 4. Open a post in the editor.
 5. Click **Generate Titles**.
 6. Compare results and click **Apply** on the best one.
+
+## Pricing Model
+
+This plugin is free. You bring your own OpenAI or Google Gemini API key and pay your provider directly, if that provider charges for usage.
 
 ## Training Page
 
@@ -52,6 +58,13 @@ This plugin sends post content to your selected provider for title generation.
 - Google: https://policies.google.com/privacy
 
 ## Changelog
+
+### 2.1.0
+
+- Free bring-your-own-key positioning and documentation refresh for release.
+- Added live Google Gemini model loading and safer structured-output parsing.
+- Improved editor, settings, and help UX.
+- Tightened dist packaging and install-ready zip validation.
 
 ### 2.0.1
 

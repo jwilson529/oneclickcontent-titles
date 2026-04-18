@@ -180,12 +180,42 @@ class Occ_Titles_Admin {
 			'post_slug'             => $post_slug,
 			'post_permalink'        => $post_permalink,
 			'strings'               => array(
-				'badge_valid'        => __( 'Valid', 'oneclickcontent-titles' ),
-				'badge_invalid'      => __( 'Invalid', 'oneclickcontent-titles' ),
-				'badge_unknown'      => __( 'Not validated', 'oneclickcontent-titles' ),
-				'badge_not_checked'  => __( 'Not checked yet.', 'oneclickcontent-titles' ),
+				'badge_valid'          => __( 'Valid', 'oneclickcontent-titles' ),
+				'badge_invalid'        => __( 'Invalid', 'oneclickcontent-titles' ),
+				'badge_unknown'        => __( 'Not validated', 'oneclickcontent-titles' ),
+				'badge_not_checked'    => __( 'Not checked yet.', 'oneclickcontent-titles' ),
 				/* translators: %s: date/time of last API key validation. */
-				'badge_last_checked' => __( 'Last checked: %s', 'oneclickcontent-titles' ),
+				'badge_last_checked'   => __( 'Last checked: %s', 'oneclickcontent-titles' ),
+				'results_title'        => __( 'Title Recommendations', 'oneclickcontent-titles' ),
+				'results_empty'        => __( 'Generate titles to see results.', 'oneclickcontent-titles' ),
+				'results_last'         => __( 'Last generated:', 'oneclickcontent-titles' ),
+				'results_provider'     => __( 'Provider:', 'oneclickcontent-titles' ),
+				'results_top_picks'    => __( 'Top picks', 'oneclickcontent-titles' ),
+				'results_more_options' => __( 'More options', 'oneclickcontent-titles' ),
+				'results_summary'      => __( 'Start with the strongest options below. Open the full breakdown only if you want the deeper score math.', 'oneclickcontent-titles' ),
+				'score_current'        => __( 'Score Current Title', 'oneclickcontent-titles' ),
+				'copy_all'             => __( 'Copy All', 'oneclickcontent-titles' ),
+				'download_csv'         => __( 'Download CSV', 'oneclickcontent-titles' ),
+				'collapse_results'     => __( 'Collapse results', 'oneclickcontent-titles' ),
+				'show_results'         => __( 'Show results', 'oneclickcontent-titles' ),
+				'open_breakdown'       => __( 'Open full breakdown', 'oneclickcontent-titles' ),
+				'breakdown_label'      => __( 'Detailed scoring, previews, exports, and keyword notes', 'oneclickcontent-titles' ),
+				'pick_best_for'        => __( 'Best for', 'oneclickcontent-titles' ),
+				'pick_current'         => __( 'Current title', 'oneclickcontent-titles' ),
+				'pick_apply'           => __( 'Apply this title', 'oneclickcontent-titles' ),
+				'pick_why'             => __( 'Why it works', 'oneclickcontent-titles' ),
+				'pick_pixel'           => __( 'Pixel width', 'oneclickcontent-titles' ),
+				'pick_length'          => __( 'Length', 'oneclickcontent-titles' ),
+				'pick_keywords'        => __( 'Keyword fit', 'oneclickcontent-titles' ),
+				'pick_readability'     => __( 'Readability', 'oneclickcontent-titles' ),
+				'controls_kicker'      => __( 'Optimize before you generate', 'oneclickcontent-titles' ),
+				'controls_title'       => __( 'Generation Controls', 'oneclickcontent-titles' ),
+				'controls_intro'       => __( 'Choose the outcome you want, then generate a fresh batch.', 'oneclickcontent-titles' ),
+				'controls_help'        => __( 'Set goal, style, and optional keyword targets before generating.', 'oneclickcontent-titles' ),
+				'generate_titles'      => __( 'Generate Titles', 'oneclickcontent-titles' ),
+				'revert_title'         => __( 'Revert to Original Title', 'oneclickcontent-titles' ),
+				'collapse_controls'    => __( 'Collapse controls', 'oneclickcontent-titles' ),
+				'show_controls'        => __( 'Show controls', 'oneclickcontent-titles' ),
 			),
 		);
 
@@ -270,16 +300,22 @@ class Occ_Titles_Admin {
 		}
 
 		// Get and sanitize incoming data.
-		$content    = isset( $_POST['content'] ) ? wp_kses_post( wp_unslash( $_POST['content'] ) ) : '';
-		$style      = isset( $_POST['style'] ) ? sanitize_text_field( wp_unslash( $_POST['style'] ) ) : '';
-		$seed_title = isset( $_POST['seed_title'] ) ? sanitize_text_field( wp_unslash( $_POST['seed_title'] ) ) : '';
-		$variation  = isset( $_POST['variation'] ) ? sanitize_text_field( wp_unslash( $_POST['variation'] ) ) : '';
-		$keyword    = isset( $_POST['keyword'] ) ? sanitize_text_field( wp_unslash( $_POST['keyword'] ) ) : '';
-		$count      = isset( $_POST['count'] ) ? absint( $_POST['count'] ) : 5;
-		$intent     = isset( $_POST['intent'] ) ? sanitize_text_field( wp_unslash( $_POST['intent'] ) ) : '';
-		$ellipsis   = isset( $_POST['ellipsis'] ) ? absint( $_POST['ellipsis'] ) : 0;
-		$keywords   = isset( $_POST['keywords'] ) ? wp_unslash( $_POST['keywords'] ) : array();
-		$post_id    = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+		$content      = isset( $_POST['content'] ) ? wp_kses_post( wp_unslash( $_POST['content'] ) ) : '';
+		$style        = isset( $_POST['style'] ) ? sanitize_text_field( wp_unslash( $_POST['style'] ) ) : '';
+		$seed_title   = isset( $_POST['seed_title'] ) ? sanitize_text_field( wp_unslash( $_POST['seed_title'] ) ) : '';
+		$variation    = isset( $_POST['variation'] ) ? sanitize_text_field( wp_unslash( $_POST['variation'] ) ) : '';
+		$keyword      = isset( $_POST['keyword'] ) ? sanitize_text_field( wp_unslash( $_POST['keyword'] ) ) : '';
+		$count        = isset( $_POST['count'] ) ? absint( $_POST['count'] ) : 5;
+		$intent       = isset( $_POST['intent'] ) ? sanitize_text_field( wp_unslash( $_POST['intent'] ) ) : '';
+		$ellipsis     = isset( $_POST['ellipsis'] ) ? absint( $_POST['ellipsis'] ) : 0;
+		$raw_keywords = array();
+		if ( isset( $_POST['keywords'] ) ) {
+			$raw_keywords = is_array( $_POST['keywords'] )
+				? array_map( 'sanitize_text_field', wp_unslash( $_POST['keywords'] ) )
+				: sanitize_text_field( wp_unslash( $_POST['keywords'] ) );
+		}
+		$keywords = array();
+		$post_id  = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
 
 		if ( $post_id > 0 && ! current_user_can( 'edit_post', $post_id ) ) {
 			Occ_Titles_Logger::get_instance()->warning(
@@ -293,12 +329,10 @@ class Occ_Titles_Admin {
 			wp_send_json_error( array( 'message' => __( 'Permission denied for this post.', 'oneclickcontent-titles' ) ) );
 		}
 
-		if ( is_string( $keywords ) ) {
-			$keywords = array_filter( array_map( 'sanitize_text_field', explode( ',', $keywords ) ) );
-		} elseif ( is_array( $keywords ) ) {
-			$keywords = array_filter( array_map( 'sanitize_text_field', $keywords ) );
-		} else {
-			$keywords = array();
+		if ( is_string( $raw_keywords ) ) {
+			$keywords = array_filter( array_map( 'sanitize_text_field', explode( ',', $raw_keywords ) ) );
+		} elseif ( is_array( $raw_keywords ) ) {
+			$keywords = array_filter( array_map( 'sanitize_text_field', $raw_keywords ) );
 		}
 
 		if ( $count < 1 ) {
@@ -429,7 +463,7 @@ class Occ_Titles_Admin {
 			wp_send_json_error( array( 'message' => __( 'Permission denied for this post.', 'oneclickcontent-titles' ) ) );
 		}
 
-		$raw_results = isset( $_POST['results'] ) ? wp_unslash( $_POST['results'] ) : '';
+		$raw_results = isset( $_POST['results'] ) ? sanitize_textarea_field( wp_unslash( $_POST['results'] ) ) : '';
 		if ( empty( $raw_results ) ) {
 			wp_send_json_error( array( 'message' => __( 'Missing results payload.', 'oneclickcontent-titles' ) ) );
 		}
@@ -438,6 +472,8 @@ class Occ_Titles_Admin {
 		if ( ! is_array( $decoded ) ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid results format.', 'oneclickcontent-titles' ) ) );
 		}
+
+		$decoded = $this->sanitize_results_payload( $decoded );
 
 		update_post_meta( $post_id, '_occ_titles_results', $decoded );
 
@@ -477,6 +513,36 @@ class Occ_Titles_Admin {
 		}
 
 		wp_send_json_success( array( 'results' => $results ) );
+	}
+
+	/**
+	 * Sanitize a generated results payload before saving it.
+	 *
+	 * @since 2.1.0
+	 * @param mixed $payload Results payload value.
+	 * @return mixed
+	 */
+	private function sanitize_results_payload( $payload ) {
+		if ( is_array( $payload ) ) {
+			$sanitized_payload = array();
+
+			foreach ( $payload as $key => $value ) {
+				$sanitized_key                       = is_string( $key ) ? sanitize_key( $key ) : $key;
+				$sanitized_payload[ $sanitized_key ] = $this->sanitize_results_payload( $value );
+			}
+
+			return $sanitized_payload;
+		}
+
+		if ( is_string( $payload ) ) {
+			return sanitize_text_field( $payload );
+		}
+
+		if ( is_bool( $payload ) || is_int( $payload ) || is_float( $payload ) || null === $payload ) {
+			return $payload;
+		}
+
+		return sanitize_text_field( (string) $payload );
 	}
 
 	/**

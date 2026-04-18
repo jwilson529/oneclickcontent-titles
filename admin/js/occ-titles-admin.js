@@ -36,6 +36,21 @@
         window.editorMode      = check_editor_mode();
 
         /**
+         * Gets a localized UI string when available.
+         *
+         * @param {string} key      String key.
+         * @param {string} fallback Fallback string.
+         * @return {string} UI string.
+         */
+        function get_ui_string( key, fallback ) {
+            if ( occ_titles_admin_vars && occ_titles_admin_vars.strings && occ_titles_admin_vars.strings[ key ] ) {
+                return occ_titles_admin_vars.strings[ key ];
+            }
+
+            return fallback;
+        }
+
+        /**
          * Get current post ID from the editor context.
          *
          * @return {number} Post ID or 0.
@@ -699,7 +714,7 @@
             $results.toggleClass( 'is-collapsed', collapsed );
             localStorage.setItem( 'occ_titles_results_collapsed', collapsed ? '1' : '0' );
             $( '#occ_titles_toggle_panel' )
-                .text( collapsed ? 'Show panel' : 'Hide panel' )
+                .text( collapsed ? get_ui_string( 'show_results', 'Show results' ) : get_ui_string( 'collapse_results', 'Collapse results' ) )
                 .attr( 'aria-expanded', collapsed ? 'false' : 'true' );
         }
 
@@ -733,22 +748,22 @@
 
             $container.empty().addClass( 'occ_titles-results' );
 
-            var header_subtitle = lastGeneratedAt ? 'Last generated: ' + lastGeneratedAt : 'Generate titles to see results.';
-            var provider_label = lastProvider ? 'Provider: ' + lastProvider.toUpperCase() : '';
+            var header_subtitle = lastGeneratedAt
+                ? get_ui_string( 'results_last', 'Last generated:' ) + ' ' + lastGeneratedAt
+                : get_ui_string( 'results_empty', 'Generate titles to see results.' );
+            var provider_label = lastProvider ? get_ui_string( 'results_provider', 'Provider:' ) + ' ' + lastProvider.toUpperCase() : '';
 
             var $header = $( '<div class="occ_titles-results-header"></div>' );
             var $header_left = $( '<div class="occ_titles-results-summary"></div>' );
-            $header_left.append( '<h3 class="occ_titles-results-title">Title Recommendations</h3>' );
+            $header_left.append( '<h3 class="occ_titles-results-title">' + escape_html( get_ui_string( 'results_title', 'Title Recommendations' ) ) + '</h3>' );
             $header_left.append( '<p class="occ_titles-results-meta">' + escape_html( header_subtitle ) + '</p>' );
             if ( provider_label ) {
                 $header_left.append( '<p class="occ_titles-results-provider">' + escape_html( provider_label ) + '</p>' );
             }
-
             var $header_actions = $( '<div class="occ_titles-results-actions"></div>' );
-            $header_actions.append( '<button type="button" class="button button-secondary" id="occ_titles_score_current">Score Current Title</button>' );
-            $header_actions.append( '<button type="button" class="button button-secondary" id="occ_titles_copy_all">Copy All</button>' );
-            $header_actions.append( '<button type="button" class="button button-secondary" id="occ_titles_export_csv">Download CSV</button>' );
-            $header_actions.append( '<button type="button" class="button button-secondary" id="occ_titles_toggle_panel" aria-expanded="true">Hide panel</button>' );
+            var $utility_actions = $( '<div class="occ_titles-results-utility"></div>' );
+            $utility_actions.append( '<button type="button" class="button occ_titles-results-toggle" id="occ_titles_toggle_panel" aria-expanded="true">' + escape_html( get_ui_string( 'collapse_results', 'Collapse results' ) ) + '</button>' );
+            $header_actions.append( $utility_actions );
             $header.append( $header_left, $header_actions );
             $container.append( $header );
 
@@ -764,6 +779,14 @@
 
             var $controls = $( '<div class="occ_titles-controls"></div>' );
             $controls.append(
+                '<div class="occ_titles-controls-header">' +
+                    '<div class="occ_titles-controls-summary">' +
+                        '<p class="occ_titles-controls-kicker">' + escape_html( get_ui_string( 'controls_kicker', 'Optimize before you generate' ) ) + '</p>' +
+                        '<h4 class="occ_titles-controls-title">' + escape_html( get_ui_string( 'controls_title', 'Generation Controls' ) ) + '</h4>' +
+                        '<p class="occ_titles-controls-intro">' + escape_html( get_ui_string( 'controls_intro', 'Choose the outcome you want, then generate a fresh batch.' ) ) + '</p>' +
+                    '</div>' +
+                    '<button type="button" class="button button-secondary button-small occ_titles-controls-toggle" aria-expanded="true">' + escape_html( get_ui_string( 'collapse_controls', 'Collapse controls' ) ) + '</button>' +
+                '</div>' +
                 '<div class="occ_titles-control-row">' +
                     '<div class="occ_titles-control occ_titles-control-group">' +
                         '<div class="occ_titles-control-item">' +
@@ -794,12 +817,11 @@
                         '</div>' +
                     '</div>' +
                     '<div class="occ_titles-control occ_titles-control-actions">' +
-                        '<button type="button" class="button button-primary" id="occ_titles_generate_button_top">Generate Titles</button>' +
-                        '<button type="button" class="button" id="occ_titles_revert_button_top">Revert To Original Title</button>' +
+                        '<button type="button" class="button button-primary" id="occ_titles_generate_button_top">' + escape_html( get_ui_string( 'generate_titles', 'Generate Titles' ) ) + '</button>' +
+                        '<button type="button" class="button" id="occ_titles_revert_button_top">' + escape_html( get_ui_string( 'revert_title', 'Revert to Original Title' ) ) + '</button>' +
                     '</div>' +
                 '</div>' +
-                '<p class="occ_titles-controls-help">Step 1: choose a goal and style. Step 2: click Generate Titles.</p>' +
-                '<button type="button" class="button-link occ_titles-controls-toggle" aria-expanded="true">Hide controls</button>'
+                '<p class="occ_titles-controls-help">' + escape_html( get_ui_string( 'controls_help', 'Set goal, style, and optional keyword targets before generating.' ) ) + '</p>'
             );
             $controls.append( '<div class="occ_titles-control occ_titles-keywords-panel"><label><strong>Keyword targets</strong></label><div class="occ_titles-keyword-list"></div></div>' );
             $container.append( $controls );
@@ -835,6 +857,7 @@
             var selected_keywords = get_selected_keywords();
             var selected_goal = $( '#occ_titles_intent' ).val() || metadata.intent || '';
             var score_profile = get_goal_weight_profile( selected_goal );
+            var preview_intent = selected_goal;
 
             normalized.forEach( function( title_obj, index ) {
                 var title_text = title_obj.text || '';
@@ -987,7 +1010,6 @@
                 $insights_cell.append( $chips );
 
                 var $keywords_cell = $( '<td class="occ_titles-col-keywords"></td>' ).text( keywords_list );
-                var preview_intent = $( '#occ_titles_intent' ).val() || metadata.intent || '';
                 var $serp_cell = $( '<td class="occ_titles-col-serp"></td>' );
                 $serp_cell.append( build_title_preview( row_data.title, preview_intent ) );
                 $serp_cell.append( '<div class="occ_titles-serp-meter"><span style="width:' + row_data.pixel_percent + '%"></span></div>' );
@@ -998,24 +1020,156 @@
             } );
 
             $titles_table.append( $table_body );
-            $container.append( $titles_table );
+            var $top_picks = $( '<div class="occ_titles-top-picks"></div>' );
+            var primary_row = rows[0] || null;
+            var extra_rows = rows.slice( 1, 3 );
+
+            if ( primary_row ) {
+                var primary_density_pct = ( primary_row.keyword_density * 100 ).toFixed( 2 ) + '%';
+                var primary_readability = primary_row.readability.toFixed( 2 );
+                var primary_keyword_fit = get_keyword_fit_label( primary_row.keyword_density );
+                var primary_length = get_length_label( primary_row.title.length );
+                var primary_score = Math.round( primary_row.overall_score );
+                var $primary_card = $( '<article class="occ_titles-pick-card is-primary"></article>' );
+                var $primary_title = $( '<button type="button" class="occ_titles-pick-title"></button>' ).text( primary_row.title );
+                var $primary_actions = $( '<div class="occ_titles-title-actions occ_titles-pick-actions"></div>' );
+
+                $primary_card.attr( 'data-index', primary_row.index );
+                $primary_card.addClass( 'is-best' );
+                if ( primary_row.is_current ) {
+                    $primary_card.addClass( 'is-current' );
+                }
+
+                $primary_card.append(
+                    '<div class="occ_titles-pick-head">' +
+                        '<div class="occ_titles-pick-rank-wrap">' +
+                            '<span class="occ_titles-pick-rank">#1</span>' +
+                            '<span class="occ_titles-best-badge">' + escape_html( get_ui_string( 'pick_best_for', 'Best for' ) ) + ' ' + escape_html( score_profile.label ) + '</span>' +
+                            ( primary_row.is_current ? '<span class="occ_titles-current-badge">' + escape_html( get_ui_string( 'pick_current', 'Current title' ) ) + '</span>' : '' ) +
+                        '</div>' +
+                        '<div class="occ_titles-pick-score">' +
+                            '<span class="occ_titles-score-value">' + primary_score + '</span>' +
+                            '<span class="occ_titles-grade occ_titles-grade-' + primary_row.grade.toLowerCase() + '">Grade ' + escape_html( primary_row.grade ) + '</span>' +
+                        '</div>' +
+                    '</div>'
+                );
+
+                $primary_title.on( 'click', function() {
+                    apply_title_from_row( primary_row );
+                } );
+                $primary_card.append( $primary_title );
+                $primary_card.append(
+                    '<div class="occ_titles-pick-metrics">' +
+                        '<span class="occ_titles-chip">' + escape_html( get_ui_string( 'pick_length', 'Length' ) ) + ': ' + escape_html( primary_length ) + '</span>' +
+                        '<span class="occ_titles-chip">' + escape_html( get_ui_string( 'pick_keywords', 'Keyword fit' ) ) + ': ' + escape_html( primary_keyword_fit ) + '</span>' +
+                        '<span class="occ_titles-chip">' + escape_html( get_ui_string( 'pick_pixel', 'Pixel width' ) ) + ': ' + escape_html( primary_row.pixel_width + 'px' ) + '</span>' +
+                        '<span class="occ_titles-chip">' + escape_html( get_ui_string( 'pick_readability', 'Readability' ) ) + ': ' + escape_html( primary_readability ) + '</span>' +
+                    '</div>'
+                );
+                $primary_card.append(
+                    '<div class="occ_titles-pick-why">' +
+                        '<strong>' + escape_html( get_ui_string( 'pick_why', 'Why it works' ) ) + ':</strong> ' + escape_html( primary_row.signal_summary ) + ' • Density ' + escape_html( primary_density_pct ) +
+                    '</div>'
+                );
+
+                if ( primary_row.is_current ) {
+                    $primary_actions.append( '<span class="occ_titles-applied-label is-visible" aria-hidden="true">This is your current title</span>' );
+                } else {
+                    $primary_actions.append( '<button type="button" class="button button-primary occ_titles-apply" data-index="' + primary_row.index + '">' + escape_html( get_ui_string( 'pick_apply', 'Apply this title' ) ) + '</button>' );
+                    $primary_actions.append( '<button type="button" class="button occ_titles-undo" data-index="' + primary_row.index + '">' + escape_html( get_ui_string( 'revert_title', 'Revert to Original Title' ) ) + '</button>' );
+                    $primary_actions.append( '<span class="occ_titles-applied-label" aria-hidden="true">Applied</span>' );
+                }
+
+                $primary_card.append( $primary_actions );
+                $top_picks.append( $primary_card );
+            }
+
+            if ( extra_rows.length ) {
+                var $more_picks = $( '<details class="occ_titles-more-picks"></details>' );
+                var $more_picks_body = $( '<div class="occ_titles-more-picks-body"></div>' );
+                $more_picks.append(
+                    '<summary class="occ_titles-more-picks-summary">' +
+                        '<span class="occ_titles-more-picks-title">' + extra_rows.length + ' ' + escape_html( get_ui_string( 'results_more_options', 'More options' ) ) + '</span>' +
+                        '<span class="occ_titles-more-picks-meta">' + escape_html( get_ui_string( 'results_summary', 'Start with the strongest options below. Open the full breakdown only if you want the deeper score math.' ) ) + '</span>' +
+                    '</summary>'
+                );
+
+                extra_rows.forEach( function( row_data, offset ) {
+                    var overall_score_formatted = Math.round( row_data.overall_score );
+                    var $compact_card = $( '<article class="occ_titles-pick-card is-compact"></article>' );
+                    var $compact_title = $( '<button type="button" class="occ_titles-pick-title"></button>' ).text( row_data.title );
+                    var $compact_actions = $( '<div class="occ_titles-title-actions occ_titles-pick-actions"></div>' );
+
+                    $compact_card.attr( 'data-index', row_data.index );
+                    if ( row_data.is_current ) {
+                        $compact_card.addClass( 'is-current' );
+                    }
+
+                    $compact_card.append(
+                        '<div class="occ_titles-pick-head">' +
+                            '<div class="occ_titles-pick-rank-wrap">' +
+                                '<span class="occ_titles-pick-rank">#' + ( offset + 2 ) + '</span>' +
+                                ( row_data.is_current ? '<span class="occ_titles-current-badge">' + escape_html( get_ui_string( 'pick_current', 'Current title' ) ) + '</span>' : '' ) +
+                            '</div>' +
+                            '<div class="occ_titles-pick-score">' +
+                                '<span class="occ_titles-score-value">' + overall_score_formatted + '</span>' +
+                                '<span class="occ_titles-grade occ_titles-grade-' + row_data.grade.toLowerCase() + '">Grade ' + escape_html( row_data.grade ) + '</span>' +
+                            '</div>' +
+                        '</div>'
+                    );
+
+                    $compact_title.on( 'click', function() {
+                        apply_title_from_row( row_data );
+                    } );
+                    $compact_card.append( $compact_title );
+
+                    if ( row_data.is_current ) {
+                        $compact_actions.append( '<span class="occ_titles-applied-label is-visible" aria-hidden="true">This is your current title</span>' );
+                    } else {
+                        $compact_actions.append( '<button type="button" class="button button-secondary occ_titles-apply" data-index="' + row_data.index + '">' + escape_html( get_ui_string( 'pick_apply', 'Apply this title' ) ) + '</button>' );
+                    }
+
+                    $compact_card.append( $compact_actions );
+                    $more_picks_body.append( $compact_card );
+                } );
+
+                $more_picks.append( $more_picks_body );
+                $top_picks.append( $more_picks );
+            }
+
+            if ( primary_row ) {
+                $container.append( $top_picks );
+            }
 
             var keywords_summary = all_keywords.length ? all_keywords.join( ', ' ) : 'None';
             var $guidance = $( '<div class="occ_titles-guidance"></div>' );
             $guidance.append(
                 '<div class="occ_titles-guidance-card">' +
-                    '<strong>How to pick:</strong> choose a title with a strong score, clean readability, and the right keywords. Click Apply when ready.' +
+                    '<strong>How to pick:</strong> Start with the top card, then compare only if the tone or goal feels off.' +
                 '</div>' +
                 '<div class="occ_titles-guidance-card">' +
-                    '<strong>Pixel target:</strong> 560 to 600 px. Google trims headlines by pixel width, not character count.' +
-                '</div>' +
-                '<div class="occ_titles-guidance-card">' +
-                    '<strong>Score logic:</strong> 9 signals are weighted by goal (' + score_profile.label + ' profile). Grade bands: A (85+), B (70-84), C (&lt;70).' +
+                    '<strong>Pixel target:</strong> Google usually trims around 560 to 600 px. Stay close to the green zone.' +
                 '</div>' +
                 '<div class="occ_titles-guidance-card"><strong>Keywords used:</strong> ' + escape_html( keywords_summary ) + '</div>'
             );
-            $container.find( '.occ_titles-guidance' ).remove();
-            $container.find( '.occ_titles-controls' ).after( $guidance );
+
+            var $breakdown = $( '<details class="occ_titles-breakdown"></details>' );
+            var $breakdown_summary = $( '<summary class="occ_titles-breakdown-summary"></summary>' );
+            var $breakdown_body = $( '<div class="occ_titles-breakdown-body"></div>' );
+            var $deep_actions = $( '<div class="occ_titles-results-bulk-actions occ_titles-breakdown-actions"></div>' );
+
+            $breakdown_summary.append(
+                '<span class="occ_titles-breakdown-title">' + escape_html( get_ui_string( 'open_breakdown', 'Open full breakdown' ) ) + ' (' + rows.length + ')</span>' +
+                '<span class="occ_titles-breakdown-meta">' + escape_html( get_ui_string( 'breakdown_label', 'Detailed scoring, previews, exports, and keyword notes' ) ) + '</span>'
+            );
+
+            $deep_actions.append( '<button type="button" class="button button-secondary" id="occ_titles_score_current">' + escape_html( get_ui_string( 'score_current', 'Score Current Title' ) ) + '</button>' );
+            $deep_actions.append( '<button type="button" class="button button-secondary" id="occ_titles_copy_all">' + escape_html( get_ui_string( 'copy_all', 'Copy All' ) ) + '</button>' );
+            $deep_actions.append( '<button type="button" class="button button-secondary" id="occ_titles_export_csv">' + escape_html( get_ui_string( 'download_csv', 'Download CSV' ) ) + '</button>' );
+
+            $breakdown_body.append( $deep_actions, $guidance, $titles_table );
+            $breakdown.append( $breakdown_summary, $breakdown_body );
+            $container.append( $breakdown );
 
             if ( ! metadata.from_cache ) {
                 persist_results( {
@@ -1042,9 +1196,8 @@
             }
             lastAppliedTitle = title_text;
             set_title_in_editor( title_text );
-            $( '.occ_titles-row' ).removeClass( 'is-applied' );
-            var $row = $( '.occ_titles-row[data-index="' + row_data.index + '"]' );
-            $row.addClass( 'is-applied' );
+            $( '.occ_titles-row, .occ_titles-pick-card' ).removeClass( 'is-applied' );
+            $( '.occ_titles-row[data-index="' + row_data.index + '"], .occ_titles-pick-card[data-index="' + row_data.index + '"]' ).addClass( 'is-applied' );
         }
 
         /**
@@ -1144,17 +1297,18 @@
          * @param {string} message Error message.
          */
         function show_error_panel( message ) {
-            var $panel = $( '.occ_titles-error-panel' );
+            var $panel = ensure_error_panel();
             if ( ! $panel.length ) {
                 return;
             }
 
+            var safe_message = escape_html( message || '' );
             var settings_url = occ_titles_admin_vars.settings_url || '';
             var cta = settings_url ? '<a class="button button-secondary" href="' + settings_url + '">Open settings</a>' : '';
 
             $panel.html(
                 '<div class="occ_titles-error-content">' +
-                    '<strong>Generation issue:</strong> ' + message +
+                    '<strong>Generation issue:</strong> ' + safe_message +
                 '</div>' +
                 '<div class="occ_titles-error-actions">' + cta + '</div>'
             );
@@ -1329,9 +1483,48 @@
                         display_custom_error( response.data.message || 'An unknown error occurred.' );
                     }
                 } )
-                .fail( function() {
-                    display_custom_error( 'We encountered an issue connecting to the server. Please check your API key and try again.' );
+                .fail( function( jqXHR ) {
+                    display_custom_error( get_ajax_error_message( jqXHR, 'We encountered an issue connecting to the server. Please check your API key and try again.' ) );
                 } );
+        }
+
+        /**
+         * Extract a useful error message from an AJAX response.
+         *
+         * @param {Object} jqXHR jQuery XHR object.
+         * @param {string} fallback Fallback message.
+         * @return {string} Error message.
+         */
+        function get_ajax_error_message( jqXHR, fallback ) {
+            if ( jqXHR && jqXHR.responseJSON && jqXHR.responseJSON.data && jqXHR.responseJSON.data.message ) {
+                return jqXHR.responseJSON.data.message;
+            }
+
+            return fallback;
+        }
+
+        /**
+         * Ensure a persistent error panel exists.
+         *
+         * @return {Object} jQuery collection for the error panel.
+         */
+        function ensure_error_panel() {
+            var $container = $( '#occ_titles_table_container' );
+            var $panel = $container.children( '.occ_titles-error-panel' ).first();
+
+            if ( ! $panel.length && $container.length ) {
+                $panel = $( '<div class="occ_titles-error-panel" style="display:none;"></div>' );
+                $container.prepend( $panel );
+            }
+
+            return $panel;
+        }
+
+        /**
+         * Hide the persistent error panel.
+         */
+        function clear_error_panel() {
+            ensure_error_panel().hide().empty();
         }
 
         /**
@@ -1345,7 +1538,7 @@
                 .hide()
                 .removeClass( 'occ-spinner-text' )
                 .addClass( 'occ-error-text' )
-                .html( error_message )
+                .text( error_message || '' )
                 .fadeIn();
             setTimeout( function() {
                 $( '#occ_titles_spinner_wrapper' ).fadeOut();
@@ -1372,6 +1565,7 @@
                 return;
             }
             isProcessing = true;
+            clear_error_panel();
 
             start_displaying_tips();
             $( '#occ_titles_spinner_wrapper' ).fadeIn();
@@ -1418,9 +1612,9 @@
                 return;
             }
             var stored = localStorage.getItem( 'occ_titles_controls_collapsed' );
-            if ( stored === '1' ) {
+            if ( stored !== '0' ) {
                 $( '.occ_titles-controls' ).addClass( 'is-collapsed' );
-                $( '.occ_titles-controls-toggle' ).attr( 'aria-expanded', 'false' ).text( 'Show controls' );
+                $( '.occ_titles-controls-toggle' ).attr( 'aria-expanded', 'false' ).text( get_ui_string( 'show_controls', 'Show controls' ) );
             }
         }
 
@@ -1435,7 +1629,7 @@
             localStorage.setItem( 'occ_titles_controls_collapsed', collapsed ? '1' : '0' );
             $( this )
                 .attr( 'aria-expanded', collapsed ? 'false' : 'true' )
-                .text( collapsed ? 'Show controls' : 'Hide controls' );
+                .text( collapsed ? get_ui_string( 'show_controls', 'Show controls' ) : get_ui_string( 'collapse_controls', 'Collapse controls' ) );
         } );
 
         /**
@@ -1447,6 +1641,7 @@
                 return;
             }
             isProcessing = true;
+            clear_error_panel();
 
             start_displaying_tips(); // Fix: Show tips on click
             $( '#occ_titles_spinner_wrapper' ).fadeIn();
@@ -1490,6 +1685,7 @@
         $( document ).on( 'click', '#occ_titles_revert_button, #occ_titles_revert_button_top', function( e ) {
             e.preventDefault();
             set_title_in_editor( originalTitle );
+            $( '.occ_titles-row, .occ_titles-pick-card' ).removeClass( 'is-applied' );
         } );
 
         /**
@@ -1575,7 +1771,7 @@
             e.preventDefault();
             if ( originalTitle ) {
                 set_title_in_editor( originalTitle );
-                $( '.occ_titles-row' ).removeClass( 'is-applied' );
+                $( '.occ_titles-row, .occ_titles-pick-card' ).removeClass( 'is-applied' );
             }
         } );
 
@@ -1614,7 +1810,7 @@
             var intent = $( '#occ_titles_intent' ).val() || '';
             var ellipsis = $( '#occ_titles_ellipsis' ).is( ':checked' ) ? 1 : 0;
 
-            $( '.occ_titles-row[data-index="' + index + '"]' ).addClass( 'is-loading' );
+            $( '.occ_titles-row[data-index="' + index + '"], .occ_titles-pick-card[data-index="' + index + '"]' ).addClass( 'is-loading' );
 
             send_ajax_request( {
                 content: content,
@@ -1627,7 +1823,7 @@
                 ellipsis: ellipsis,
                 keywords: get_selected_keywords()
             }, function( response ) {
-                $( '.occ_titles-row[data-index="' + index + '"]' ).removeClass( 'is-loading' );
+                $( '.occ_titles-row[data-index="' + index + '"], .occ_titles-pick-card[data-index="' + index + '"]' ).removeClass( 'is-loading' );
                 if ( response.success ) {
                     var titles = normalize_titles( response.data.titles );
                     if ( titles.length ) {

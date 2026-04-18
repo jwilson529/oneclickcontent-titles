@@ -18,12 +18,10 @@
 
     // Initialize auto-save functionality for settings fields (excluding API key fields)
     function initializeAutoSave() {
-        console.log('initializeAutoSave');
         $('.occ_titles-settings-form')
             .find('input, select, textarea')
             .not('[name="occ_titles_openai_api_key"], [name="occ_titles_google_api_key"]')
             .on('input change', debounce(function() {
-                showNotification('Saving settings....', 'success');
                 autoSaveField($(this));
             }, 500));
     }
@@ -35,18 +33,10 @@
         if (isProcessing) return;
 
         isProcessing = true;
-        var fieldValue;
-        var fieldName = $field.attr('name');
+        var payload = getFieldPayload($field);
 
-        // Handle checkbox fields
-        if ($field.attr('type') === 'checkbox') {
-            fieldValue = [];
-            $('input[name="' + fieldName + '"]:checked').each(function() {
-                fieldValue.push($(this).val());
-            });
-        } else {
-            fieldValue = $field.val();
-        }
+        setSaveState('Saving...', 'saving');
+        showNotification('Saving changes...', 'info');
 
         $.ajax({
             url: occ_titles_admin_vars.ajax_url,
@@ -55,23 +45,27 @@
             data: {
                 action: 'occ_titles_auto_save',
                 nonce: occ_titles_admin_vars.occ_titles_ajax_nonce,
-                field_name: fieldName.replace('[]', ''),
-                field_value: fieldValue
+                field_name: payload.fieldName,
+                field_value: payload.fieldValue
             }
         })
         .done(function(response) {
             if (response.success) {
+                setSaveState('Saved just now', 'saved');
                 showNotification(response.data.message || 'Settings saved successfully.', 'success');
                 if (response.data.refresh) {
+                    setSaveState('Refreshing page...', 'saving');
                     setTimeout(function() {
                         location.reload();
                     }, 500);
                 }
             } else {
+                setSaveState('Save failed', 'error');
                 showNotification(response.data.message || 'Failed to save settings.', 'error');
             }
         })
         .fail(function() {
+            setSaveState('Save failed', 'error');
             showNotification('Error saving settings.', 'error');
         })
         .always(function() {
@@ -212,8 +206,9 @@
                         updateApiKeyBadge(provider, 'invalid', occ_titles_admin_vars && occ_titles_admin_vars.now ? occ_titles_admin_vars.now : '');
                     }
                 })
-                .fail(function() {
-                    showNotification('Error validating API key.', 'error');
+                .fail(function(jqXHR) {
+                    showNotification(getAjaxErrorMessage(jqXHR, 'Error validating API key.'), 'error');
+                    updateApiKeyBadge(provider, 'invalid', occ_titles_admin_vars && occ_titles_admin_vars.now ? occ_titles_admin_vars.now : '');
                 })
                 .always(function() {
                     removeSpinnerWithMessage($field);
@@ -227,6 +222,94 @@
             showNotification('Error saving API key.', 'error');
             removeSpinnerWithMessage($field);
         });
+    }
+
+    /**
+     * Extract a message from a failed AJAX response.
+     *
+     * @param {Object} jqXHR jQuery XHR object.
+     * @param {string} fallback Fallback message.
+     * @return {string} Error message.
+     */
+    function getAjaxErrorMessage(jqXHR, fallback) {
+        if (jqXHR && jqXHR.responseJSON && jqXHR.responseJSON.data && jqXHR.responseJSON.data.message) {
+            return jqXHR.responseJSON.data.message;
+        }
+
+        return fallback;
+    }
+
+    /**
+     * Get the save payload for a given field.
+     *
+     * @param {jQuery} $field Field instance.
+     * @return {{fieldName: string, fieldValue: (string|Array|Object)}} Payload.
+     */
+    function getFieldPayload($field) {
+        var fieldName = $field.attr('name') || '';
+        var payloadName = fieldName.replace('[]', '');
+        var fieldValue;
+
+        if (fieldName.indexOf('occ_titles_voice_profile[') === 0) {
+            return {
+                fieldName: 'occ_titles_voice_profile',
+                fieldValue: collectVoiceProfileValues()
+            };
+        }
+
+        if ($field.attr('type') === 'checkbox') {
+            if (fieldName.indexOf('[]') !== -1) {
+                fieldValue = [];
+                $('input[name="' + fieldName + '"]:checked').each(function() {
+                    fieldValue.push($(this).val());
+                });
+            } else {
+                fieldValue = $field.is(':checked') ? $field.val() : '';
+            }
+        } else {
+            fieldValue = $field.val();
+        }
+
+        return {
+            fieldName: payloadName,
+            fieldValue: fieldValue
+        };
+    }
+
+    /**
+     * Collect the full voice profile payload.
+     *
+     * @return {Object} Voice profile values.
+     */
+    function collectVoiceProfileValues() {
+        return {
+            tone: $('#occ_titles_voice_tone').val() || '',
+            formality: $('#occ_titles_voice_formality').val() || '',
+            sentence_length: $('#occ_titles_voice_sentence_length').val() || '',
+            cta_style: $('#occ_titles_voice_cta').val() || '',
+            must_use: $('#occ_titles_voice_must_use').val() || '',
+            avoid: $('#occ_titles_voice_avoid').val() || '',
+            examples: $('#occ_titles_voice_examples').val() || ''
+        };
+    }
+
+    /**
+     * Update the inline save-state label when present.
+     *
+     * @param {string} message Status text.
+     * @param {string} state State class suffix.
+     */
+    function setSaveState(message, state) {
+        var $value = $('.occ_titles-settings-save-state-value');
+
+        if (!$value.length) {
+            return;
+        }
+
+        $value
+            .removeClass('is-ready is-saving is-saved is-error')
+            .addClass('is-' + state)
+            .text(message);
     }
 
     // Validate keys on explicit field completion instead of each keystroke.
