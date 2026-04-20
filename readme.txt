@@ -9,28 +9,43 @@ Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Free AI title assistant for WordPress. Bring your own OpenAI or Google Gemini API key and generate titles in the editor.
+Free BYO-key AI title assistant for WordPress. Generate, compare, score, and apply better post titles directly in the editor with OpenAI or Google Gemini.
 
 == Description ==
 
-OneClickContent - Titles is a free AI title assistant for WordPress. Bring your own API key, generate several headline options from post content, compare them with clear quality signals, and apply the best title without leaving the editor.
+OneClickContent - Titles is a free BYO-key AI title assistant for WordPress. It helps writers, editors, marketers, and site owners generate multiple headline options from post content, compare them with useful quality signals, and apply the best title without leaving the editor.
 
-OneClickContent is the go-to home for free, bring-your-own-key AI plugins for WordPress. This plugin is part of that line, so you use your own provider account, choose your preferred model, and keep control of your usage directly with OpenAI or Google Gemini.
+Instead of locking you into a bundled AI subscription, OneClickContent keeps the model simple: use your own OpenAI or Google Gemini account, choose the provider and model you prefer, and keep control of usage directly with that provider.
 
-Writers and editors get a practical title workflow:
+This plugin is built for teams that want a practical workflow, not just raw AI output:
 
-1. Click Generate Titles.
-2. Compare recommended options with quality signals.
-3. Apply the best title.
+1. Generate multiple title options from the post you are already editing.
+2. Compare the options with scoring, keyword fit, and preview signals.
+3. Apply the best title instantly and keep moving.
+
+That makes the plugin especially useful for:
+
+- blog editors trying to improve headline quality without leaving WordPress
+- content teams that want faster title ideation and comparison
+- SEO-minded publishers who want keyword-aware title suggestions
+- WordPress site owners who want AI help without SaaS lock-in
 
 == Features ==
 
 - Free plugin from the OneClickContent bring-your-own-key AI plugin line.
-- Generate title options directly from post content in the editor.
-- Compare recommendations with scoring, keyword fit, and quality signals.
+- Generate title options directly from post content inside the WordPress editor.
+- Compare recommendations with scoring, keyword fit, preview width, and quality signals.
 - Apply a chosen title without copying and pasting between screens.
+- Support both OpenAI and Google Gemini so you can choose the provider that fits your workflow.
 - Load Google Gemini model choices from the API when available.
 - Train editors with the built-in Title Help page and guided settings experience.
+- Keep your workflow inside WordPress instead of bouncing between external AI tools and the editor.
+
+== Screenshots ==
+
+1. Guided settings page for provider setup, editor locations, and brand voice.
+2. In-editor title generation workflow with goal, style, and keyword controls.
+3. Title comparison view with top picks, scoring, and the full breakdown tools.
 
 == Installation ==
 
@@ -42,6 +57,10 @@ Writers and editors get a practical title workflow:
 
 == Frequently Asked Questions ==
 
+= Who is this plugin for? =
+
+This plugin is for WordPress writers, editors, marketers, bloggers, and site owners who want better titles without leaving the editor. It is especially useful if you already work in WordPress and want AI help without adopting a separate SaaS workflow.
+
 = Is the plugin free? =
 
 Yes. The plugin is free. OneClickContent's model is bring your own API key and pay your AI provider directly only if that provider charges for usage.
@@ -49,6 +68,10 @@ Yes. The plugin is free. OneClickContent's model is bring your own API key and p
 = Do I need API keys? =
 
 Yes. Add a valid OpenAI or Google Gemini API key in settings.
+
+= Why is it bring your own key? =
+
+OneClickContent is built around a BYO-key model so you keep control of provider choice, usage, and cost. That also means there is no bundled AI subscription required just to use the plugin.
 
 = Which providers are supported? =
 
@@ -106,6 +129,9 @@ The plugin sends post content to your selected provider for title generation.
 * Added richer scoring and title comparison experience.
 
 == Upgrade Notice ==
+
+= 2.1.1 =
+Recommended update. Pages are now enabled by default on fresh installs, older posts-only defaults normalize safely to include pages, and missing page editor controls are fixed.
 
 = 2.1.0 =
 Free bring-your-own-key release with live Gemini model loading, stronger Gemini response handling, and a more approachable admin experience.

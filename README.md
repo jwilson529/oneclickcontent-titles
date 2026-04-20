@@ -4,19 +4,20 @@
 
 Version: 2.1.1
 
-Free AI title assistant for WordPress from the go-to bring-your-own-key AI plugin line. Use your own OpenAI or Google Gemini API key to generate, compare, and apply post titles directly in the editor.
+Free BYO-key AI title assistant for WordPress from the OneClickContent plugin line. Use your own OpenAI or Google Gemini API key to generate, compare, score, and apply post titles directly in the editor.
 
-OneClickContent is the go-to home for free, bring-your-own-key AI plugins for WordPress. `OneClickContent - Titles` gives writers and editors a practical headline workflow without locking them into a bundled AI subscription.
+OneClickContent is the home for free, bring-your-own-key AI plugins for WordPress. `OneClickContent - Titles` gives writers, editors, marketers, and site owners a practical headline workflow without locking them into a bundled AI subscription.
 
 ## Key Features
 
 - Free plugin from the OneClickContent bring-your-own-key AI plugin line.
-- Generate multiple title options from post content.
-- Compare options with clear title quality signals.
+- Generate multiple title options from post content inside the WordPress editor.
+- Compare options with scoring, keyword fit, preview width, and title quality signals.
 - Apply winning titles directly in the editor.
 - Support for OpenAI and Google Gemini providers.
 - Load Google Gemini model choices from the API when available.
 - Built-in training and help screens for editorial teams.
+- Keep the workflow inside WordPress instead of bouncing between external AI tools and the editor.
 
 ## What Is New In v2.1.1
 
@@ -32,6 +33,15 @@ OneClickContent is the go-to home for free, bring-your-own-key AI plugins for Wo
 - Refined the editor, settings, and help screens for a simpler editorial workflow.
 - Tightened the release package so `npm run dist` produces an install-ready zip.
 
+## Best Fit
+
+This plugin is a strong fit for:
+
+- WordPress blogs and publisher workflows
+- content teams that want faster headline ideation
+- SEO-minded sites that want keyword-aware title suggestions
+- site owners who want AI help without SaaS lock-in
+
 ## Quick Start
 
 1. Install and activate the plugin.
@@ -44,6 +54,10 @@ OneClickContent is the go-to home for free, bring-your-own-key AI plugins for Wo
 ## Pricing Model
 
 This plugin is free. OneClickContent's model is simple: bring your own API key, use the provider you prefer, and pay that provider directly only if they charge for usage.
+
+## Why BYO Key
+
+The bring-your-own-key model gives you control over provider choice, usage, and cost. It also keeps the plugin lightweight and avoids locking editorial teams into another hosted subscription just to improve titles.
 
 ## Training Page
 
