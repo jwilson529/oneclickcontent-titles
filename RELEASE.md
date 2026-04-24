@@ -21,6 +21,7 @@ This repo ships WordPress.org releases through GitHub Actions. This is the relea
 
 1. Finalize the release commit on `main`.
    - Include version bumps, `readme.txt`, `README.md`, `MARKETING_PLAN.md`, asset changes, and any workflow fixes before tagging.
+   - Confirm the `readme.txt` short description line is 150 characters or fewer.
    - Confirm the WordPress.org screenshots match the `readme.txt` captions exactly.
    - Recommended screenshot sequence is editor results first, settings second, generation workflow third.
 2. Run the local release gate on that exact commit.

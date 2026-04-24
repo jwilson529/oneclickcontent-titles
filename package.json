@@ -1,6 +1,6 @@
 {
   "name": "oneclickcontent-titles",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "Free AI title assistant for WordPress from the OneClickContent bring-your-own-key AI plugin line.",
   "main": "index.js",
   "scripts": {

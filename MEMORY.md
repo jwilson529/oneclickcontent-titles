@@ -75,3 +75,9 @@ Append a brief recap after each run:
 - Notable changes: Bumped plugin/package/readme versions to 2.1.2; changed unset OpenAI model fallbacks to `gpt-5.5`; added provider helper coverage for the GPT-5.5 default and OpenAI model-list exposure; refreshed GitHub, WordPress.org, and marketing release copy.
 - Tool results: `npm run check` pass (`check.txt` empty); `npm run dist` pass (`dist/oneclickcontent-titles.zip` created); `npm test` pass (27 tests, 68 assertions).
 - Remaining gaps: None identified before tagging.
+
+- Date: 2026-04-24
+- Summary: Preparing a 2.1.3 corrective release for the WordPress.org short-description warning.
+- Notable changes: Shortened the `readme.txt` short description to 126 characters; bumped plugin/package/readme versions to 2.1.3; added a release-process guard for the 150-character short-description limit.
+- Tool results: `npm run check` pass (`check.txt` empty); `npm run dist` pass (`dist/oneclickcontent-titles.zip` created); `npm test` pass (27 tests, 68 assertions).
+- Remaining gaps: Publish and verify `v2.1.3`.

@@ -48,6 +48,10 @@ Build a real OneClickContent social persona that participates in the WordPress, 
 ## v2.1.2 short announcement draft
 OneClickContent - Titles v2.1.2 is out. New OpenAI setups now default to GPT-5.5, existing saved model choices stay unchanged, and the WordPress.org page has refreshed real-plugin screenshots, banner, and icon assets.
 
+## v2.1.3 release note
+- Corrective readme release that shortens the WordPress.org short description under the plugin directory import limit.
+- GPT-5.5 remains the default OpenAI model for new setups from the v2.1.2 update.
+
 ## Who to follow and watch
 ### WordPress ecosystem
 - Post Status

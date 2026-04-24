@@ -4,12 +4,12 @@ Donate link: https://oneclickcontent.com/donate/
 Tags: ai, seo, titles, openai, gemini
 Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 2.1.2
+Stable tag: 2.1.3
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Free BYO-key AI title assistant for WordPress. Generate, compare, score, and apply better post titles directly in the editor with OpenAI or Google Gemini.
+Free BYO-key AI title assistant for WordPress. Generate, score, compare, and apply stronger post titles with OpenAI or Gemini.
 
 == Description ==
 
@@ -99,6 +99,11 @@ The plugin sends post content to your selected provider for title generation.
 
 == Changelog ==
 
+= 2.1.3 =
+
+- Shorten the WordPress.org short description so the plugin directory import no longer truncates it.
+- Keep the 2.1.2 GPT-5.5 default OpenAI model update intact.
+
 = 2.1.2 =
 
 - Add GPT-5.5 as the default OpenAI model for new installs and unset model fallbacks.
@@ -137,6 +142,9 @@ The plugin sends post content to your selected provider for title generation.
 * Added richer scoring and title comparison experience.
 
 == Upgrade Notice ==
+
+= 2.1.3 =
+Readme correction release. The WordPress.org short description is now within the plugin directory limit.
 
 = 2.1.2 =
 Recommended update. New installs default to GPT-5.5 for OpenAI title generation, while existing saved model choices remain unchanged.
