@@ -42,7 +42,7 @@ class Occ_Titles_OpenAI_Helper {
 	 * @return array|string    Array of titles if successful, error message if failed.
 	 */
 	public function generate_titles_openai( $api_key, $content, $style = '', $request_id = '', $count = 5, $seed_title = '', $variation = '', $keyword = '', $voice_profile = array(), $voice_samples = array(), $intent = '', $keywords = array(), $ellipsis = 0 ) {
-		$model = get_option( 'occ_titles_openai_model', 'gpt-4o-mini' );
+		$model = get_option( 'occ_titles_openai_model', 'gpt-5.5' );
 
 		if ( $count < 1 ) {
 			$count = 1;

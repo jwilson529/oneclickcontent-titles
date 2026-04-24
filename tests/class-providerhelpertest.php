@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
 use Brain\Monkey\Functions;
 
 require_once dirname( __DIR__ ) . '/includes/class-occ-titles-logger.php';
+require_once dirname( __DIR__ ) . '/admin/class-occ-titles-openai-helper.php';
 require_once dirname( __DIR__ ) . '/admin/class-occ-titles-google-helper.php';
 
 /**
@@ -185,6 +186,107 @@ class ProviderHelperTest extends Occ_Titles_Test_Case {
 		$this->assertIsArray( $result );
 		$this->assertStringNotContainsString( 'secret-key', $captured['endpoint'] );
 		$this->assertSame( 'secret-key', $captured['args']['headers']['x-goog-api-key'] );
+	}
+
+	/**
+	 * OpenAI title generation uses GPT-5.5 when no saved model exists.
+	 *
+	 * @since 2.1.2
+	 * @return void
+	 */
+	public function test_openai_generation_defaults_to_gpt_5_5() {
+		$this->reset_logger_instance();
+		$this->prime_helper_environment();
+
+		$captured = array();
+
+		Functions\when( 'wp_remote_post' )->alias(
+			function ( $endpoint, $args ) use ( &$captured ) {
+				$captured = array(
+					'endpoint' => $endpoint,
+					'body'     => json_decode( $args['body'], true ),
+				);
+
+				return array( 'response' => array( 'code' => 200 ) );
+			}
+		);
+
+		Functions\when( 'wp_remote_retrieve_response_code' )->alias(
+			function () {
+				return 200;
+			}
+		);
+
+		Functions\when( 'wp_remote_retrieve_body' )->alias(
+			function () {
+				return wp_json_encode(
+					array(
+						'output' => array(
+							array(
+								'content' => array(
+									array(
+										'type' => 'output_text',
+										'text' => wp_json_encode(
+											array(
+												array(
+													'index' => 1,
+													'text' => 'Test title',
+													'style' => 'How-To',
+													'sentiment' => 'Positive',
+													'keywords' => array( 'alpha' ),
+												),
+											)
+										),
+									),
+								),
+							),
+						),
+					)
+				);
+			}
+		);
+
+		$helper = new Occ_Titles_OpenAI_Helper();
+		$result = $helper->generate_titles_openai( 'secret-key', 'Body copy for testing.', '', '', 1 );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 'https://api.openai.com/v1/responses', $captured['endpoint'] );
+		$this->assertSame( 'gpt-5.5', $captured['body']['model'] );
+	}
+
+	/**
+	 * OpenAI validation exposes GPT-5.5 from the provider model list.
+	 *
+	 * @since 2.1.2
+	 * @return void
+	 */
+	public function test_openai_validation_exposes_gpt_5_5_model() {
+		$this->reset_logger_instance();
+		$this->prime_helper_environment();
+
+		Functions\when( 'wp_remote_get' )->alias(
+			function () {
+				return array( 'response' => array( 'code' => 200 ) );
+			}
+		);
+
+		Functions\when( 'wp_remote_retrieve_body' )->alias(
+			function () {
+				return wp_json_encode(
+					array(
+						'data' => array(
+							array( 'id' => 'gpt-5.5' ),
+							array( 'id' => 'gpt-5.4' ),
+						),
+					)
+				);
+			}
+		);
+
+		$models = Occ_Titles_OpenAI_Helper::validate_openai_api_key( 'secret-key' );
+
+		$this->assertIsArray( $models );
+		$this->assertContains( 'gpt-5.5', $models );
 	}
 
 	/**

@@ -38,6 +38,16 @@ Build a real OneClickContent social persona that participates in the WordPress, 
 - 10% ecosystem commentary.
 - 10% direct product mentions.
 
+## v2.1.2 release talking points
+- OneClickContent - Titles now defaults to GPT-5.5 for new OpenAI setups while keeping the bring-your-own-key model.
+- Existing sites keep their saved OpenAI model choice, so upgrades do not silently change provider spend.
+- The plugin still loads OpenAI model choices from the connected account, which keeps the selector current as OpenAI models roll out.
+- WordPress.org assets were refreshed with a new banner, icon, and cropped screenshots from verified real plugin UI.
+- Suggested release angle: better title generation inside WordPress, with a current OpenAI default and no SaaS lock-in.
+
+## v2.1.2 short announcement draft
+OneClickContent - Titles v2.1.2 is out. New OpenAI setups now default to GPT-5.5, existing saved model choices stay unchanged, and the WordPress.org page has refreshed real-plugin screenshots, banner, and icon assets.
+
 ## Who to follow and watch
 ### WordPress ecosystem
 - Post Status

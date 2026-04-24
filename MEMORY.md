@@ -69,3 +69,9 @@ Append a brief recap after each run:
 - Notable changes: Updated `readme.txt` screenshot captions; added the screenshot set to `README.md`; added the capture plan to `MARKETING_PLAN.md`; added a screenshot release gate to `RELEASE.md`; generated new banner and icon PNG assets; cropped verified screenshot assets to remove WordPress admin chrome; refreshed `PLAN.md`.
 - Tool results: `npm run check` pass (`check.txt` empty); `npm run dist` pass (`dist/oneclickcontent-titles.zip` created); `npm test` pass (25 tests, 62 assertions).
 - Remaining gaps: Clean Docker admin capture hit headless authentication issues, so the final screenshot set uses cropped versions of already verified UI screenshots rather than newly captured Docker screenshots.
+
+- Date: 2026-04-24
+- Summary: Prepared the 2.1.2 release with GPT-5.5 as the OpenAI default for new installs.
+- Notable changes: Bumped plugin/package/readme versions to 2.1.2; changed unset OpenAI model fallbacks to `gpt-5.5`; added provider helper coverage for the GPT-5.5 default and OpenAI model-list exposure; refreshed GitHub, WordPress.org, and marketing release copy.
+- Tool results: `npm run check` pass (`check.txt` empty); `npm run dist` pass (`dist/oneclickcontent-titles.zip` created); `npm test` pass (27 tests, 68 assertions).
+- Remaining gaps: None identified before tagging.

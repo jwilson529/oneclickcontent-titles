@@ -1174,8 +1174,7 @@ class Occ_Titles_Settings {
 	 * @return void
 	 */
 	public function occ_titles_openai_model_callback() {
-		// Set "gpt-4o-mini" as the default if none is saved.
-		$selected_model = get_option( 'occ_titles_openai_model', 'gpt-4o-mini' );
+		$selected_model = get_option( 'occ_titles_openai_model', 'gpt-5.5' );
 		$api_key        = get_option( 'occ_titles_openai_api_key', '' );
 
 		if ( empty( $api_key ) ) {

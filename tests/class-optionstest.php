@@ -80,6 +80,7 @@ class OptionsTest extends Occ_Titles_Test_Case {
 
 		$this->assertSame( array( 'post', 'page' ), $updated_options['occ_titles_post_types'] );
 		$this->assertSame( 0, $updated_options['occ_titles_post_types_customized'] );
+		$this->assertSame( 'gpt-5.5', $updated_options['occ_titles_openai_model'] );
 	}
 
 	/**

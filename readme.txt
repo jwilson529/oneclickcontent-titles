@@ -4,7 +4,7 @@ Donate link: https://oneclickcontent.com/donate/
 Tags: ai, seo, titles, openai, gemini
 Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 2.1.1
+Stable tag: 2.1.2
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -37,6 +37,7 @@ That makes the plugin especially useful for:
 - Compare recommendations with scoring, keyword fit, preview width, and quality signals.
 - Apply a chosen title without copying and pasting between screens.
 - Support both OpenAI and Google Gemini so you can choose the provider that fits your workflow.
+- Use GPT-5.5 as the default OpenAI model on new installs, with model choices still loaded from your OpenAI account.
 - Load Google Gemini model choices from the API when available.
 - Train editors with the built-in Title Help page and guided settings experience.
 - Keep your workflow inside WordPress instead of bouncing between external AI tools and the editor.
@@ -75,7 +76,7 @@ OneClickContent is built around a BYO-key model so you keep control of provider 
 
 = Which providers are supported? =
 
-OpenAI and Google Gemini are supported. Gemini model choices are loaded from the API when available so the list stays current without plugin updates.
+OpenAI and Google Gemini are supported. OpenAI and Gemini model choices are loaded from the provider APIs when available so the lists stay current without plugin updates.
 
 = Where is the training page? =
 
@@ -97,6 +98,13 @@ The plugin sends post content to your selected provider for title generation.
 - Google privacy policy: https://policies.google.com/privacy
 
 == Changelog ==
+
+= 2.1.2 =
+
+- Add GPT-5.5 as the default OpenAI model for new installs and unset model fallbacks.
+- Keep OpenAI model selection loaded from the OpenAI Models API so GPT-5.5 appears when the connected account has access.
+- Refresh the WordPress.org release package with updated banner, icon, and cropped real-plugin screenshots.
+- Update GitHub and WordPress.org readme copy for the current release.
 
 = 2.1.1 =
 
@@ -129,6 +137,9 @@ The plugin sends post content to your selected provider for title generation.
 * Added richer scoring and title comparison experience.
 
 == Upgrade Notice ==
+
+= 2.1.2 =
+Recommended update. New installs default to GPT-5.5 for OpenAI title generation, while existing saved model choices remain unchanged.
 
 = 2.1.1 =
 Recommended update. Pages are now enabled by default on fresh installs, older posts-only defaults normalize safely to include pages, and missing page editor controls are fixed.
