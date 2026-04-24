@@ -4,7 +4,7 @@ Donate link: https://oneclickcontent.com/donate/
 Tags: ai, seo, titles, openai, gemini
 Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 2.1.3
+Stable tag: 2.1.4
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -99,6 +99,10 @@ The plugin sends post content to your selected provider for title generation.
 
 == Changelog ==
 
+= 2.1.4 =
+
+- Refresh the WordPress.org SVG icon so it matches the current PNG icon artwork.
+
 = 2.1.3 =
 
 - Shorten the WordPress.org short description so the plugin directory import no longer truncates it.
@@ -142,6 +146,9 @@ The plugin sends post content to your selected provider for title generation.
 * Added richer scoring and title comparison experience.
 
 == Upgrade Notice ==
+
+= 2.1.4 =
+WordPress.org asset correction release. The SVG icon now matches the current PNG icon artwork.
 
 = 2.1.3 =
 Readme correction release. The WordPress.org short description is now within the plugin directory limit.

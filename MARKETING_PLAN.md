@@ -52,6 +52,9 @@ OneClickContent - Titles v2.1.2 is out. New OpenAI setups now default to GPT-5.5
 - Corrective readme release that shortens the WordPress.org short description under the plugin directory import limit.
 - GPT-5.5 remains the default OpenAI model for new setups from the v2.1.2 update.
 
+## v2.1.4 release note
+- WordPress.org asset correction release that updates `assets/icon.svg` to match the current PNG icon artwork.
+
 ## Who to follow and watch
 ### WordPress ecosystem
 - Post Status

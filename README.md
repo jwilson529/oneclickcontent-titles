@@ -2,7 +2,7 @@
 
 ![Plugin Banner](assets/banner-772x250.png)
 
-Version: 2.1.3
+Version: 2.1.4
 
 Free BYO-key AI title assistant for WordPress from the OneClickContent plugin line. Use your own OpenAI or Google Gemini API key to generate, compare, score, and apply post titles directly in the editor.
 
@@ -19,6 +19,10 @@ OneClickContent is the home for free, bring-your-own-key AI plugins for WordPres
 - Load Google Gemini model choices from the API when available.
 - Built-in training and help screens for editorial teams.
 - Keep the workflow inside WordPress instead of bouncing between external AI tools and the editor.
+
+## What Is New In v2.1.4
+
+- Updated `assets/icon.svg` so the WordPress.org SVG icon matches the current PNG icon artwork.
 
 ## What Is New In v2.1.3
 
@@ -110,6 +114,10 @@ This plugin sends post content to your selected provider for title generation.
 - Google: https://policies.google.com/privacy
 
 ## Changelog
+
+### 2.1.4
+
+- Refreshed the WordPress.org SVG icon to match the current PNG icon set.
 
 ### 2.1.3
 
