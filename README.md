@@ -72,6 +72,23 @@ It includes:
 - Control and label definitions.
 - Self-contained placeholder panels your team can replace with local screenshots later.
 
+## WordPress.org Screenshot Set
+
+Use real wp-admin screenshots only. Do not use browser chrome, mockups, marketing overlays, or composites in the WordPress.org screenshot set.
+
+Recommended final order:
+
+1. `screenshot-1.png` - Post editor workflow showing `Title Recommendations`, the top generated title, score/grade, quality signals, `Apply this title`, `2 More options`, and `Open full breakdown`.
+   Caption: Generate title recommendations directly inside the WordPress post editor, then compare scores and apply the best option without leaving the page.
+2. `screenshot-2.png` - Settings page at `options-general.php?page=occ_titles-settings` showing `Title Assistant` in the Settings menu, setup progress, provider/API connection, editor locations, diagnostics, and brand voice.
+   Caption: Configure your AI provider, enabled editor locations, diagnostics, and brand voice from the guided Title Assistant settings page.
+3. `screenshot-3.png` - Post editor workflow while a fresh title batch is being generated, showing the loading state and content-aware title guidance.
+   Caption: See the in-editor generation workflow with content-aware guidance while a fresh title batch is created.
+4. `screenshot-4.png` - Optional replacement/additional editor shot with `Generation Controls` expanded, including goal, style, keyword targets, and the `Generate Titles` button.
+   Caption: Choose the goal, style, and keyword targets before generating a fresh batch of title ideas.
+5. `screenshot-5.png` - Optional replacement/additional editor shot with the full breakdown expanded, showing detailed comparison signals and export tools.
+   Caption: Review the full title breakdown with scoring, keyword fit, readability, preview width, and export tools before choosing a title.
+
 ## Privacy
 
 This plugin sends post content to your selected provider for title generation.

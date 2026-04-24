@@ -63,3 +63,9 @@ Append a brief recap after each run:
 - Notable changes: Updated `SPEC.md` and `PLAN.md` with production-readiness criteria; removed remote help-page placeholders in `admin/class-occ-titles-settings.php`; added `includes/class-occ-titles-uninstaller.php` and wired `uninstall.php`; improved direct logger append behavior in `includes/class-occ-titles-logger.php`; added uninstall coverage in `tests/class-uninstallertest.php`; refreshed `.codex_index.json`.
 - Tool results: `npm run fix` pass; `npm run check` pass (`check.txt` empty); `npm run test:local` pass (13 tests, 34 assertions); `npm run test` fail in Docker bootstrap (`ERROR 2005 (HY000): Unknown server host 'db' (-2)`).
 - Remaining gaps: Docker test harness still needs a networking/bootstrap fix so the `tests` container can resolve `db` consistently.
+
+- Date: 2026-04-24
+- Summary: Prepared release-facing screenshot documentation and WordPress.org visual assets for the plugin page without code changes.
+- Notable changes: Updated `readme.txt` screenshot captions; added the screenshot set to `README.md`; added the capture plan to `MARKETING_PLAN.md`; added a screenshot release gate to `RELEASE.md`; generated new banner and icon PNG assets; cropped verified screenshot assets to remove WordPress admin chrome; refreshed `PLAN.md`.
+- Tool results: `npm run check` pass (`check.txt` empty); `npm run dist` pass (`dist/oneclickcontent-titles.zip` created); `npm test` pass (25 tests, 62 assertions).
+- Remaining gaps: Clean Docker admin capture hit headless authentication issues, so the final screenshot set uses cropped versions of already verified UI screenshots rather than newly captured Docker screenshots.

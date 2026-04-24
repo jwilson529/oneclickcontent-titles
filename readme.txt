@@ -43,9 +43,9 @@ That makes the plugin especially useful for:
 
 == Screenshots ==
 
-1. Guided settings page for provider setup, editor locations, and brand voice.
-2. In-editor title generation workflow with goal, style, and keyword controls.
-3. Title comparison view with top picks, scoring, and the full breakdown tools.
+1. Generate title recommendations directly inside the WordPress post editor, then compare scores and apply the best option without leaving the page.
+2. Configure your AI provider, enabled editor locations, diagnostics, and brand voice from the guided Title Assistant settings page.
+3. See the in-editor generation workflow with content-aware guidance while a fresh title batch is created.
 
 == Installation ==
 

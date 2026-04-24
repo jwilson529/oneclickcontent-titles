@@ -4,54 +4,59 @@
 Codex must keep this file updated during each run.
 
 ## Goal
-Push the plugin over the production-readiness threshold for real-world use: remove admin placeholder dependencies, make uninstall deterministic, harden logging behavior, and keep tooling green.
+Prepare the release-facing documentation and WordPress.org visual assets without changing plugin code.
 
 ## Assumptions
 - Existing plugin architecture and feature behavior should remain unchanged (safe modernization).
 - Current repository has intentional non-task edits in docs and should not be reverted.
+- Screenshot guidance must only reference verified real plugin UI.
+- WordPress admin chrome should be cropped out of screenshot assets for the plugin page.
 
 ## Questions (non-blocking)
 - None.
 
 ## Files to change
-- SPEC.md
-- admin/class-occ-titles-settings.php
-- includes/class-occ-titles-logger.php
-- includes/class-occ-titles-uninstaller.php
-- uninstall.php
-- tests/class-loggertest.php
-- tests/class-uninstallertest.php
-- .codex_index.json
+- readme.txt
+- README.md
+- MARKETING_PLAN.md
+- RELEASE.md
+- assets/banner-1544x500.png
+- assets/banner-772x250.png
+- assets/icon-128x128.png
+- assets/icon-256x256.png
+- assets/screenshot-1.png
+- assets/screenshot-2.png
+- assets/screenshot-3.png
 - PLAN.md
 - MEMORY.md
 
 ## Steps
-1. Tighten SPEC/plan with explicit production-readiness gates.
-2. Remove third-party placeholder dependencies from the admin help UI.
-3. Implement deterministic uninstall cleanup for plugin-owned options, post meta, and log artifacts.
-4. Improve logger append behavior to avoid whole-file rewrites on direct filesystem paths.
-5. Add or update PHPUnit coverage for the logger and uninstall paths.
-6. Run `npm run fix`, `npm run check`, and `npm run test:local`; document any blocked secondary path.
+1. Update `readme.txt` screenshot captions to match the release screenshot sequence.
+2. Add a WordPress.org screenshot set section to `README.md`.
+3. Add the screenshot capture plan to `MARKETING_PLAN.md`.
+4. Add screenshot release gates to `RELEASE.md`.
+5. Generate updated banner/icon artwork and crop verified screenshots.
+6. Run the release check and document the result.
 
 ## Commands to run
-- npm run fix
 - npm run check
-- npm run test:local
-- npm run test
+- npm run dist
+- npm test
 
 ## Acceptance criteria
-- No remote placeholder assets are used in wp-admin for plugin help/training content.
-- Uninstall removes plugin-owned options, saved meta, and log files/directories when present.
-- Logger avoids whole-file rewrites on direct filesystem paths while remaining testable.
-- PHPCS clean (0 errors, 0 warnings) or explain why not possible.
-- `npm run test:local` passes.
+- `readme.txt` has final WordPress.org captions ready to paste/publish.
+- `MARKETING_PLAN.md` documents the final screenshot order, shot contents, captions, and capture notes.
+- `RELEASE.md` includes a screenshot gate so asset/caption mismatches are caught before publish.
+- No code changes are made for this task.
+- WordPress.org banner and icon assets exist at the expected dimensions.
+- Screenshot assets are cropped to remove WordPress admin chrome.
+- `npm run check`, `npm run dist`, and `npm test` pass or any release blocker is documented.
 
 ## Run status
-- `npm run fix`: pass
 - `npm run check`: pass (`check.txt` empty)
-- `npm run test:local`: pass (13 tests, 34 assertions)
-- `npm run test`: fail in Docker test bootstrap (`ERROR 2005 (HY000): Unknown server host 'db' (-2)`)
+- `npm run dist`: pass (`dist/oneclickcontent-titles.zip` created)
+- `npm test`: pass (25 tests, 62 assertions)
 
 ## Latest run
-- Date: 2026-03-13
-- Summary: Added production-readiness gates and hardened the plugin for initial real-world use by removing remote admin placeholders, adding deterministic uninstall cleanup, and improving logger append behavior.
+- Date: 2026-04-24
+- Summary: Prepared WordPress.org screenshot documentation plus updated banner, icon, and cropped screenshot assets without code changes.
