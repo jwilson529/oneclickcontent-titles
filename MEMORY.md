@@ -87,3 +87,9 @@ Append a brief recap after each run:
 - Notable changes: Replaced `assets/icon.svg` with vector artwork matching the current PNG icon set; bumped plugin/package/readme versions to 2.1.4.
 - Tool results: SVG parses as `256x256`; rendered with headless Chrome for visual check; `npm run check` pass (`check.txt` empty); `npm run dist` pass (`dist/oneclickcontent-titles.zip` created); `npm test` pass (27 tests, 68 assertions).
 - Remaining gaps: Publish and verify `v2.1.4`.
+
+- Date: 2026-05-21
+- Summary: Preparing a 2.1.5 WordPress 7.0 compatibility release.
+- Notable changes: Bumped plugin/package/readme versions to 2.1.5; updated `readme.txt` to `Tested up to: 7.0`; changed Docker PHPUnit default to `WP_VERSION=7.0`; made `.wp-core` and `.wp-tests` refresh when the requested WordPress version changes.
+- Tool results: `npm run check` pass (`check.txt` empty); `npm test` pass against active WordPress core version `7.0` with the WordPress develop `7.0.0` test suite (27 tests, 68 assertions); `npm run dist` pass (`dist/oneclickcontent-titles.zip` created).
+- Remaining gaps: Publish and verify `v2.1.5`.

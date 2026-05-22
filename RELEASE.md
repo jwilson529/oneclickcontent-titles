@@ -28,6 +28,7 @@ This repo ships WordPress.org releases through GitHub Actions. This is the relea
    - `npm run check`
    - `npm test`
    - `npm run dist`
+   - Confirm the Docker test output prints the WordPress core version expected for the release.
 3. Verify the build output shape.
    - `dist/oneclickcontent-titles/` must be the plugin root.
    - `dist/oneclickcontent-titles.zip` must install with a top-level `oneclickcontent-titles/` folder.

@@ -3,8 +3,8 @@ Contributors: jwilson529
 Donate link: https://oneclickcontent.com/donate/
 Tags: ai, seo, titles, openai, gemini
 Requires at least: 5.0
-Tested up to: 6.9
-Stable tag: 2.1.4
+Tested up to: 7.0
+Stable tag: 2.1.5
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -99,6 +99,11 @@ The plugin sends post content to your selected provider for title generation.
 
 == Changelog ==
 
+= 2.1.5 =
+
+- Add WordPress 7.0 compatibility metadata after testing against WordPress 7.0.
+- Pin the Docker PHPUnit harness to WordPress 7.0 by default and refresh cached test core when the requested WordPress version changes.
+
 = 2.1.4 =
 
 - Refresh the WordPress.org SVG icon so it matches the current PNG icon artwork.
@@ -146,6 +151,9 @@ The plugin sends post content to your selected provider for title generation.
 * Added richer scoring and title comparison experience.
 
 == Upgrade Notice ==
+
+= 2.1.5 =
+WordPress 7.0 compatibility release. The plugin has been tested against WordPress 7.0.
 
 = 2.1.4 =
 WordPress.org asset correction release. The SVG icon now matches the current PNG icon artwork.

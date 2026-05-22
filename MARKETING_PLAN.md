@@ -55,6 +55,11 @@ OneClickContent - Titles v2.1.2 is out. New OpenAI setups now default to GPT-5.5
 ## v2.1.4 release note
 - WordPress.org asset correction release that updates `assets/icon.svg` to match the current PNG icon artwork.
 
+## v2.1.5 release note
+- WordPress 7.0 compatibility release.
+- WordPress.org metadata now shows `Tested up to: 7.0`.
+- Docker PHPUnit now runs against WordPress 7.0 by default and refreshes stale cached test core automatically.
+
 ## Who to follow and watch
 ### WordPress ecosystem
 - Post Status
