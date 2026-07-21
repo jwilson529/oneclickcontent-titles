@@ -157,7 +157,7 @@ class Occ_Titles_Logger {
 	 * @return bool True if enabled.
 	 */
 	private function is_enabled() {
-		$enabled = (bool) get_option( 'occ_titles_logging_enabled', 1 );
+		$enabled = (bool) get_option( 'occ_titles_logging_enabled', 0 );
 
 		/**
 		 * Filter whether logging is enabled.

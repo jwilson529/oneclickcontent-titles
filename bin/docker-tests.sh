@@ -10,9 +10,26 @@ DB_HOST="${WP_TESTS_DB_HOST:-db}"
 DB_NAME="${WP_TESTS_DB_NAME:-wordpress_test}"
 DB_USER="${WP_TESTS_DB_USER:-root}"
 DB_PASS="${WP_TESTS_DB_PASS:-root}"
-WP_VERSION="${WP_VERSION:-7.0}"
+WP_VERSION="${WP_VERSION:-7.0.2}"
 PHPUNIT_VERSION="${PHPUNIT_VERSION:-9.6.20}"
 WP_DEVELOP_REF="${WP_DEVELOP_REF:-}"
+ACTIVE_WP_VERSION=""
+
+reset_test_cache_directory() {
+    local cache_directory="$1"
+
+    case "${cache_directory}" in
+        "${WORKDIR}/.wp-core"|"${WORKDIR}/.wp-tests")
+            ;;
+        *)
+            printf 'Refusing to clear unexpected cache directory: %s\n' "${cache_directory}" >&2
+            exit 1
+            ;;
+    esac
+
+    mkdir -p "${cache_directory}"
+    find "${cache_directory}" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
+}
 
 resolve_wp_develop_ref() {
     if [ -n "${WP_DEVELOP_REF}" ]; then
@@ -21,14 +38,18 @@ resolve_wp_develop_ref() {
     fi
 
     case "${WP_VERSION}" in
-        latest|trunk|nightly)
+        latest)
+            printf '%s\n' "${ACTIVE_WP_VERSION}"
+            ;;
+        trunk|nightly)
             printf '%s\n' "trunk"
             ;;
-        [0-9]*.[0-9])
-            printf '%s.0\n' "${WP_VERSION}"
-            ;;
         *)
-            printf '%s\n' "${WP_VERSION}"
+            if [[ "${WP_VERSION}" =~ ^[0-9]+\.[0-9]+$ ]]; then
+                printf '%s.0\n' "${WP_VERSION}"
+            else
+                printf '%s\n' "${WP_VERSION}"
+            fi
             ;;
     esac
 }
@@ -43,6 +64,44 @@ wp_download_url() {
             ;;
         *)
             printf 'https://wordpress.org/wordpress-%s.tar.gz\n' "${WP_VERSION}"
+            ;;
+    esac
+}
+
+installed_wp_core_version() {
+    if [ ! -f "${WP_CORE_DIR}/wp-includes/version.php" ]; then
+        return
+    fi
+
+    php -r "require '${WP_CORE_DIR}/wp-includes/version.php'; echo \$wp_version;"
+}
+
+wp_core_cache_is_valid() {
+    if [ ! -f "${WP_CORE_DIR}/wp-load.php" ] || [ ! -f "${WP_CORE_DIR}/.wp-version" ] || [ "$(cat "${WP_CORE_DIR}/.wp-version")" != "${WP_VERSION}" ]; then
+        return 1
+    fi
+
+    case "${WP_VERSION}" in
+        latest|trunk|nightly)
+            return 1
+            ;;
+        *)
+            [ "$(installed_wp_core_version)" = "${WP_VERSION}" ]
+            ;;
+    esac
+}
+
+wp_tests_cache_is_valid() {
+    if [ ! -d "${WP_TESTS_DIR}/includes" ] || [ ! -f "${WP_TESTS_DIR}/.wp-version" ] || [ "$(cat "${WP_TESTS_DIR}/.wp-version")" != "${WP_VERSION}" ]; then
+        return 1
+    fi
+
+    case "${WP_VERSION}" in
+        latest|trunk|nightly)
+            return 1
+            ;;
+        *)
+            return 0
             ;;
     esac
 }
@@ -64,9 +123,8 @@ php -d error_reporting="E_ALL&~E_DEPRECATED" /usr/local/bin/phpunit --version
 echo "==> Installing WP core ${WP_VERSION} for tests"
 mkdir -p "${WP_TESTS_DIR}"
 
-if [ ! -f "${WP_CORE_DIR}/wp-load.php" ] || [ ! -f "${WP_CORE_DIR}/.wp-version" ] || [ "$(cat "${WP_CORE_DIR}/.wp-version")" != "${WP_VERSION}" ]; then
-    rm -rf "${WP_CORE_DIR}"
-    mkdir -p "${WP_CORE_DIR}"
+if ! wp_core_cache_is_valid; then
+    reset_test_cache_directory "${WP_CORE_DIR}"
     rm -rf /tmp/wordpress /tmp/wp.tar.gz /tmp/wp.zip
 
     if [ "trunk" = "${WP_VERSION}" ] || [ "nightly" = "${WP_VERSION}" ]; then
@@ -82,12 +140,13 @@ if [ ! -f "${WP_CORE_DIR}/wp-load.php" ] || [ ! -f "${WP_CORE_DIR}/.wp-version" 
 fi
 
 echo "==> Active WordPress core version"
-php -r "require '${WP_CORE_DIR}/wp-includes/version.php'; echo \$wp_version . PHP_EOL;"
+ACTIVE_WP_VERSION="$(installed_wp_core_version)"
+printf '%s\n' "${ACTIVE_WP_VERSION}"
 
 echo "==> Installing WP ${WP_VERSION} test suite"
-if [ ! -d "${WP_TESTS_DIR}/includes" ] || [ ! -f "${WP_TESTS_DIR}/.wp-version" ] || [ "$(cat "${WP_TESTS_DIR}/.wp-version")" != "${WP_VERSION}" ]; then
-    rm -rf "${WP_TESTS_DIR}" /tmp/wp-develop
-    mkdir -p "${WP_TESTS_DIR}"
+if ! wp_tests_cache_is_valid; then
+    reset_test_cache_directory "${WP_TESTS_DIR}"
+    rm -rf /tmp/wp-develop
     wp_develop_ref="$(resolve_wp_develop_ref)"
     git clone --depth=1 https://github.com/WordPress/wordpress-develop.git /tmp/wp-develop
     if [ "trunk" != "${wp_develop_ref}" ]; then

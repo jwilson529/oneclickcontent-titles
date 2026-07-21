@@ -2,7 +2,7 @@
 
 ![Plugin Banner](assets/banner-772x250.png)
 
-Version: 2.1.5
+Version: 2.1.6
 
 Free BYO-key AI title assistant for WordPress from the OneClickContent plugin line. Use your own OpenAI or Google Gemini API key to generate, compare, score, and apply post titles directly in the editor.
 
@@ -15,10 +15,21 @@ OneClickContent is the home for free, bring-your-own-key AI plugins for WordPres
 - Compare options with scoring, keyword fit, preview width, and title quality signals.
 - Apply winning titles directly in the editor.
 - Support for OpenAI and Google Gemini providers.
-- GPT-5.5 is the default OpenAI model for new installs, with model choices loaded from the OpenAI account when available.
+- GPT-5.5 is the tested automatic OpenAI choice, with explicit saved model selections preserved.
 - Load Google Gemini model choices from the API when available.
 - Built-in training and help screens for editorial teams.
 - Keep the workflow inside WordPress instead of bouncing between external AI tools and the editor.
+
+## What Is New In v2.1.6
+
+- Fixed OpenAI generation for models that reject the `temperature` parameter.
+- Added a tested automatic model choice without replacing explicit saved selections.
+- Made the editor workflow more compact with state-aware Options, Undo, and result controls.
+- Restored the Title Assistant launcher in Classic Editor plus Block Editor Visual and Code views.
+- Fixed Apply so it updates the canonical Block Editor title store, with a visible-field fallback for editor compatibility.
+- Stopped background result reloads from resetting open details, so Details and Detailed analysis respond on the first click.
+- Made diagnostic logging opt-in on new installations and expanded external-service disclosures.
+- Hardened uninstall cleanup, minimum WordPress compatibility, translations, tests, and the release workflow.
 
 ## What Is New In v2.1.5
 
@@ -95,31 +106,47 @@ It includes:
 - Control and label definitions.
 - Self-contained placeholder panels your team can replace with local screenshots later.
 
-## WordPress.org Screenshot Set
+## Screenshots
 
-Use real wp-admin screenshots only. Do not use browser chrome, mockups, marketing overlays, or composites in the WordPress.org screenshot set.
+### Compare and apply title recommendations in the editor
 
-Recommended final order:
+Generate a ranked set of recommendations from the post you are already editing. Review the strongest option first, compare its quality signals, and apply it without leaving WordPress.
 
-1. `screenshot-1.png` - Post editor workflow showing `Title Recommendations`, the top generated title, score/grade, quality signals, `Apply this title`, `2 More options`, and `Open full breakdown`.
-   Caption: Generate title recommendations directly inside the WordPress post editor, then compare scores and apply the best option without leaving the page.
-2. `screenshot-2.png` - Settings page at `options-general.php?page=occ_titles-settings` showing `Title Assistant` in the Settings menu, setup progress, provider/API connection, editor locations, diagnostics, and brand voice.
-   Caption: Configure your AI provider, enabled editor locations, diagnostics, and brand voice from the guided Title Assistant settings page.
-3. `screenshot-3.png` - Post editor workflow while a fresh title batch is being generated, showing the loading state and content-aware title guidance.
-   Caption: See the in-editor generation workflow with content-aware guidance while a fresh title batch is created.
-4. `screenshot-4.png` - Optional replacement/additional editor shot with `Generation Controls` expanded, including goal, style, keyword targets, and the `Generate Titles` button.
-   Caption: Choose the goal, style, and keyword targets before generating a fresh batch of title ideas.
-5. `screenshot-5.png` - Optional replacement/additional editor shot with the full breakdown expanded, showing detailed comparison signals and export tools.
-   Caption: Review the full title breakdown with scoring, keyword fit, readability, preview width, and export tools before choosing a title.
+![Title recommendations in the WordPress editor](assets/screenshot-1.png)
 
-## Privacy
+### Configure the assistant for your editorial workflow
 
-This plugin sends post content to your selected provider for title generation.
+Connect your preferred provider, choose the editor locations where the assistant appears, keep diagnostics under your control, and add brand-voice guidance from one settings screen.
 
-- OpenAI: https://openai.com/privacy
-- Google: https://policies.google.com/privacy
+![OneClickContent Titles guided settings](assets/screenshot-2.png)
+
+### Keep context while a fresh batch is generated
+
+The generation state stays inside the editor and provides concise content-aware guidance while the provider creates the next set of title ideas.
+
+![In-editor title generation state](assets/screenshot-3.png)
+
+## External Services and Privacy
+
+This plugin connects to OpenAI or Google Gemini only for provider features you configure. It does not include tracking or send data to OneClickContent.
+
+API-key validation and model loading send the configured key to the selected provider. Google validation also sends a short test prompt. Title generation sends post content, generation instructions, selected controls, and configured brand-voice guidance. API keys and generated results are stored in WordPress. Optional troubleshooting logs are disabled by default on new installations and redact API keys.
+
+- OpenAI terms: https://openai.com/policies/terms-of-use/
+- OpenAI privacy: https://openai.com/privacy
+- Google Gemini API terms: https://ai.google.dev/gemini-api/terms
+- Google privacy: https://policies.google.com/privacy
 
 ## Changelog
+
+### 2.1.6
+
+- Fixed OpenAI generation compatibility for models that do not support `temperature`.
+- Added automatic provider model choices while preserving explicit selections.
+- Compacted the editor interface and restored the launcher in Classic Editor plus both Block Editor views.
+- Made title application reliable in Gutenberg and stabilized first-click detail interactions.
+- Made new-install diagnostics opt-in and expanded external-service disclosures.
+- Hardened uninstall cleanup, compatibility checks, translations, tests, and release tooling.
 
 ### 2.1.5
 

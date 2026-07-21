@@ -52,6 +52,11 @@ class Occ_Titles_Uninstaller {
 	 * @return void
 	 */
 	private static function cleanup_site() {
+		$google_api_key = (string) get_option( 'occ_titles_google_api_key', '' );
+		if ( '' !== $google_api_key ) {
+			delete_transient( 'occ_titles_google_models_' . md5( $google_api_key ) );
+		}
+
 		foreach ( self::get_option_keys() as $option_name ) {
 			delete_option( $option_name );
 		}
@@ -77,6 +82,7 @@ class Occ_Titles_Uninstaller {
 			'occ_titles_openai_api_key_status',
 			'occ_titles_openai_model',
 			'occ_titles_post_types',
+			'occ_titles_post_types_customized',
 			'occ_titles_voice_profile',
 			'occ_titles_voice_samples',
 		);

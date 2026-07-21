@@ -67,7 +67,7 @@ if ! printf '%s\n' "${zip_listing}" | grep -q "oneclickcontent-titles/readme.txt
 fi
 
 # Ensure dev-only artifacts did not leak into distributable zip.
-if printf '%s\n' "${zip_listing}" | grep -E "oneclickcontent-titles/(tests/|vendor/|node_modules/|\.wp-core/|\.wp-tests/|\.git/|\.github/|assets/|AGENTS\.md|APP_FLOW\.md|DESIGN_LESSONS\.md|DESIGN_SYSTEM\.md|FRONTEND_GUIDELINES\.md|MEMORY\.md|PLAN\.md|PLAYBOOK\.md|README\.md|RELEASE\.md|SPEC\.md|UI_AUDIT\.md|UX_SUGGESTIONS\.md|\.codex|check\.txt|phpmd\.txt|occ-titles\.log|plugin-error\.log)" > /dev/null; then
+if printf '%s\n' "${zip_listing}" | grep -E "oneclickcontent-titles/(tests/|vendor/|node_modules/|bin/|\.wp-core/|\.wp-tests/|\.git/|\.github/|assets/|AGENTS\.md|APP_FLOW\.md|CLEAN_DOCKER_REPRO\.md|DESIGN_LESSONS\.md|DESIGN_SYSTEM\.md|FRONTEND_GUIDELINES\.md|HANDOFF\.md|MARKETING_PLAN\.md|MEMORY\.md|PLAN\.md|PLAYBOOK\.md|README\.md|RELEASE\.md|SPEC\.md|UI_AUDIT\.md|UX_SUGGESTIONS\.md|composer\.(json|lock)|docker-compose\.yml|package(-lock)?\.json|phpcs\.xml(\.dist)?|phpmd\.xml|phpunit\.xml(\.dist)?|\.codex|check\.txt|phpmd\.txt|occ-titles\.log|plugin-error\.log)" > /dev/null; then
 	echo "Release archive contains disallowed development artifacts."
 	rm -f "${ARCHIVE_PATH}"
 	rm -rf "${DIST_ROOT}"

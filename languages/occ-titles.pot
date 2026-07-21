@@ -1,0 +1,1209 @@
+# Copyright (C) 2026 James Wilson
+# This file is distributed under the GPL-2.0+.
+msgid ""
+msgstr ""
+"Project-Id-Version: OneClickContent - Titles 2.1.6\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/oneclickcontent-titles\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-07-21T22:07:54+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: oneclickcontent-titles\n"
+
+#. Plugin Name of the plugin
+#: oneclickcontent-titles.php
+msgid "OneClickContent - Titles"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: oneclickcontent-titles.php
+msgid "https://oneclickcontent.com"
+msgstr ""
+
+#. Description of the plugin
+#: oneclickcontent-titles.php
+msgid "Free AI title assistant for WordPress from the go-to bring-your-own-key AI plugin line. Use your own OpenAI or Google Gemini API key."
+msgstr ""
+
+#. Author of the plugin
+#: oneclickcontent-titles.php
+msgid "James Wilson"
+msgstr ""
+
+#. Author URI of the plugin
+#: oneclickcontent-titles.php
+msgid "https://oneclickcontent.com/"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:78
+msgid "OCC Titles Meta Box"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:178
+#: admin/class-occ-titles-settings.php:1623
+msgid "Valid"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:179
+#: admin/class-occ-titles-settings.php:1627
+msgid "Invalid"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:180
+#: admin/class-occ-titles-settings.php:1630
+msgid "Not validated"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:181
+#: admin/class-occ-titles-settings.php:1643
+msgid "Not checked yet."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:182
+msgid "Choose a model from the available account list."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:183
+msgid "Model selected and saving."
+msgstr ""
+
+#. translators: %s: date/time of last API key validation.
+#: admin/class-occ-titles-admin.php:185
+#: admin/class-occ-titles-settings.php:1648
+#, php-format
+msgid "Last checked: %s"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:186
+#: admin/class-occ-titles-settings.php:32
+msgid "Title Assistant"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:187
+msgid "Generate titles to see results."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:188
+msgid "Last generated:"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:189
+msgid "Provider:"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:190
+msgid "suggestions"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:191
+msgid "Applied"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:192
+msgid "Undo"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:193
+msgid "Top picks"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:194
+msgid "more title options"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:195
+msgid "Compare alternatives or open the detailed analysis."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:196
+msgid "Score Current Title"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:197
+msgid "Copy All"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:198
+msgid "Download CSV"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:199
+msgid "Collapse results"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:200
+msgid "Show results"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:201
+msgid "Detailed analysis"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:202
+msgid "Detailed scoring, previews, exports, and keyword notes"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:203
+msgid "Best for"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:204
+msgid "Current title"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:205
+msgid "Apply this title"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:206
+msgid "Apply"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:207
+msgid "Details"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:208
+msgid "The editor title could not be updated. Reload the editor and try again."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:209
+msgid "Why it works"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:210
+msgid "Pixel width"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:211
+#: admin/class-occ-titles-settings.php:481
+msgid "Length"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:212
+#: admin/class-occ-titles-settings.php:486
+msgid "Keyword fit"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:213
+msgid "Readability"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:214
+msgid "Optimize before you generate"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:215
+msgid "Generation Controls"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:216
+msgid "Choose the outcome you want, then generate a fresh batch."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:217
+msgid "Set goal, style, and optional keyword targets before generating."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:218
+msgid "Generate Titles"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:219
+msgid "Regenerate"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:220
+msgid "Revert to Original Title"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:221
+msgid "Revert"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:222
+msgid "Hide options"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:223
+msgid "Options"
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:300
+#: admin/class-occ-titles-admin.php:468
+#: admin/class-occ-titles-admin.php:512
+#: admin/class-occ-titles-admin.php:569
+msgid "Nonce verification failed."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:312
+#: admin/class-occ-titles-admin.php:573
+#: admin/class-occ-titles-google-helper.php:779
+#: admin/class-occ-titles-openai-helper.php:452
+#: admin/class-occ-titles-settings.php:1488
+msgid "Permission denied."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:342
+#: admin/class-occ-titles-admin.php:476
+#: admin/class-occ-titles-admin.php:520
+#: admin/class-occ-titles-admin.php:580
+msgid "Permission denied for this post."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:380
+msgid "Missing content."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:396
+msgid "Missing OpenAI API key."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:410
+msgid "Missing Google Gemini API key."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:425
+msgid "Unknown AI provider."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:473
+#: admin/class-occ-titles-admin.php:517
+msgid "Invalid post ID."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:481
+msgid "Missing results payload."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:486
+msgid "Invalid results format."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:501
+msgid "Results saved."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:584
+msgid "Missing title."
+msgstr ""
+
+#: admin/class-occ-titles-admin.php:604
+msgid "Voice sample saved."
+msgstr ""
+
+#. translators: %d: cooldown in seconds before retrying generation.
+#: admin/class-occ-titles-admin.php:640
+#, php-format
+msgid "Please wait %d seconds before generating titles again."
+msgstr ""
+
+#: admin/class-occ-titles-google-helper.php:243
+#: admin/class-occ-titles-google-helper.php:735
+msgid "Unable to connect to Google Gemini."
+msgstr ""
+
+#: admin/class-occ-titles-google-helper.php:272
+#: admin/class-occ-titles-google-helper.php:757
+msgid "Google Gemini request failed."
+msgstr ""
+
+#: admin/class-occ-titles-google-helper.php:313
+msgid "Google Gemini returned title data in an unexpected format. Try again or switch the Gemini model in settings."
+msgstr ""
+
+#: admin/class-occ-titles-google-helper.php:697
+msgid "Please enter a Google Gemini API key."
+msgstr ""
+
+#: admin/class-occ-titles-google-helper.php:748
+#: admin/class-occ-titles-google-helper.php:788
+#: admin/class-occ-titles-openai-helper.php:461
+#: admin/class-occ-titles-openai-helper.php:464
+msgid "API key is valid."
+msgstr ""
+
+#: admin/class-occ-titles-google-helper.php:764
+msgid "Unable to validate the Google Gemini API key."
+msgstr ""
+
+#: admin/class-occ-titles-openai-helper.php:243
+msgid "Unable to connect to OpenAI."
+msgstr ""
+
+#: admin/class-occ-titles-openai-helper.php:272
+msgid "OpenAI request failed."
+msgstr ""
+
+#: admin/class-occ-titles-openai-helper.php:329
+msgid "Unable to parse the response from OpenAI."
+msgstr ""
+
+#: admin/class-occ-titles-openai-helper.php:469
+#: admin/class-occ-titles-openai-helper.php:472
+msgid "Invalid API key."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:31
+msgid "OneClickContent Title Assistant"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:40
+msgid "OneClickContent Title Help & Training"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:41
+msgid "Title Help"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:70
+msgid "Provider chosen"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:75
+msgid "API connection ready"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:80
+msgid "Editor locations enabled"
+msgstr ""
+
+#. translators: %d: number of enabled post types.
+#: admin/class-occ-titles-settings.php:83
+#, php-format
+msgid "%d post type enabled"
+msgid_plural "%d post types enabled"
+msgstr[0] ""
+msgstr[1] ""
+
+#: admin/class-occ-titles-settings.php:86
+msgid "Brand voice added"
+msgstr ""
+
+#. translators: %d: number of voice cues.
+#: admin/class-occ-titles-settings.php:89
+#, php-format
+msgid "%d cue saved"
+msgid_plural "%d cues saved"
+msgstr[0] ""
+msgstr[1] ""
+
+#: admin/class-occ-titles-settings.php:105
+msgid "OneClickContent Titles"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:106
+msgid "Set up AI title generation without guesswork"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:107
+msgid "OneClickContent is the go-to home for free, bring-your-own-key AI plugins for WordPress. This page is where you connect your provider, decide where Titles appears, and teach it how your brand should sound."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:109
+msgid "Guided setup"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:116
+msgid "Changes save automatically"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:117
+msgid "Ready"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:120
+msgid "Setup progress"
+msgstr ""
+
+#. translators: 1: completed steps, 2: total steps.
+#: admin/class-occ-titles-settings.php:125
+#, php-format
+msgid "%1$d of %2$d ready"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:142
+msgid "Open Title Help"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:145
+msgid "Finish setup"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:159
+#: admin/class-occ-titles-settings.php:298
+msgid "Connection"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:160
+msgid "Connect your AI provider"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:161
+msgid "Choose the service you want to use, paste the API key, and confirm that the connection is working before your team starts generating titles."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:168
+#: admin/class-occ-titles-settings.php:729
+msgid "AI Provider"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:169
+msgid "Pick the service that will generate titles for this site."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:177
+#: admin/class-occ-titles-settings.php:768
+msgid "OpenAI API Key"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:178
+msgid "Paste your secret key. We validate it automatically so you know the connection is actually working."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:185
+#: admin/class-occ-titles-settings.php:776
+msgid "OpenAI Model"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:186
+msgid "Choose the model this plugin should use for title generation."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:193
+#: admin/class-occ-titles-settings.php:797
+msgid "Google Gemini API Key"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:194
+msgid "Paste your Gemini key. We validate it automatically and show the connection status right below the field."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:201
+#: admin/class-occ-titles-settings.php:805
+msgid "Google Gemini Model"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:202
+msgid "Choose the Gemini model this plugin should use. Flash is the safest default for quick title generation."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:215
+msgid "Placement"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:216
+msgid "Choose where editors can use it"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:217
+msgid "Turn the title helper on only where it is helpful. Keep the footprint small so the interface stays clean for everyone else."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:224
+msgid "Editor Locations"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:225
+msgid "Pick the post types where the title generator should appear."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:233
+msgid "Diagnostics"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:234
+msgid "Turn on local troubleshooting logs only when you need them. Logs can include request metadata, but API keys are redacted."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:247
+msgid "Brand Voice"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:248
+msgid "Teach it how your titles should sound"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:249
+msgid "This is where you keep the output from feeling generic. Add the tone, language, and examples that match your publication so editors get usable drafts on the first pass."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:256
+#: admin/class-occ-titles-settings.php:744
+msgid "Voice Profile"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:257
+msgid "Fill in as much or as little as you need. Even a few examples can materially improve the output."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:268
+msgid "Manual save"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:269
+msgid "You usually do not need this because the page auto-saves as you go. Use the button below if you prefer a traditional save step."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:272
+msgid "Save all settings"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:279
+msgid "Quick Start"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:280
+msgid "If you only do four things"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:282
+msgid "Pick your provider."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:283
+msgid "Paste the API key and wait for a valid badge."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:284
+msgid "Turn the plugin on for the post types your team actually edits."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:285
+msgid "Add a few example titles so the voice feels like your brand, not everybody else’s."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:290
+msgid "Current Setup"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:291
+msgid "At a glance"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:294
+msgid "Provider"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:302
+msgid "Enabled locations"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:306
+msgid "Voice cues"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:363
+msgid "Google Gemini"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:366
+msgid "OpenAI"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:420
+msgid "Step 1"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:421
+msgid "Step 1: Open your post and click Generate Titles"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:422
+msgid "In the post editor, click the spark icon next to the title field. This opens the title panel where you can generate and score options."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:423
+msgid "Editor launch point preview"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:424
+msgid "Focus: open the panel and confirm content context before generating."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:427
+msgid "Step 2"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:428
+msgid "Step 2: Set Goal, Style, and optional keyword targets"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:429
+msgid "Choose a goal and style before generating. Select keyword chips that must appear in your headlines for better alignment with your SEO strategy."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:430
+msgid "Goal, style, and keyword controls preview"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:431
+msgid "Focus: align controls with the real publishing objective."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:434
+msgid "Step 3"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:435
+msgid "Step 3: Generate, compare, and apply the best title"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:436
+msgid "Review score, insights, keyword fit, and preview width. Click Apply on the row you want to use, or iterate with Shorter, Punchier, More benefit, and Add keyword."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:437
+msgid "Generated title comparison preview"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:438
+msgid "Focus: select the strongest option, not just the most dramatic one."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:441
+msgid "Step 4"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:442
+msgid "Step 4: Validate in preview and finalize"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:443
+msgid "Use the preview column and pixel meter to keep titles in a clean display range. Save or publish your post once your selected title matches the goal."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:444
+msgid "Preview and publish check"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:445
+msgid "Focus: confirm quality and clarity before publishing."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:451
+msgid "Goal"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:452
+msgid "Sets the optimization target for the batch. Options include Increase CTR, Rank for keyword, Discover cards, Social share, Thought leadership, and Lead gen."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:453
+#: admin/class-occ-titles-settings.php:458
+#: admin/class-occ-titles-settings.php:463
+#: admin/class-occ-titles-settings.php:468
+msgid "Controls"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:456
+msgid "Style"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:457
+msgid "Controls title format such as How-to, Listicle, Question, Command, News headline, Comparison, and other templates."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:461
+msgid "Curiosity ellipsis"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:462
+msgid "Allows generated titles to end with \"...\". Use only when it improves curiosity without becoming clickbait."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:466
+msgid "Keyword targets"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:467
+msgid "Keyword chips extracted from your content. Selected chips are prioritized during title generation."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:471
+msgid "Score"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:472
+msgid "Overall quality score that combines length, readability, sentiment, and keyword usage signals."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:473
+#: admin/class-occ-titles-settings.php:478
+#: admin/class-occ-titles-settings.php:483
+#: admin/class-occ-titles-settings.php:488
+#: admin/class-occ-titles-settings.php:493
+#: admin/class-occ-titles-settings.php:498
+msgid "Signals"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:476
+msgid "Pass / Needs work"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:477
+msgid "Quick quality gate. Pass means the title meets more of the recommended conditions."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:482
+msgid "Shows whether the title is short, ideal, or long based on character guidance."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:487
+msgid "Indicates if keyword density is low, high, or too high for the selected title."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:491
+msgid "Density"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:492
+msgid "Displays the keyword density percentage measured for that title."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:496
+msgid "Preview + Pixel meter"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:497
+msgid "Shows how your title may render. Keep the pixel target near 560 to 600 px to reduce truncation risk."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:501
+msgid "Best / Current badges"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:502
+msgid "Best marks the strongest scored option. Current marks your post’s existing live title for comparison."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:503
+#: admin/class-occ-titles-settings.php:508
+msgid "Rows"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:506
+msgid "Apply / Undo / Iterate buttons"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:507
+msgid "Apply sets the title in the editor. Undo restores the previous title. Iterate buttons request focused rewrites."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:513
+msgid "Match the Goal to the page intent before generating titles."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:514
+msgid "Prioritize clarity first, then curiosity. Avoid misleading promises."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:515
+msgid "Use one primary keyword naturally in the title."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:516
+msgid "Aim for strong, specific nouns and verbs instead of vague wording."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:517
+msgid "Keep title width in range using the pixel meter, not only character count."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:518
+msgid "Use Score Current Title before replacing an existing high performer."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:519
+msgid "Save voice samples in real projects so future generations match your brand tone."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:523
+msgid "Choosing a style before deciding the actual publishing goal."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:524
+msgid "Overloading the title with too many keywords."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:525
+msgid "Using curiosity language that does not match the article promise."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:526
+msgid "Ignoring preview width and publishing truncated headlines."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:527
+msgid "Applying a title without comparing against the current one."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:533
+msgid "Editor Training"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:534
+msgid "Title Help and Training"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:535
+msgid "Use this page as your team playbook for writing titles with confidence. It combines workflow, scoring guidance, and clear definitions so editors can make consistent decisions."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:538
+msgid "Open Plugin Settings"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:541
+msgid "Configure Provider and Post Types"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:548
+msgid "Workflow steps"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:552
+msgid "UI labels explained"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:555
+msgid "560-600"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:556
+msgid "Pixel target range"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:563
+msgid "Quick Workflow"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:564
+msgid "Teach this exact order so your writers get predictable outputs and fewer rewrites."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:567
+msgid "Open the post editor and launch the title panel."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:568
+msgid "Choose Goal and Style, then set optional keyword targets."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:569
+msgid "Generate titles and compare score, insights, and preview."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:570
+msgid "Apply the strongest option and publish."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:576
+msgid "How Scoring Works"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:577
+msgid "The score combines multiple signals and adapts weights to your selected Goal. This helps the ranking reflect the outcome you actually want."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:581
+#: admin/class-occ-titles-settings.php:586
+#: admin/class-occ-titles-settings.php:591
+#: admin/class-occ-titles-settings.php:596
+msgid "Core signal"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:582
+msgid "Length score"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:583
+msgid "Higher when the title stays in the recommended range (about 50 to 60 characters)."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:587
+msgid "Sentiment score"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:588
+msgid "Positive and neutral phrasing generally score better than negative phrasing."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:592
+msgid "Keyword fit score"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:593
+msgid "Uses selected or returned keywords to measure fit for short headline length. If no keyword targets are provided, this factor is neutral."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:597
+msgid "Readability score"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:598
+msgid "Rewards titles that are easy to parse quickly while scanning results."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:601
+msgid "Additional signals"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:602
+msgid "Intent, opening, specificity, clarity, and pixel fit"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:603
+msgid "These signals refine ranking quality for each goal. Example: Rank for keyword weighs keyword fit higher, while Increase CTR weighs opening and specificity higher."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:607
+msgid "Quality gate (Pass / Needs work) is separate from overall score. It checks practical readiness conditions, while the weighted score and letter grade (A/B/C) rank options against each other."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:613
+msgid "Training Steps"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:614
+msgid "These built-in placeholders keep the help page self-contained. Replace them with local plugin assets if you want product-specific screenshots later."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:629
+msgid "Placeholder panel. Replace with a local screenshot if needed."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:638
+msgid "Label Glossary"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:639
+msgid "Give this section to new editors so they understand exactly what each signal means."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:654
+msgid "Best Practices and Pitfalls"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:655
+msgid "Use this as a final quality check before publishing."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:659
+msgid "Do This"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:667
+msgid "Avoid This"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:714
+msgid "Title Assistant Settings"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:721
+msgid "Brand Voice Profile"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:736
+msgid "Enable Logging"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:817
+msgid "Post Types"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1101
+msgid "Settings saved."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1137
+msgid "Need a key? Create one in your <a href=\"https://platform.openai.com/api-keys\" target=\"_blank\" rel=\"noopener noreferrer\">OpenAI account</a>."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1155
+msgid "Create or copy your Gemini key from Google AI Studio, then paste it here."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1187
+msgid "Gemini 2.5 Flash (tested default)"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1188
+msgid "Gemini 2.5 Flash-Lite (lighter)"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1189
+msgid "Gemini 2.5 Pro (quality focused)"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1226
+msgid "GPT-5.5 (tested default)"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1227
+msgid "GPT-4o mini (legacy tested)"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1252
+msgid "Automatic (Recommended)"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1253
+msgid "Tested choices"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1260
+msgid "Your current choice"
+msgstr ""
+
+#. translators: %s: model slug currently saved in settings.
+#: admin/class-occ-titles-settings.php:1262
+#, php-format
+msgid "%s (saved model)"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1267
+msgid "Current model:"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1268
+msgid "Automatic uses a compatibility-tested default. New provider models are available below, but are never enabled without your choice."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1272
+msgid "Choose another model"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1274
+msgid "Search models available to this account"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1276
+msgid "Start typing a model name"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1277
+msgid "Use model"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1284
+msgid "Advanced models come directly from your provider account and may not be tested with Title Assistant yet."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1289
+msgid "Validate your API key to search every model available to this account."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1305
+msgid "Keep troubleshooting logs"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1306
+msgid "Optional. Enable temporarily when diagnosing provider, prompt, or output issues."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1333
+msgid "Tone"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1334
+msgid "Pick the overall personality you want the titles to have."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1336
+msgid "Select tone"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1349
+msgid "Formality"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1350
+msgid "Set how polished or conversational the writing should feel."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1352
+msgid "Select formality"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1365
+msgid "Sentence Length"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1366
+msgid "Guide how compact or explanatory the titles should read."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1368
+msgid "Select length"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1381
+msgid "CTA Style"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1382
+msgid "Decide whether titles should invite action and how direct that invitation should be."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1384
+msgid "Select CTA"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1397
+msgid "Must-use words"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1398
+msgid "One word or phrase per line. Use this for terms that should show up whenever they fit naturally."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1403
+msgid "Avoid words"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1404
+msgid "One word or phrase per line. Use this to avoid jargon, hype, or phrases your team never wants to publish."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1409
+msgid "Example titles"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1410
+msgid "Paste 3 to 10 titles you already love. This is the fastest way to make the output feel like your publication."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1435
+msgid "Show the title helper in this editor."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1451
+msgid "Configure the settings for the OneClickContent - Titles plugin."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1461
+msgid "Define the tone and examples that should guide title generation."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1477
+msgid "Invalid nonce"
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1515
+msgid "Invalid field name."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1542
+#: admin/class-occ-titles-settings.php:1549
+msgid "Settings saved successfully."
+msgstr ""
+
+#: admin/class-occ-titles-settings.php:1558
+msgid "Missing field_name or field_value."
+msgstr ""

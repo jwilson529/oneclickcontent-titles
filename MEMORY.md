@@ -5,7 +5,7 @@ This file is persistent context for Codex runs. Keep it short and practical.
 
 ## Project
 - Plugin slug: oneclickcontent-titles
-- Repo root: /Users/jameswilson/Local Sites/wp-clean-install/app/public/wp-content/plugins/oneclickcontent-titles
+- Repo root: /Users/jameswilson/oneclickcontent-titles
 
 ## Non-negotiables
 - WordPress Coding Standards (WPCS).
@@ -22,7 +22,7 @@ This file is persistent context for Codex runs. Keep it short and practical.
 - Treat check.txt as the backlog.
 
 ## Packaging
-- The build zip process uses .gitignore to decide what ships. Do not add dev artifacts to the distributable.
+- `bin/build-dist.sh` explicitly stages runtime files and rejects tests, dependencies, repository metadata, assets, and local tooling from the distributable.
 
 ## Run recap log
 Append a brief recap after each run:
@@ -99,3 +99,33 @@ Append a brief recap after each run:
 - Notable changes: Removed the optional `temperature` field from Responses API requests so `gpt-5.6-terra` and other reasoning models are compatible; added request, model-catalog, and AJAX autosave regressions; changed settings notifications to render server messages as text; clarified the model-catalog fallback note.
 - Tool results: PHP and JavaScript syntax checks pass; `npm run check` pass (`check.txt` empty); `npm run phpmd` pass (`phpmd.txt` empty); `npm run test` pass (34 tests, 95 assertions); live helper generation pass for `gpt-5.6-terra`, automatic `gpt-5.5`, and `gpt-4o-mini`; full WordPress AJAX generation pass; live account catalog/render checks pass with 125 models; saved Centerstone model remains `gpt-5.6-terra`.
 - Remaining gaps: Signed-in desktop/narrow visual and keyboard QA could not run because no browser backend was available. Live Google generation could not run because Centerstone has no Google API key configured, although its provider paths pass PHPUnit. WordPress Plugin Check is not installed in the local WP-CLI environment.
+
+- Date: 2026-07-21
+- Summary: Checkpointed the model compatibility work and compacted the Title Assistant on post editor screens.
+- Notable changes: Created commit `a678bc8`; merged the results heading and actions into one toolbar; placed generation controls, primary metrics, alternate titles, and detailed analysis behind accessible disclosures; kept Apply and Revert available; made applying a title collapse only the current view without overwriting the saved panel preference; fixed Docker cache validation so a stale core cannot masquerade as the requested WordPress version.
+- Tool results: PHP, JavaScript, and Docker shell syntax checks pass; `npm run fix`, `npm run check`, and `npm run phpmd` pass with empty reports; Docker PHPUnit passes against verified WordPress 7.0 core and local PHPUnit passes (34 tests, 95 assertions each); active Centerstone editor assets/localized labels pass a WP-CLI integration check; plugin remains active at 2.1.5; saved model remains `gpt-5.6-terra`.
+- Remaining gaps: Signed-in desktop, narrow, and keyboard visual QA could not run because no browser backend was available.
+
+- Date: 2026-07-21
+- Summary: Finished the state-aware compact UX pass and modernized the WordPress compatibility matrix.
+- Notable changes: Preserved goal, style, ellipsis, and keyword selections across every result rerender; added active option counts, Regenerate copy, accessible keyword state, automatic expansion for fresh results, and persistent-in-view Undo after Apply; pinned the stable gate to WordPress 7.0.2; added an always-fresh nightly gate; isolated downloaded core/test suites with tmpfs; added a localized-control regression test.
+- Tool results: `npm run fix`, `npm run check`, and `npm run phpmd` pass with empty reports; PHP, JavaScript, and Docker shell syntax pass; local PHPUnit passes with 35 tests and 102 assertions; Docker PHPUnit passes on WordPress 7.0.2 and WordPress 7.1-beta2-62808 with 35 tests and 102 assertions each; live Centerstone localization integration passes; plugin remains active and saved model remains `gpt-5.6-terra`.
+- Remaining gaps: Signed-in desktop, narrow, and keyboard visual QA could not run because no browser backend was available. WPDS guidance could not be queried because the configured service was unavailable.
+
+- Date: 2026-07-21
+- Summary: Fixed the missing Title Assistant launcher in the WordPress 7.0 Block Editor.
+- Notable changes: Replaced ambiguous `.wp-editor-area` mode detection with positive Gutenberg detection using the `block-editor-page` body class and `core/editor` data store; added a regression protecting the detection contract.
+- Tool results: Reproduced the failure in the signed-in Centerstone editor; confirmed the old runtime incorrectly reported Classic Editor while Gutenberg Code Editor was open; verified the restored sparkle in both Code Editor and settled Visual Editor iframe states; PHPCS and PHPMD pass with empty reports; local, WordPress 7.0.2, and WordPress 7.1-beta2-62808 PHPUnit runs pass with 36 tests and 106 assertions each.
+- Remaining gaps: Compact generated-results interactions still need narrow-width and keyboard browser QA.
+
+- Date: 2026-07-21
+- Summary: Prepared and verified the WordPress.org 2.1.6 release candidate.
+- Notable changes: Aligned all release metadata at 2.1.6; fixed the WordPress 5.0 compatibility guard and autosave sanitization finding; made diagnostics opt-in for new installs; completed uninstall cleanup for the customized-post-type flag and Gemini model cache; regenerated the POT catalog; documented external-service data flows; updated GitHub Actions to Node 24-compatible releases; scoped PHPMD to shipped runtime code.
+- Tool results: PHPCS and PHPMD clean with empty reports; local, WordPress 7.0.2, and WordPress 7.1-beta2-62808 PHPUnit runs pass with 36 tests and 109 assertions; every PHP file parses on PHP 7.2; Composer audit found no advisories; JavaScript, shell, and workflow YAML syntax pass; standard and experimental Plugin Check 2.0 report no findings; fresh install, activation, uninstall cleanup, and reinstall pass on WordPress 7.0.2; final ZIP is 100 KB with SHA-256 `8f3c3d0d74c3fd33d2d7e69367e8aab02810b51f6687450eadabd48d0b2edf11`.
+- Remaining gaps: Commit, push, tag, GitHub Release publication, and WordPress.org SVN deployment remain external release actions. The current real WordPress.org screenshots passed direct content and dimension review; no new browser capture was possible because the browser backend was unavailable.
+
+- Date: 2026-07-21
+- Summary: Reopened the 2.1.6 release after live editor regressions and rebuilt the test boundary around editor behavior.
+- Notable changes: Added a standalone editor bridge; made Classic/Block detection depend on the page-level Gutenberg signal; restored the Classic title-row launcher; made Gutenberg Apply verify the canonical store with an iframe fallback; limited saved-result loading to one request; moved detailed analysis out of the nested disclosure; added five Node regression tests; embedded the screenshot gallery in `README.md`; tightened `.gitignore` and release-package exclusions; removed 4,994 generated cache/report files from Git tracking while preserving local ignored copies.
+- Tool results: JavaScript suite passes 5/5; local PHPUnit passes 38 tests and 125 assertions; WordPress 7.0.2 and WordPress 7.1-beta2-62808 Docker suites each pass 38 tests and 125 assertions; PHPCS, PHPMD, PHP 7.2 syntax, JavaScript syntax, shell syntax, workflow YAML, Composer audit, standard Plugin Check, and experimental Plugin Check are clean. Packaged assets were verified in real WordPress 7.0.2 Block and forced-Classic admin HTML.
+- Remaining gaps: The in-session browser backend is unavailable, so live click-through QA and replacement WordPress.org screenshots are still required before push/tag/release. The existing screenshot set remains unchanged and the release has not been published.

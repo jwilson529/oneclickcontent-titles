@@ -1,19 +1,22 @@
 {
   "name": "oneclickcontent-titles",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "description": "Free AI title assistant for WordPress from the OneClickContent bring-your-own-key AI plugin line.",
   "main": "index.js",
   "scripts": {
-    "test": "docker compose up --abort-on-container-exit --exit-code-from tests tests",
+    "test": "npm run test:js && docker compose up --abort-on-container-exit --exit-code-from tests tests",
+    "test:stable": "npm run test:js && WP_VERSION=7.0.2 docker compose up --abort-on-container-exit --exit-code-from tests tests",
+    "test:next": "npm run test:js && WP_VERSION=nightly docker compose up --abort-on-container-exit --exit-code-from tests tests",
     "fix": "vendor/bin/phpcbf -d memory_limit=512M -d error_reporting=\"E_ALL&~E_DEPRECATED\" --standard=phpcs.xml.dist --extensions=php .",
     "check": "vendor/bin/phpcs -d memory_limit=512M -d error_reporting=\"E_ALL&~E_DEPRECATED\" --standard=phpcs.xml.dist --extensions=php . > check.txt",
-    "phpmd": "vendor/bin/phpmd . text phpmd.xml --exclude vendor,node_modules > phpmd.txt",
+    "phpmd": "vendor/bin/phpmd admin,includes,public,oneclickcontent-titles.php,uninstall.php text phpmd.xml > phpmd.txt",
     "dist": "bash bin/build-dist.sh",
     "plugin-check": "wp plugin check .",
     "update-wpcs": "composer global require wp-coding-standards/wpcs --update-with-all-dependencies",
     "update-phpcs": "composer global require squizlabs/php_codesniffer --update-with-all-dependencies",
     "refresh-phpcs": "phpcs --clear-cache && phpcs --config-set installed_paths ~/.composer/vendor/wp-coding-standards/wpcs",
-    "test:local": "vendor/bin/phpunit -c phpunit.xml"
+    "test:local": "vendor/bin/phpunit -c phpunit.xml",
+    "test:js": "node --test tests/js/*.test.js"
   },
   "repository": {
     "type": "git",

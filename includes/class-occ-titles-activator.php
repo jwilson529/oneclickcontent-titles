@@ -49,9 +49,9 @@ class Occ_Titles_Activator {
 			update_option( 'occ_titles_openai_model', 'auto' );
 		}
 
-		// Enable logging by default if it doesn't exist.
+		// Keep diagnostic logging opt-in on new installations.
 		if ( false === get_option( 'occ_titles_logging_enabled' ) ) {
-			update_option( 'occ_titles_logging_enabled', 1 );
+			update_option( 'occ_titles_logging_enabled', 0 );
 		}
 	}
 }

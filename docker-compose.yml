@@ -39,11 +39,14 @@ services:
     working_dir: /work
     volumes:
       - ./:/work:rw
+    tmpfs:
+      - /work/.wp-core
+      - /work/.wp-tests
     environment:
       WP_TESTS_DB_HOST: db
       WP_TESTS_DB_NAME: wordpress_test
       WP_TESTS_DB_USER: root
       WP_TESTS_DB_PASS: root
-      WP_VERSION: "${WP_VERSION:-7.0}"
+      WP_VERSION: "${WP_VERSION:-7.0.2}"
       PHPUNIT_VERSION: 9.6.20
     command: ["bash", "-lc", "bash ./bin/docker-tests.sh"]

@@ -231,7 +231,7 @@ class Occ_Titles_Settings {
 							$this->render_settings_field(
 								array(
 									'label'       => __( 'Diagnostics', 'oneclickcontent-titles' ),
-									'description' => __( 'Keep logging on while you are testing providers, prompts, or workflows. You can turn it off later if you want a quieter setup.', 'oneclickcontent-titles' ),
+									'description' => __( 'Turn on local troubleshooting logs only when you need them. Logs can include request metadata, but API keys are redacted.', 'oneclickcontent-titles' ),
 									'callback'    => array( $this, 'occ_titles_logging_enabled_callback' ),
 									'classes'     => array( 'is-wide' ),
 								)
@@ -1299,11 +1299,11 @@ class Occ_Titles_Settings {
 	 * @return void
 	 */
 	public function occ_titles_logging_enabled_callback() {
-		$enabled = (int) get_option( 'occ_titles_logging_enabled', 1 );
+		$enabled = (int) get_option( 'occ_titles_logging_enabled', 0 );
 		echo '<label class="occ_titles-switch-card" for="occ_titles_logging_enabled">';
 		echo '<span class="occ_titles-switch-card-copy">';
 		echo '<strong>' . esc_html__( 'Keep troubleshooting logs', 'oneclickcontent-titles' ) . '</strong>';
-		echo '<span>' . esc_html__( 'Recommended while you are testing providers, prompts, or output quality.', 'oneclickcontent-titles' ) . '</span>';
+		echo '<span>' . esc_html__( 'Optional. Enable temporarily when diagnosing provider, prompt, or output issues.', 'oneclickcontent-titles' ) . '</span>';
 		echo '</span>';
 		echo '<span class="occ_titles-switch-card-toggle">';
 		echo '<input type="checkbox" id="occ_titles_logging_enabled" name="occ_titles_logging_enabled" value="1" ' . checked( 1, $enabled, false ) . '>';
@@ -1500,11 +1500,12 @@ class Occ_Titles_Settings {
 		);
 
 		if ( isset( $_POST['field_name'], $_POST['field_value'] ) ) {
-			$field_name       = sanitize_text_field( wp_unslash( $_POST['field_name'] ) );
-			$field_value_raw  = wp_unslash( $_POST['field_value'] );
-			$field_value_safe = is_array( $field_value_raw )
-				? map_deep( $field_value_raw, 'sanitize_text_field' )
-				: sanitize_text_field( $field_value_raw );
+			$field_name = sanitize_text_field( wp_unslash( $_POST['field_name'] ) );
+			if ( is_array( $_POST['field_value'] ) ) {
+				$field_value_safe = map_deep( wp_unslash( $_POST['field_value'] ), 'sanitize_text_field' );
+			} else {
+				$field_value_safe = sanitize_text_field( wp_unslash( $_POST['field_value'] ) );
+			}
 
 			if ( ! in_array( $field_name, $allowed_fields, true ) ) {
 				Occ_Titles_Logger::get_instance()->warning(

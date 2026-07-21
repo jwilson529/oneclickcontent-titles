@@ -117,7 +117,7 @@ class Occ_Titles_Admin {
 		$screen              = get_current_screen();
 		$selected_post_types = (array) get_option( 'occ_titles_post_types', array( 'post', 'page' ) );
 
-		if ( 'post' === $screen->base && in_array( $screen->post_type, $selected_post_types, true ) && ! wp_should_load_block_editor_scripts_and_styles() ) {
+		if ( 'post' === $screen->base && in_array( $screen->post_type, $selected_post_types, true ) ) {
 			wp_enqueue_style(
 				$this->plugin_name,
 				plugin_dir_url( __FILE__ ) . 'css/occ-titles-admin.css',
@@ -183,23 +183,29 @@ class Occ_Titles_Admin {
 				'model_saving'         => __( 'Model selected and saving.', 'oneclickcontent-titles' ),
 				/* translators: %s: date/time of last API key validation. */
 				'badge_last_checked'   => __( 'Last checked: %s', 'oneclickcontent-titles' ),
-				'results_title'        => __( 'Title Recommendations', 'oneclickcontent-titles' ),
+				'results_title'        => __( 'Title Assistant', 'oneclickcontent-titles' ),
 				'results_empty'        => __( 'Generate titles to see results.', 'oneclickcontent-titles' ),
 				'results_last'         => __( 'Last generated:', 'oneclickcontent-titles' ),
 				'results_provider'     => __( 'Provider:', 'oneclickcontent-titles' ),
+				'results_suggestions'  => __( 'suggestions', 'oneclickcontent-titles' ),
+				'results_applied'      => __( 'Applied', 'oneclickcontent-titles' ),
+				'undo_title'           => __( 'Undo', 'oneclickcontent-titles' ),
 				'results_top_picks'    => __( 'Top picks', 'oneclickcontent-titles' ),
-				'results_more_options' => __( 'More options', 'oneclickcontent-titles' ),
-				'results_summary'      => __( 'Start with the strongest options below. Open the full breakdown only if you want the deeper score math.', 'oneclickcontent-titles' ),
+				'results_more_options' => __( 'more title options', 'oneclickcontent-titles' ),
+				'results_summary'      => __( 'Compare alternatives or open the detailed analysis.', 'oneclickcontent-titles' ),
 				'score_current'        => __( 'Score Current Title', 'oneclickcontent-titles' ),
 				'copy_all'             => __( 'Copy All', 'oneclickcontent-titles' ),
 				'download_csv'         => __( 'Download CSV', 'oneclickcontent-titles' ),
 				'collapse_results'     => __( 'Collapse results', 'oneclickcontent-titles' ),
 				'show_results'         => __( 'Show results', 'oneclickcontent-titles' ),
-				'open_breakdown'       => __( 'Open full breakdown', 'oneclickcontent-titles' ),
+				'open_breakdown'       => __( 'Detailed analysis', 'oneclickcontent-titles' ),
 				'breakdown_label'      => __( 'Detailed scoring, previews, exports, and keyword notes', 'oneclickcontent-titles' ),
 				'pick_best_for'        => __( 'Best for', 'oneclickcontent-titles' ),
 				'pick_current'         => __( 'Current title', 'oneclickcontent-titles' ),
 				'pick_apply'           => __( 'Apply this title', 'oneclickcontent-titles' ),
+				'pick_apply_short'     => __( 'Apply', 'oneclickcontent-titles' ),
+				'pick_details'         => __( 'Details', 'oneclickcontent-titles' ),
+				'title_update_failed'  => __( 'The editor title could not be updated. Reload the editor and try again.', 'oneclickcontent-titles' ),
 				'pick_why'             => __( 'Why it works', 'oneclickcontent-titles' ),
 				'pick_pixel'           => __( 'Pixel width', 'oneclickcontent-titles' ),
 				'pick_length'          => __( 'Length', 'oneclickcontent-titles' ),
@@ -210,9 +216,11 @@ class Occ_Titles_Admin {
 				'controls_intro'       => __( 'Choose the outcome you want, then generate a fresh batch.', 'oneclickcontent-titles' ),
 				'controls_help'        => __( 'Set goal, style, and optional keyword targets before generating.', 'oneclickcontent-titles' ),
 				'generate_titles'      => __( 'Generate Titles', 'oneclickcontent-titles' ),
+				'regenerate_titles'    => __( 'Regenerate', 'oneclickcontent-titles' ),
 				'revert_title'         => __( 'Revert to Original Title', 'oneclickcontent-titles' ),
-				'collapse_controls'    => __( 'Collapse controls', 'oneclickcontent-titles' ),
-				'show_controls'        => __( 'Show controls', 'oneclickcontent-titles' ),
+				'revert_title_short'   => __( 'Revert', 'oneclickcontent-titles' ),
+				'collapse_controls'    => __( 'Hide options', 'oneclickcontent-titles' ),
+				'show_controls'        => __( 'Options', 'oneclickcontent-titles' ),
 			),
 		);
 
@@ -231,9 +239,17 @@ class Occ_Titles_Admin {
 		// Enqueue scripts on the selected post type edit pages.
 		if ( 'post' === $screen->base && in_array( $screen->post_type, $selected_post_types, true ) ) {
 			wp_enqueue_script(
+				'occ-titles-editor-bridge',
+				plugin_dir_url( __FILE__ ) . 'js/occ-titles-editor-bridge.js',
+				array(),
+				$this->version,
+				true
+			);
+
+			wp_enqueue_script(
 				'occ-titles-admin',
 				plugin_dir_url( __FILE__ ) . 'js/occ-titles-admin.js',
-				array( 'jquery' ),
+				array( 'jquery', 'occ-titles-editor-bridge' ),
 				$this->version,
 				true
 			);

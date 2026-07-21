@@ -1,5 +1,5 @@
 {
-  "current_commit": "577aefc683f2b535069e79c29932d3767bd69d58",
+  "current_commit": "d0816d8",
   "working_tree_dirty": true,
   "files": {
     "main_plugin_file": "oneclickcontent-titles.php",
@@ -18,6 +18,7 @@
     "admin_ui": [
       "admin/class-occ-titles-admin.php",
       "admin/js/occ-titles-admin.js",
+      "admin/js/occ-titles-editor-bridge.js",
       "admin/js/occ-titles-settings.js",
       "admin/css/occ-titles-admin.css"
     ],
@@ -36,6 +37,7 @@
       "tests/class-providerhelpertest.php",
       "tests/class-uninstallertest.php",
       "tests/class-adminresultstest.php",
+      "tests/js/editor-bridge.test.js",
       "tests/class-occ-titles-test-component.php",
       "tests/class-wp-filesystem-base.php",
       "tests/class-occ-titles-test-filesystem.php"
@@ -45,9 +47,22 @@
       "occ-titles.log",
       "plugin-error.log"
     ],
+    "translations": [
+      "languages/occ-titles.pot"
+    ],
+    "release_metadata": [
+      "readme.txt",
+      "README.md",
+      "RELEASE.md",
+      "MARKETING_PLAN.md"
+    ],
     "build_tooling": [
+      ".github/workflows/plugin-check.yaml",
+      ".gitignore",
       "bin/build-dist.sh",
+      "bin/docker-tests.sh",
       "composer.json",
+      "docker-compose.yml",
       "package.json",
       "phpcs.xml",
       "phpcs.xml.dist",

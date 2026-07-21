@@ -4,7 +4,7 @@ Donate link: https://oneclickcontent.com/donate/
 Tags: ai, seo, titles, openai, gemini
 Requires at least: 5.0
 Tested up to: 7.0
-Stable tag: 2.1.5
+Stable tag: 2.1.6
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -37,7 +37,7 @@ That makes the plugin especially useful for:
 - Compare recommendations with scoring, keyword fit, preview width, and quality signals.
 - Apply a chosen title without copying and pasting between screens.
 - Support both OpenAI and Google Gemini so you can choose the provider that fits your workflow.
-- Use GPT-5.5 as the default OpenAI model on new installs, with model choices still loaded from your OpenAI account.
+- Use GPT-5.5 as the tested automatic OpenAI choice while preserving explicit saved model selections.
 - Load Google Gemini model choices from the API when available.
 - Train editors with the built-in Title Help page and guided settings experience.
 - Keep your workflow inside WordPress instead of bouncing between external AI tools and the editor.
@@ -90,14 +90,32 @@ The plugin stores generated title suggestions inside WordPress so you can review
 
 No. It accelerates ideation and scoring, but editors should still validate clarity and accuracy.
 
-== Privacy ==
+== External Services and Privacy ==
 
-The plugin sends post content to your selected provider for title generation.
+This plugin connects to the OpenAI API or Google Gemini API only for the provider features you configure. It does not include tracking or send data to OneClickContent.
 
+When you validate an API key or load available models, the plugin sends the saved provider key to that provider. Google validation also sends a short test prompt. When you choose Generate Titles, the plugin sends the post content, title-generation instructions, selected controls, and any configured brand-voice guidance to the selected provider. The provider may charge for API usage according to your account plan.
+
+API keys and generated title results are stored in your WordPress database. Optional troubleshooting logs are disabled by default on new installations. If you enable them, they can contain request metadata; API keys are redacted. Uninstalling the plugin removes its options, saved title results, and log artifacts.
+
+- OpenAI terms of use: https://openai.com/policies/terms-of-use/
 - OpenAI privacy policy: https://openai.com/privacy
+- Google Gemini API terms: https://ai.google.dev/gemini-api/terms
 - Google privacy policy: https://policies.google.com/privacy
 
 == Changelog ==
+
+= 2.1.6 =
+
+- Fix OpenAI title generation for models that reject the `temperature` parameter.
+- Add a tested automatic model choice while preserving explicit saved model selections.
+- Make the editor workflow more compact with state-aware Options, Undo, and result controls.
+- Restore the Title Assistant launcher in Classic Editor plus the Block Editor Visual and Code views.
+- Make Apply update the canonical Gutenberg title store, with a visible-field fallback for editor compatibility.
+- Prevent background result reloads from resetting Details and Detailed analysis interactions.
+- Keep diagnostic logging off by default on new installations and document external-service data flows.
+- Complete uninstall cleanup, WordPress 5.0 compatibility guards, translation updates, and release-tooling hardening.
+- Verify the release against WordPress 7.0.2 and the WordPress nightly test suite.
 
 = 2.1.5 =
 
@@ -151,6 +169,9 @@ The plugin sends post content to your selected provider for title generation.
 * Added richer scoring and title comparison experience.
 
 == Upgrade Notice ==
+
+= 2.1.6 =
+Recommended compatibility and editor UX update. Fixes generation with newer OpenAI models and restores reliable launch, details, and title application across supported editors.
 
 = 2.1.5 =
 WordPress 7.0 compatibility release. The plugin has been tested against WordPress 7.0.

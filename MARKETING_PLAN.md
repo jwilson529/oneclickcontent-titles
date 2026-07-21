@@ -60,6 +60,12 @@ OneClickContent - Titles v2.1.2 is out. New OpenAI setups now default to GPT-5.5
 - WordPress.org metadata now shows `Tested up to: 7.0`.
 - Docker PHPUnit now runs against WordPress 7.0 by default and refreshes stale cached test core automatically.
 
+## v2.1.6 release note
+- OpenAI generation now works with newer models that reject the `temperature` parameter.
+- The editor workflow is smaller and more state-aware, and its launcher works in both Block Editor Visual and Code views.
+- Automatic model selection is tested and conservative while explicit saved model choices remain unchanged.
+- The release includes WordPress 7.0.2 and nightly coverage, Plugin Check hardening, and clearer external-service disclosures.
+
 ## Who to follow and watch
 ### WordPress ecosystem
 - Post Status

@@ -88,7 +88,7 @@ Before publishing the release, confirm:
 - Verify the workflow from the command line when moving quickly:
   - `gh run list --workflow "CI and Release" --limit 5`
   - `gh run view <run_id> --log-failed`
-- The current workflow is still carrying GitHub Actions Node 20 deprecation warnings from `actions/checkout@v4`, `actions/setup-node@v4`, `actions/upload-artifact@v4`, and `softprops/action-gh-release@v2`. The release passed, but those actions should be reviewed before the Node 24 enforcement window.
+- The workflow uses Node 24-compatible action releases for checkout, setup-node, artifact upload, and GitHub Release publishing.
 
 ## Notes
 

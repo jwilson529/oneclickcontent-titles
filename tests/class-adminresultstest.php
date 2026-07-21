@@ -21,6 +21,120 @@ require_once dirname( __DIR__ ) . '/admin/class-occ-titles-admin.php';
 class AdminResultsTest extends Occ_Titles_Test_Case {
 
 	/**
+	 * Ensure editor detection does not rely on store availability.
+	 *
+	 * Gutenberg Code Editor includes a `.wp-editor-area` element, so that class
+	 * cannot distinguish it from the Classic Editor.
+	 *
+	 * @since 2.1.5
+	 * @return void
+	 */
+	public function test_editor_mode_detection_uses_block_editor_signals() {
+		$script = file_get_contents( dirname( __DIR__ ) . '/admin/js/occ-titles-admin.js' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local test fixture.
+
+		$this->assertIsString( $script );
+		$bridge = file_get_contents( dirname( __DIR__ ) . '/admin/js/occ-titles-editor-bridge.js' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local test fixture.
+
+		$this->assertIsString( $bridge );
+		$this->assertStringContainsString( "document.body.classList.contains( 'block-editor-page' )", $bridge );
+		$this->assertStringNotContainsString( "isBlockEditor = !! window.wp.data.select( 'core/editor' )", $bridge );
+		$this->assertStringNotContainsString( "document.querySelector( '.wp-editor-area' ) !== null", $script );
+	}
+
+	/**
+	 * Ensure saved results load once and detailed analysis is not nested.
+	 *
+	 * @since 2.1.6
+	 * @return void
+	 */
+	public function test_editor_results_have_stable_single_click_interactions() {
+		$script = file_get_contents( dirname( __DIR__ ) . '/admin/js/occ-titles-admin.js' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local test fixture.
+
+		$this->assertIsString( $script );
+		$this->assertStringContainsString( 'if ( savedResultsRequested )', $script );
+		$this->assertStringContainsString( '$top_picks.append( $more_picks, $breakdown );', $script );
+		$this->assertStringNotContainsString( '$more_picks_body.append( $breakdown );', $script );
+	}
+
+	/**
+	 * Ensure each editor has a deterministic launcher anchor.
+	 *
+	 * @since 2.1.6
+	 * @return void
+	 */
+	public function test_editor_launchers_cover_classic_visual_and_code_modes() {
+		$script = file_get_contents( dirname( __DIR__ ) . '/admin/js/occ-titles-admin.js' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local test fixture.
+
+		$this->assertIsString( $script );
+		$this->assertStringContainsString( "var \$title_wrap = \$( '#titlewrap' );", $script );
+		$this->assertStringContainsString( "\$title_wrap.append( '<button id=\"occ_titles_generate_button\"", $script );
+		$this->assertStringNotContainsString( "\$title_input.after( '<button id=\"occ_titles_generate_button\"", $script );
+		$this->assertStringContainsString( "'h1.wp-block-post-title'", $script );
+		$this->assertStringContainsString( "\$( '.editor-header__settings' ).first()", $script );
+		$this->assertStringContainsString( "button_class: 'occ_titles_header_button'", $script );
+	}
+
+	/**
+	 * Ensure compact editor controls are localized with the admin script.
+	 *
+	 * @since 2.1.5
+	 * @return void
+	 */
+	public function test_enqueue_scripts_localizes_compact_editor_controls() {
+		unset( $_GET['post'], $GLOBALS['post'] );
+
+		Functions\when( 'get_current_screen' )->justReturn(
+			(object) array(
+				'base'      => 'post',
+				'post_type' => 'post',
+			)
+		);
+		Functions\when( 'get_option' )->justReturn( array( 'post', 'page' ) );
+		Functions\when( 'admin_url' )->alias(
+			function ( $path ) {
+				return 'https://example.test/wp-admin/' . $path;
+			}
+		);
+		Functions\when( 'wp_create_nonce' )->justReturn( 'test-nonce' );
+		Functions\when( 'plugin_dir_url' )->justReturn( 'https://example.test/wp-content/plugins/oneclickcontent-titles/admin/' );
+		Functions\when( 'current_time' )->justReturn( '2026-07-21 12:00:00' );
+		Functions\when( '__' )->returnArg();
+		$enqueued = array();
+		Functions\when( 'wp_enqueue_script' )->alias(
+			function ( $handle, $source, $dependencies ) use ( &$enqueued ) {
+				$enqueued[ $handle ] = array(
+					'source'       => $source,
+					'dependencies' => $dependencies,
+				);
+				return true;
+			}
+		);
+
+		$localized = array();
+		Functions\when( 'wp_localize_script' )->alias(
+			function ( $handle, $object_name, $data ) use ( &$localized ) {
+				$localized = array( $handle, $object_name, $data );
+				return true;
+			}
+		);
+
+		$admin = new Occ_Titles_Admin( 'oneclickcontent-titles', '2.1.5' );
+		$admin->enqueue_scripts();
+
+		$this->assertSame( 'occ-titles-admin', $localized[0] );
+		$this->assertSame( 'occ_titles_admin_vars', $localized[1] );
+		$this->assertSame( 'Title Assistant', $localized[2]['strings']['results_title'] );
+		$this->assertSame( 'Regenerate', $localized[2]['strings']['regenerate_titles'] );
+		$this->assertSame( 'Options', $localized[2]['strings']['show_controls'] );
+		$this->assertSame( 'Undo', $localized[2]['strings']['undo_title'] );
+		$this->assertSame( 'Details', $localized[2]['strings']['pick_details'] );
+		$this->assertSame( 'The editor title could not be updated. Reload the editor and try again.', $localized[2]['strings']['title_update_failed'] );
+		$this->assertArrayHasKey( 'occ-titles-editor-bridge', $enqueued );
+		$this->assertSame( array(), $enqueued['occ-titles-editor-bridge']['dependencies'] );
+		$this->assertSame( array( 'jquery', 'occ-titles-editor-bridge' ), $enqueued['occ-titles-admin']['dependencies'] );
+	}
+
+	/**
 	 * Ensure saving results updates post meta.
 	 *
 	 * @since 1.1.1

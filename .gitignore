@@ -1,10 +1,13 @@
 # OS
 .DS_Store
+._*
 Thumbs.db
 
 # Editors
 .idea/
 .vscode/
+.fleet/
+*.code-workspace
 *.sublime-project
 *.sublime-workspace
 
@@ -29,6 +32,10 @@ check.txt
 phpmd.txt
 plugincheck.txt
 coverage/
+.nyc_output/
+playwright-report/
+test-results/
+blob-report/
 .cache/
 .sass-cache/
 .npm/
@@ -43,6 +50,7 @@ coverage/
 occ-titles.log
 plugin-error.log
 *.tmp
+*.pid
 *.swp
 *.bak
 *.orig
@@ -54,16 +62,13 @@ pnpm-debug.log*
 session_id.txt
 
 # Local automation artifacts
-.codex
-.codex_index.json
-.codex_run_meta.json
-.codex_tasks.csv
+.codex/
 .codex-backups/
-Screenshot*.png
-screencapture-*.png
-UX_SUGGESTIONS.md
-codex-yolo
+/Screenshot*.png
+/screencapture-*.png
 
 # Environment
 .env
-.env.*.local
+.env.*
+!.env.example
+!.env.sample

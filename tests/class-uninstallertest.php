@@ -29,6 +29,7 @@ class UninstallerTest extends Occ_Titles_Test_Case {
 	public function test_uninstall_removes_plugin_data() {
 		$deleted_options = array();
 		$deleted_meta    = array();
+		$deleted_cache   = array();
 		$log_file        = '/uploads/occ-titles-logs/occ-titles.log';
 		$filesystem      = new Occ_Titles_Test_Filesystem();
 
@@ -39,6 +40,21 @@ class UninstallerTest extends Occ_Titles_Test_Case {
 		$filesystem->put_contents( dirname( __DIR__ ) . '/plugin-error.log', 'legacy error log' );
 
 		Functions\when( 'is_multisite' )->justReturn( false );
+		Functions\when( 'get_option' )->alias(
+			function ( $name, $fallback = null ) {
+				if ( 'occ_titles_google_api_key' === $name ) {
+					return 'test-google-key';
+				}
+
+				return $fallback;
+			}
+		);
+		Functions\when( 'delete_transient' )->alias(
+			function ( $name ) use ( &$deleted_cache ) {
+				$deleted_cache[] = $name;
+				return true;
+			}
+		);
 		Functions\when( 'delete_option' )->alias(
 			function ( $name ) use ( &$deleted_options ) {
 				$deleted_options[] = $name;
@@ -81,7 +97,9 @@ class UninstallerTest extends Occ_Titles_Test_Case {
 		Occ_Titles_Uninstaller::uninstall();
 
 		$this->assertContains( 'occ_titles_openai_api_key', $deleted_options );
+		$this->assertContains( 'occ_titles_post_types_customized', $deleted_options );
 		$this->assertContains( 'occ_titles_voice_samples', $deleted_options );
+		$this->assertSame( array( 'occ_titles_google_models_' . md5( 'test-google-key' ) ), $deleted_cache );
 		$this->assertSame( array( '_occ_titles_results' ), $deleted_meta );
 		$this->assertSame( '', $filesystem->get_contents( $log_file ) );
 		$this->assertSame( '', $filesystem->get_contents( '/uploads/occ-titles-logs/index.php' ) );
