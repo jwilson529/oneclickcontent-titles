@@ -179,6 +179,8 @@ class Occ_Titles_Admin {
 				'badge_invalid'        => __( 'Invalid', 'oneclickcontent-titles' ),
 				'badge_unknown'        => __( 'Not validated', 'oneclickcontent-titles' ),
 				'badge_not_checked'    => __( 'Not checked yet.', 'oneclickcontent-titles' ),
+				'model_choose_list'    => __( 'Choose a model from the available account list.', 'oneclickcontent-titles' ),
+				'model_saving'         => __( 'Model selected and saving.', 'oneclickcontent-titles' ),
 				/* translators: %s: date/time of last API key validation. */
 				'badge_last_checked'   => __( 'Last checked: %s', 'oneclickcontent-titles' ),
 				'results_title'        => __( 'Title Recommendations', 'oneclickcontent-titles' ),

@@ -11,6 +11,8 @@ defined( 'ABSPATH' ) || exit;
 use Brain\Monkey\Functions;
 
 require_once dirname( __DIR__ ) . '/admin/class-occ-titles-settings.php';
+require_once dirname( __DIR__ ) . '/admin/class-occ-titles-openai-helper.php';
+require_once dirname( __DIR__ ) . '/admin/class-occ-titles-google-helper.php';
 require_once dirname( __DIR__ ) . '/includes/class-occ-titles-activator.php';
 
 /**
@@ -19,6 +21,31 @@ require_once dirname( __DIR__ ) . '/includes/class-occ-titles-activator.php';
  * @since 1.1.0
  */
 class OptionsTest extends Occ_Titles_Test_Case {
+
+	/**
+	 * Ensure help remains routable without a duplicate Settings menu item.
+	 *
+	 * @since 2.1.6
+	 * @return void
+	 */
+	public function test_register_options_page_hides_help_submenu() {
+		Functions\when( '__' )->alias(
+			function ( $text ) {
+				return $text;
+			}
+		);
+
+		Functions\expect( 'add_options_page' )->once();
+		Functions\expect( 'add_submenu_page' )->once();
+		Functions\expect( 'remove_submenu_page' )
+			->once()
+			->with( 'options-general.php', 'occ_titles-help' );
+
+		$settings = new Occ_Titles_Settings();
+		$settings->occ_titles_register_options_page();
+
+		$this->addToAssertionCount( 1 );
+	}
 
 	/**
 	 * Ensure post types sanitize to an array.
@@ -55,6 +82,49 @@ class OptionsTest extends Occ_Titles_Test_Case {
 	}
 
 	/**
+	 * Ensure editor locations render as full-card checkbox controls.
+	 *
+	 * @since 2.1.6
+	 * @return void
+	 */
+	public function test_post_types_render_as_selectable_cards() {
+		Functions\when( 'get_option' )->justReturn( array( 'post' ) );
+		Functions\when( 'get_post_types' )->justReturn(
+			array(
+				'post' => (object) array(
+					'labels' => (object) array( 'singular_name' => 'Post' ),
+				),
+			)
+		);
+		Functions\when( 'esc_attr' )->alias(
+			function ( $value ) {
+				return $value;
+			}
+		);
+		Functions\when( 'esc_html' )->alias(
+			function ( $value ) {
+				return $value;
+			}
+		);
+		Functions\when( 'esc_html__' )->alias(
+			function ( $value ) {
+				return $value;
+			}
+		);
+		Functions\when( 'checked' )->justReturn( ' checked="checked"' );
+
+		$settings = new Occ_Titles_Settings();
+		ob_start();
+		$settings->occ_titles_post_types_callback();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'class="occ_titles-post-type-card-surface"', $output );
+		$this->assertStringContainsString( 'class="occ_titles-post-type-card-indicator" aria-hidden="true"', $output );
+		$this->assertStringContainsString( 'type="checkbox"', $output );
+		$this->assertStringNotContainsString( 'occ_titles-post-type-card-state', $output );
+	}
+
+	/**
 	 * Ensure activation enables posts and pages by default.
 	 *
 	 * @since 2.1.1
@@ -80,7 +150,158 @@ class OptionsTest extends Occ_Titles_Test_Case {
 
 		$this->assertSame( array( 'post', 'page' ), $updated_options['occ_titles_post_types'] );
 		$this->assertSame( 0, $updated_options['occ_titles_post_types_customized'] );
-		$this->assertSame( 'gpt-5.5', $updated_options['occ_titles_openai_model'] );
+		$this->assertSame( 'auto', $updated_options['occ_titles_openai_model'] );
+	}
+
+	/**
+	 * Ensure model settings accept automatic and reject malformed values.
+	 *
+	 * @since 2.1.6
+	 * @return void
+	 */
+	public function test_model_sanitization_supports_automatic_selection() {
+		Functions\when( 'sanitize_text_field' )->alias(
+			function ( $value ) {
+				return trim( (string) $value );
+			}
+		);
+
+		$this->assertSame( 'auto', Occ_Titles_Settings::occ_titles_sanitize_openai_model( 'auto' ) );
+		$this->assertSame( 'gpt-5.6-terra', Occ_Titles_Settings::occ_titles_sanitize_openai_model( 'gpt-5.6-terra' ) );
+		$this->assertSame( 'auto', Occ_Titles_Settings::occ_titles_sanitize_openai_model( '<bad model>' ) );
+		$this->assertSame( 'auto', Occ_Titles_Settings::occ_titles_sanitize_google_model( 'auto' ) );
+		$this->assertSame( 'gemini-2.5-flash', Occ_Titles_Settings::occ_titles_sanitize_google_model( 'gemini-2.5-flash' ) );
+		$this->assertSame( 'auto', Occ_Titles_Settings::occ_titles_sanitize_google_model( 'not-gemini' ) );
+	}
+
+	/**
+	 * Ensure AJAX autosave persists a sanitized OpenAI model selection.
+	 *
+	 * @since 2.1.6
+	 * @return void
+	 */
+	public function test_model_autosave_persists_sanitized_openai_selection() {
+		$_POST = array(
+			'field_name'  => 'occ_titles_openai_model',
+			'field_value' => ' gpt-5.6-terra ',
+		);
+
+		Functions\when( 'check_ajax_referer' )->justReturn( true );
+		Functions\when( 'current_user_can' )->justReturn( true );
+		Functions\when( 'wp_unslash' )->alias(
+			function ( $value ) {
+				return $value;
+			}
+		);
+		Functions\when( 'sanitize_text_field' )->alias(
+			function ( $value ) {
+				return trim( (string) $value );
+			}
+		);
+
+		$updated = array();
+		Functions\when( 'update_option' )->alias(
+			function ( $name, $value ) use ( &$updated ) {
+				$updated = array( $name, $value );
+				return true;
+			}
+		);
+		Functions\when( '__' )->alias(
+			function ( $text ) {
+				return $text;
+			}
+		);
+		Functions\when( 'wp_send_json_success' )->alias(
+			function () {
+				throw new RuntimeException( 'saved' );
+			}
+		);
+
+		try {
+			Occ_Titles_Settings::occ_titles_auto_save();
+		} catch ( RuntimeException $exception ) {
+			$this->assertSame( 'saved', $exception->getMessage() );
+		} finally {
+			$_POST = array();
+		}
+
+		$this->assertSame( array( 'occ_titles_openai_model', 'gpt-5.6-terra' ), $updated );
+	}
+
+	/**
+	 * Ensure the main picker stays short while account models remain searchable.
+	 *
+	 * @since 2.1.6
+	 * @return void
+	 */
+	public function test_openai_model_picker_separates_simple_and_advanced_choices() {
+		Functions\when( 'get_option' )->alias(
+			function ( $option_name, $fallback = false ) {
+				if ( 'occ_titles_openai_model' === $option_name ) {
+					return 'gpt-saved-custom';
+				}
+
+				if ( 'occ_titles_openai_api_key' === $option_name ) {
+					return 'secret-key';
+				}
+
+				return $fallback;
+			}
+		);
+		Functions\when( 'wp_remote_get' )->justReturn( array( 'response' => array( 'code' => 200 ) ) );
+		Functions\when( 'is_wp_error' )->justReturn( false );
+		Functions\when( 'wp_remote_retrieve_body' )->justReturn(
+			wp_json_encode(
+				array(
+					'data' => array(
+						array( 'id' => 'gpt-saved-custom' ),
+						array( 'id' => 'gpt-brand-new' ),
+					),
+				)
+			)
+		);
+		Functions\when( '__' )->alias(
+			function ( $value ) {
+				return $value;
+			}
+		);
+		Functions\when( 'esc_html__' )->alias(
+			function ( $value ) {
+				return $value;
+			}
+		);
+		Functions\when( 'esc_attr__' )->alias(
+			function ( $value ) {
+				return $value;
+			}
+		);
+		Functions\when( 'esc_attr' )->alias(
+			function ( $value ) {
+				return $value;
+			}
+		);
+		Functions\when( 'esc_html' )->alias(
+			function ( $value ) {
+				return $value;
+			}
+		);
+		Functions\when( 'selected' )->alias(
+			function ( $selected, $current ) {
+				return $selected === $current ? ' selected="selected"' : '';
+			}
+		);
+
+		$settings = new Occ_Titles_Settings();
+		ob_start();
+		$settings->occ_titles_openai_model_callback();
+		$output = ob_get_clean();
+
+		$main_select = strstr( $output, '</select>', true );
+		$this->assertStringContainsString( 'Automatic (Recommended)', $main_select );
+		$this->assertStringContainsString( 'gpt-saved-custom (saved model)', $main_select );
+		$this->assertStringNotContainsString( 'gpt-brand-new', $main_select );
+		$this->assertStringContainsString( 'data-occ-model-search', $output );
+		$this->assertStringContainsString( '<option value="gpt-brand-new">', $output );
 	}
 
 	/**

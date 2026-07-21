@@ -23,6 +23,49 @@ defined( 'ABSPATH' ) || exit;
 class Occ_Titles_Google_Helper {
 
 	/**
+	 * Stored value used when the plugin should choose the model.
+	 *
+	 * @since 2.1.6
+	 * @var string
+	 */
+	const AUTOMATIC_MODEL = 'auto';
+
+	/**
+	 * Model verified as the default for the current plugin release.
+	 *
+	 * @since 2.1.6
+	 * @var string
+	 */
+	const RECOMMENDED_MODEL = 'gemini-2.5-flash';
+
+	/**
+	 * Get the model used by the automatic setting.
+	 *
+	 * @since 2.1.6
+	 * @return string
+	 */
+	public static function get_recommended_model() {
+		return self::RECOMMENDED_MODEL;
+	}
+
+	/**
+	 * Resolve a saved model setting to the model sent to Google.
+	 *
+	 * @since 2.1.6
+	 * @param string $model Saved model setting.
+	 * @return string
+	 */
+	public static function resolve_model( $model ) {
+		$model = trim( (string) $model );
+
+		if ( '' === $model || self::AUTOMATIC_MODEL === $model ) {
+			return self::get_recommended_model();
+		}
+
+		return $model;
+	}
+
+	/**
 	 * Generate titles using the Google Gemini API (unchanged for now).
 	 *
 	 * @since  1.0.0
@@ -42,7 +85,7 @@ class Occ_Titles_Google_Helper {
 	 * @return array|string    Array of titles if successful, error message if failed.
 	 */
 	public function generate_titles_google( $api_key, $content, $style = '', $request_id = '', $count = 5, $seed_title = '', $variation = '', $keyword = '', $voice_profile = array(), $voice_samples = array(), $intent = '', $keywords = array(), $ellipsis = 0 ) {
-		$model = get_option( 'occ_titles_google_model', 'gemini-2.5-flash' );
+		$model = self::resolve_model( get_option( 'occ_titles_google_model', self::AUTOMATIC_MODEL ) );
 
 		if ( $count < 1 ) {
 			$count = 1;
@@ -655,7 +698,7 @@ class Occ_Titles_Google_Helper {
 			);
 		}
 
-		$model    = get_option( 'occ_titles_google_model', 'gemini-2.5-flash' );
+		$model    = self::resolve_model( get_option( 'occ_titles_google_model', self::AUTOMATIC_MODEL ) );
 		$endpoint = self::get_generate_content_endpoint( $model );
 
 		$body = wp_json_encode(

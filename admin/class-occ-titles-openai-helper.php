@@ -23,6 +23,52 @@ defined( 'ABSPATH' ) || exit;
 class Occ_Titles_OpenAI_Helper {
 
 	/**
+	 * Stored value used when the plugin should choose the model.
+	 *
+	 * @since 2.1.6
+	 * @var string
+	 */
+	const AUTOMATIC_MODEL = 'auto';
+
+	/**
+	 * Model verified as the default for the current plugin release.
+	 *
+	 * @since 2.1.6
+	 * @var string
+	 */
+	const RECOMMENDED_MODEL = 'gpt-5.5';
+
+	/**
+	 * Get the model used by the automatic setting.
+	 *
+	 * The recommendation is intentionally release-controlled so a newly listed
+	 * provider model cannot change cost or behavior before compatibility testing.
+	 *
+	 * @since 2.1.6
+	 * @return string
+	 */
+	public static function get_recommended_model() {
+		return self::RECOMMENDED_MODEL;
+	}
+
+	/**
+	 * Resolve a saved model setting to the model sent to OpenAI.
+	 *
+	 * @since 2.1.6
+	 * @param string $model Saved model setting.
+	 * @return string
+	 */
+	public static function resolve_model( $model ) {
+		$model = trim( (string) $model );
+
+		if ( '' === $model || self::AUTOMATIC_MODEL === $model ) {
+			return self::get_recommended_model();
+		}
+
+		return $model;
+	}
+
+	/**
 	 * Generate titles using the OpenAI API.
 	 *
 	 * @since  1.0.0
@@ -42,7 +88,7 @@ class Occ_Titles_OpenAI_Helper {
 	 * @return array|string    Array of titles if successful, error message if failed.
 	 */
 	public function generate_titles_openai( $api_key, $content, $style = '', $request_id = '', $count = 5, $seed_title = '', $variation = '', $keyword = '', $voice_profile = array(), $voice_samples = array(), $intent = '', $keywords = array(), $ellipsis = 0 ) {
-		$model = get_option( 'occ_titles_openai_model', 'gpt-5.5' );
+		$model = self::resolve_model( get_option( 'occ_titles_openai_model', self::AUTOMATIC_MODEL ) );
 
 		if ( $count < 1 ) {
 			$count = 1;
@@ -171,7 +217,6 @@ class Occ_Titles_OpenAI_Helper {
 				'model'        => $model,
 				'instructions' => $system_instruction,
 				'input'        => "Here is the content:\n" . $content,
-				'temperature'  => 0.7,
 			)
 		);
 
@@ -376,12 +421,18 @@ class Occ_Titles_OpenAI_Helper {
 		$data = json_decode( $body, true );
 
 		if ( isset( $data['data'] ) && is_array( $data['data'] ) ) {
-			return array_map(
-				function ( $model ) {
-					return $model['id'];
-				},
-				$data['data']
-			);
+			$models = array();
+
+			foreach ( $data['data'] as $model ) {
+				if ( isset( $model['id'] ) && is_string( $model['id'] ) && '' !== trim( $model['id'] ) ) {
+					$models[] = trim( $model['id'] );
+				}
+			}
+
+			$models = array_values( array_unique( $models ) );
+			natcasesort( $models );
+
+			return array_values( $models );
 		}
 
 		return false;

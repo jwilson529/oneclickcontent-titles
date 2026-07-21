@@ -93,3 +93,9 @@ Append a brief recap after each run:
 - Notable changes: Bumped plugin/package/readme versions to 2.1.5; updated `readme.txt` to `Tested up to: 7.0`; changed Docker PHPUnit default to `WP_VERSION=7.0`; made `.wp-core` and `.wp-tests` refresh when the requested WordPress version changes.
 - Tool results: `npm run check` pass (`check.txt` empty); `npm test` pass against active WordPress core version `7.0` with the WordPress develop `7.0.0` test suite (27 tests, 68 assertions); `npm run dist` pass (`dist/oneclickcontent-titles.zip` created).
 - Remaining gaps: Publish and verify `v2.1.5`.
+
+- Date: 2026-07-21
+- Summary: Fixed OpenAI reasoning-model generation and comprehensively tested the updated model-selection workflow.
+- Notable changes: Removed the optional `temperature` field from Responses API requests so `gpt-5.6-terra` and other reasoning models are compatible; added request, model-catalog, and AJAX autosave regressions; changed settings notifications to render server messages as text; clarified the model-catalog fallback note.
+- Tool results: PHP and JavaScript syntax checks pass; `npm run check` pass (`check.txt` empty); `npm run phpmd` pass (`phpmd.txt` empty); `npm run test` pass (34 tests, 95 assertions); live helper generation pass for `gpt-5.6-terra`, automatic `gpt-5.5`, and `gpt-4o-mini`; full WordPress AJAX generation pass; live account catalog/render checks pass with 125 models; saved Centerstone model remains `gpt-5.6-terra`.
+- Remaining gaps: Signed-in desktop/narrow visual and keyboard QA could not run because no browser backend was available. Live Google generation could not run because Centerstone has no Google API key configured, although its provider paths pass PHPUnit. WordPress Plugin Check is not installed in the local WP-CLI environment.

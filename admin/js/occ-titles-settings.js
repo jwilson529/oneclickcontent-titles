@@ -4,6 +4,7 @@
     let autoValidateRan = false;
 
     initializeAutoSave();
+	initializeModelPickers();
 
     // Debounce function
     function debounce(func, wait) {
@@ -19,12 +20,82 @@
     // Initialize auto-save functionality for settings fields (excluding API key fields)
     function initializeAutoSave() {
         $('.occ_titles-settings-form')
-            .find('input, select, textarea')
+			.find('input[name], select[name], textarea[name]')
             .not('[name="occ_titles_openai_api_key"], [name="occ_titles_google_api_key"]')
             .on('input change', debounce(function() {
                 autoSaveField($(this));
             }, 500));
     }
+
+	/**
+	 * Keep the ordinary model choice short while exposing the provider list via search.
+	 */
+	function initializeModelPickers() {
+		function getModelString(key, fallback) {
+			if (occ_titles_admin_vars && occ_titles_admin_vars.strings && occ_titles_admin_vars.strings[key]) {
+				return occ_titles_admin_vars.strings[key];
+			}
+
+			return fallback;
+		}
+
+		$('[data-occ-model-picker]').each(function() {
+			const $picker = $(this);
+			const $select = $picker.find('[data-occ-model-select]');
+			const $search = $picker.find('[data-occ-model-search]');
+			const $button = $picker.find('[data-occ-use-model]');
+			const $current = $picker.find('[data-occ-model-current]');
+			const $message = $picker.find('[data-occ-model-message]');
+			const availableModels = [];
+
+			$picker.find('datalist option').each(function() {
+				availableModels.push($(this).val());
+			});
+
+			function updateCurrentModel() {
+				const $option = $select.find('option:selected');
+				const resolvedModel = $option.attr('data-resolved-model') || $option.val();
+
+				$current.text(resolvedModel || '');
+			}
+
+			function updateAdvancedState() {
+				const model = $.trim($search.val());
+				const isAvailable = availableModels.indexOf(model) !== -1;
+
+				$button.prop('disabled', !isAvailable);
+				$message.text(model && !isAvailable ? getModelString('model_choose_list', 'Choose a model from the available account list.') : '');
+			}
+
+			$select.on('change', updateCurrentModel);
+			$search.on('input change', updateAdvancedState);
+			$button.on('click', function() {
+				const model = $.trim($search.val());
+
+				if (availableModels.indexOf(model) === -1) {
+					updateAdvancedState();
+					return;
+				}
+
+				if (!$select.find('option').filter(function() {
+					return $(this).val() === model;
+				}).length) {
+					$('<option></option>')
+						.val(model)
+						.attr('data-resolved-model', model)
+						.text(model)
+						.appendTo($select);
+				}
+
+				$select.val(model).trigger('change');
+				$message.text(getModelString('model_saving', 'Model selected and saving.'));
+				$picker.find('details').prop('open', false);
+			});
+
+			updateCurrentModel();
+			updateAdvancedState();
+		});
+	}
 
     let isProcessing = false; // Prevent multiple simultaneous AJAX requests
 
@@ -84,7 +155,11 @@
             $(this).remove();
         });
 
-        var $notification = $('<div class="occ_titles-notification ' + type + '">' + message + '</div>');
+        var allowedTypes = [ 'success', 'error', 'info' ];
+        var notificationType = allowedTypes.indexOf(type) !== -1 ? type : 'info';
+        var $notification = $('<div></div>')
+            .addClass('occ_titles-notification ' + notificationType)
+            .text(message || '');
         $('body').append($notification);
         $notification.fadeIn('fast');
 

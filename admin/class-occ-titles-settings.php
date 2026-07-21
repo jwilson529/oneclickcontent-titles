@@ -43,6 +43,10 @@ class Occ_Titles_Settings {
 			'occ_titles-help',
 			array( $this, 'occ_titles_help_page' )
 		);
+
+		// Keep the help screen available from the Title Assistant page without
+		// adding a second item to the Settings menu.
+		remove_submenu_page( 'options-general.php', 'occ_titles-help' );
 	}
 
 	/**
@@ -757,7 +761,7 @@ class Occ_Titles_Settings {
 			register_setting(
 				'occ_titles_settings',
 				'occ_titles_openai_model',
-				array( 'sanitize_callback' => 'sanitize_text_field' )
+				array( 'sanitize_callback' => array( __CLASS__, 'occ_titles_sanitize_openai_model' ) )
 			);
 			add_settings_field(
 				'occ_titles_openai_api_key',
@@ -962,6 +966,27 @@ class Occ_Titles_Settings {
 	}
 
 	/**
+	 * Sanitize the OpenAI model setting.
+	 *
+	 * @since 2.1.6
+	 * @param string $input Raw input.
+	 * @return string Sanitized value.
+	 */
+	public static function occ_titles_sanitize_openai_model( $input ) {
+		$model = sanitize_text_field( $input );
+
+		if ( Occ_Titles_OpenAI_Helper::AUTOMATIC_MODEL === $model ) {
+			return $model;
+		}
+
+		if ( '' === $model || 1 !== preg_match( '/^[a-z0-9][a-z0-9._:\-]*$/i', $model ) ) {
+			return Occ_Titles_OpenAI_Helper::AUTOMATIC_MODEL;
+		}
+
+		return $model;
+	}
+
+	/**
 	 * Sanitize the Google API key.
 	 *
 	 * @since 1.1.1
@@ -985,8 +1010,12 @@ class Occ_Titles_Settings {
 	public static function occ_titles_sanitize_google_model( $input ) {
 		$model = sanitize_text_field( $input );
 
+		if ( Occ_Titles_Google_Helper::AUTOMATIC_MODEL === $model ) {
+			return $model;
+		}
+
 		if ( '' === $model || 1 !== preg_match( '/^gemini[a-z0-9.\-]*$/i', $model ) ) {
-			return 'gemini-2.5-flash';
+			return Occ_Titles_Google_Helper::AUTOMATIC_MODEL;
 		}
 
 		return $model;
@@ -1138,7 +1167,7 @@ class Occ_Titles_Settings {
 			return;
 		}
 
-		$selected_model = get_option( 'occ_titles_google_model', 'gemini-2.5-flash' );
+		$selected_model = get_option( 'occ_titles_google_model', Occ_Titles_Google_Helper::AUTOMATIC_MODEL );
 		$api_key        = get_option( 'occ_titles_google_api_key', '' );
 		$models         = array();
 
@@ -1146,25 +1175,21 @@ class Occ_Titles_Settings {
 			$models = Occ_Titles_Google_Helper::get_available_google_models( $api_key );
 		}
 
-		if ( ! is_array( $models ) || empty( $models ) ) {
-			$models = array(
-				'gemini-2.5-flash'      => __( 'Gemini 2.5 Flash (recommended fallback)', 'oneclickcontent-titles' ),
-				'gemini-2.5-flash-lite' => __( 'Gemini 2.5 Flash-Lite', 'oneclickcontent-titles' ),
-				'gemini-2.5-pro'        => __( 'Gemini 2.5 Pro', 'oneclickcontent-titles' ),
-			);
+		if ( ! is_array( $models ) ) {
+			$models = array();
 		}
 
-		if ( ! isset( $models[ $selected_model ] ) ) {
-			/* translators: %s: model slug currently saved in settings. */
-			$models = array( $selected_model => sprintf( __( '%s (saved model)', 'oneclickcontent-titles' ), $selected_model ) ) + $models;
-		}
-
-		echo '<select class="occ_titles-field-input" name="occ_titles_google_model" id="occ_titles_google_model">';
-		foreach ( $models as $model => $label ) {
-			echo '<option value="' . esc_attr( $model ) . '"' . selected( $selected_model, $model, false ) . '>' . esc_html( $label ) . '</option>';
-		}
-		echo '</select>';
-		echo '<p class="occ_titles-field-inline-note">' . esc_html__( 'This list is loaded from your Google Gemini account when possible, so new supported text-generation models can appear automatically.', 'oneclickcontent-titles' ) . '</p>';
+		$this->render_model_picker(
+			'occ_titles_google_model',
+			$selected_model,
+			Occ_Titles_Google_Helper::get_recommended_model(),
+			array(
+				'gemini-2.5-flash'      => __( 'Gemini 2.5 Flash (tested default)', 'oneclickcontent-titles' ),
+				'gemini-2.5-flash-lite' => __( 'Gemini 2.5 Flash-Lite (lighter)', 'oneclickcontent-titles' ),
+				'gemini-2.5-pro'        => __( 'Gemini 2.5 Pro (quality focused)', 'oneclickcontent-titles' ),
+			),
+			$models
+		);
 	}
 
 	/**
@@ -1174,27 +1199,97 @@ class Occ_Titles_Settings {
 	 * @return void
 	 */
 	public function occ_titles_openai_model_callback() {
-		$selected_model = get_option( 'occ_titles_openai_model', 'gpt-5.5' );
+		$selected_model = get_option( 'occ_titles_openai_model', Occ_Titles_OpenAI_Helper::AUTOMATIC_MODEL );
 		$api_key        = get_option( 'occ_titles_openai_api_key', '' );
+		$models         = array();
 
-		if ( empty( $api_key ) ) {
-			echo '<p class="error">' . esc_html__( 'Please enter a valid OpenAI API key first.', 'oneclickcontent-titles' ) . '</p>';
-			return;
+		if ( ! empty( $api_key ) ) {
+			$models = Occ_Titles_OpenAI_Helper::validate_openai_api_key( $api_key );
 		}
 
-		// Retrieve models using our helper method.
-		$models = Occ_Titles_OpenAI_Helper::validate_openai_api_key( $api_key );
-
-		if ( ! $models || ! is_array( $models ) ) {
-			echo '<p class="error">' . esc_html__( 'Unable to retrieve models. Please check your API key.', 'oneclickcontent-titles' ) . '</p>';
-			return;
+		if ( ! is_array( $models ) ) {
+			$models = array();
 		}
 
-		echo '<select class="occ_titles-field-input" name="occ_titles_openai_model" id="occ_titles_openai_model">';
+		$available_models = array();
 		foreach ( $models as $model ) {
-			echo '<option value="' . esc_attr( $model ) . '"' . selected( $selected_model, $model, false ) . '>' . esc_html( $model ) . '</option>';
+			if ( is_string( $model ) && '' !== trim( $model ) ) {
+				$available_models[ $model ] = $model;
+			}
 		}
+
+		$this->render_model_picker(
+			'occ_titles_openai_model',
+			$selected_model,
+			Occ_Titles_OpenAI_Helper::get_recommended_model(),
+			array(
+				'gpt-5.5'     => __( 'GPT-5.5 (tested default)', 'oneclickcontent-titles' ),
+				'gpt-4o-mini' => __( 'GPT-4o mini (legacy tested)', 'oneclickcontent-titles' ),
+			),
+			$available_models
+		);
+	}
+
+	/**
+	 * Render a simple model selector with the full account list behind search.
+	 *
+	 * @since 2.1.6
+	 * @param string $field_name       Option and field name.
+	 * @param string $selected_model   Saved model selection.
+	 * @param string $recommended      Release-tested automatic model.
+	 * @param array  $simple_models    Curated model labels keyed by model ID.
+	 * @param array  $available_models Account model labels keyed by model ID.
+	 * @return void
+	 */
+	private function render_model_picker( $field_name, $selected_model, $recommended, $simple_models, $available_models ) {
+		$selected_model = '' === (string) $selected_model ? 'auto' : (string) $selected_model;
+		$current_model  = 'auto' === $selected_model ? $recommended : $selected_model;
+		$datalist_id    = $field_name . '_available_models';
+		$search_id      = $field_name . '_search';
+
+		echo '<div class="occ_titles-model-picker" data-occ-model-picker>';
+		echo '<select class="occ_titles-field-input" name="' . esc_attr( $field_name ) . '" id="' . esc_attr( $field_name ) . '" data-occ-model-select>';
+		echo '<option value="auto" data-resolved-model="' . esc_attr( $recommended ) . '"' . selected( $selected_model, 'auto', false ) . '>' . esc_html__( 'Automatic (Recommended)', 'oneclickcontent-titles' ) . '</option>';
+		echo '<optgroup label="' . esc_attr__( 'Tested choices', 'oneclickcontent-titles' ) . '">';
+		foreach ( $simple_models as $model => $label ) {
+			echo '<option value="' . esc_attr( $model ) . '" data-resolved-model="' . esc_attr( $model ) . '"' . selected( $selected_model, $model, false ) . '>' . esc_html( $label ) . '</option>';
+		}
+		echo '</optgroup>';
+
+		if ( 'auto' !== $selected_model && ! isset( $simple_models[ $selected_model ] ) ) {
+			echo '<optgroup label="' . esc_attr__( 'Your current choice', 'oneclickcontent-titles' ) . '">';
+			/* translators: %s: model slug currently saved in settings. */
+			echo '<option value="' . esc_attr( $selected_model ) . '" data-resolved-model="' . esc_attr( $selected_model ) . '" selected>' . esc_html( sprintf( __( '%s (saved model)', 'oneclickcontent-titles' ), $selected_model ) ) . '</option>';
+			echo '</optgroup>';
+		}
+
 		echo '</select>';
+		echo '<p class="occ_titles-model-current">' . esc_html__( 'Current model:', 'oneclickcontent-titles' ) . ' <code data-occ-model-current>' . esc_html( $current_model ) . '</code></p>';
+		echo '<p class="occ_titles-field-inline-note">' . esc_html__( 'Automatic uses a compatibility-tested default. New provider models are available below, but are never enabled without your choice.', 'oneclickcontent-titles' ) . '</p>';
+
+		if ( ! empty( $available_models ) ) {
+			echo '<details class="occ_titles-model-advanced">';
+			echo '<summary>' . esc_html__( 'Choose another model', 'oneclickcontent-titles' ) . '</summary>';
+			echo '<div class="occ_titles-model-advanced-body">';
+			echo '<label for="' . esc_attr( $search_id ) . '">' . esc_html__( 'Search models available to this account', 'oneclickcontent-titles' ) . '</label>';
+			echo '<div class="occ_titles-model-search-row">';
+			echo '<input class="occ_titles-field-input" type="search" id="' . esc_attr( $search_id ) . '" list="' . esc_attr( $datalist_id ) . '" data-occ-model-search autocomplete="off" placeholder="' . esc_attr__( 'Start typing a model name', 'oneclickcontent-titles' ) . '">';
+			echo '<button class="button" type="button" data-occ-use-model disabled>' . esc_html__( 'Use model', 'oneclickcontent-titles' ) . '</button>';
+			echo '</div>';
+			echo '<datalist id="' . esc_attr( $datalist_id ) . '">';
+			foreach ( $available_models as $model => $label ) {
+				echo '<option value="' . esc_attr( $model ) . '">' . esc_html( $label ) . '</option>';
+			}
+			echo '</datalist>';
+			echo '<p class="occ_titles-field-inline-note">' . esc_html__( 'Advanced models come directly from your provider account and may not be tested with Title Assistant yet.', 'oneclickcontent-titles' ) . '</p>';
+			echo '<p class="occ_titles-model-message" data-occ-model-message role="status" aria-live="polite"></p>';
+			echo '</div>';
+			echo '</details>';
+		} else {
+			echo '<p class="occ_titles-field-inline-note">' . esc_html__( 'Validate your API key to search every model available to this account.', 'oneclickcontent-titles' ) . '</p>';
+		}
+
+		echo '</div>';
 	}
 
 	/**
@@ -1334,11 +1429,13 @@ class Occ_Titles_Settings {
 			$post_type_label = ! empty( $post_type_object->labels->singular_name ) ? $post_type_object->labels->singular_name : str_replace( '_', ' ', ucwords( $post_type ) );
 			echo '<label class="occ_titles-post-type-card">';
 			echo '<input type="checkbox" name="occ_titles_post_types[]" value="' . esc_attr( $post_type ) . '" class="occ_titles-settings-checkbox" ' . checked( true, $checked, false ) . '>';
+			echo '<span class="occ_titles-post-type-card-surface">';
 			echo '<span class="occ_titles-post-type-card-body">';
 			echo '<span class="occ_titles-post-type-card-title">' . esc_html( $post_type_label ) . '</span>';
 			echo '<span class="occ_titles-post-type-card-description">' . esc_html__( 'Show the title helper in this editor.', 'oneclickcontent-titles' ) . '</span>';
 			echo '</span>';
-			echo '<span class="occ_titles-post-type-card-state">' . esc_html__( 'Select', 'oneclickcontent-titles' ) . '</span>';
+			echo '<span class="occ_titles-post-type-card-indicator" aria-hidden="true"></span>';
+			echo '</span>';
 			echo '</label>';
 		}
 		echo '</div>';
@@ -1423,6 +1520,8 @@ class Occ_Titles_Settings {
 				$field_value = self::occ_titles_sanitize_voice_profile( is_array( $field_value_safe ) ? $field_value_safe : array() );
 			} elseif ( 'occ_titles_openai_api_key' === $field_name ) {
 				$field_value = self::occ_titles_sanitize_openai_api_key( is_string( $field_value_safe ) ? $field_value_safe : '' );
+			} elseif ( 'occ_titles_openai_model' === $field_name ) {
+				$field_value = self::occ_titles_sanitize_openai_model( is_string( $field_value_safe ) ? $field_value_safe : '' );
 			} elseif ( 'occ_titles_google_api_key' === $field_name ) {
 				$field_value = self::occ_titles_sanitize_google_api_key( is_string( $field_value_safe ) ? $field_value_safe : '' );
 			} elseif ( 'occ_titles_google_model' === $field_name ) {

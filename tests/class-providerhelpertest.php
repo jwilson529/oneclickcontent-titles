@@ -252,6 +252,88 @@ class ProviderHelperTest extends Occ_Titles_Test_Case {
 		$this->assertIsArray( $result );
 		$this->assertSame( 'https://api.openai.com/v1/responses', $captured['endpoint'] );
 		$this->assertSame( 'gpt-5.5', $captured['body']['model'] );
+		$this->assertArrayNotHasKey( 'temperature', $captured['body'] );
+	}
+
+	/**
+	 * OpenAI reasoning model requests omit unsupported sampling parameters.
+	 *
+	 * @since 2.1.6
+	 * @return void
+	 */
+	public function test_openai_generation_supports_explicit_reasoning_model() {
+		$this->reset_logger_instance();
+		$this->prime_helper_environment();
+
+		$captured = array();
+
+		Functions\when( 'get_option' )->alias(
+			function ( $name, $fallback = null ) {
+				if ( 'occ_titles_openai_model' === $name ) {
+					return 'gpt-5.6-terra';
+				}
+
+				if ( 'occ_titles_logging_enabled' === $name ) {
+					return 0;
+				}
+
+				return $fallback;
+			}
+		);
+
+		Functions\when( 'wp_remote_post' )->alias(
+			function ( $endpoint, $args ) use ( &$captured ) {
+				$captured = array(
+					'endpoint' => $endpoint,
+					'body'     => json_decode( $args['body'], true ),
+				);
+
+				return array( 'response' => array( 'code' => 200 ) );
+			}
+		);
+
+		Functions\when( 'wp_remote_retrieve_response_code' )->alias(
+			function () {
+				return 200;
+			}
+		);
+
+		Functions\when( 'wp_remote_retrieve_body' )->alias(
+			function () {
+				return wp_json_encode(
+					array(
+						'output' => array(
+							array(
+								'content' => array(
+									array(
+										'type' => 'output_text',
+										'text' => wp_json_encode(
+											array(
+												array(
+													'index' => 1,
+													'text' => 'Reasoning model title',
+													'style' => 'How-To',
+													'sentiment' => 'Positive',
+													'keywords' => array( 'alpha' ),
+												),
+											)
+										),
+									),
+								),
+							),
+						),
+					)
+				);
+			}
+		);
+
+		$helper = new Occ_Titles_OpenAI_Helper();
+		$result = $helper->generate_titles_openai( 'secret-key', 'Body copy for testing.', '', '', 1 );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 'https://api.openai.com/v1/responses', $captured['endpoint'] );
+		$this->assertSame( 'gpt-5.6-terra', $captured['body']['model'] );
+		$this->assertArrayNotHasKey( 'temperature', $captured['body'] );
 	}
 
 	/**
@@ -277,6 +359,10 @@ class ProviderHelperTest extends Occ_Titles_Test_Case {
 						'data' => array(
 							array( 'id' => 'gpt-5.5' ),
 							array( 'id' => 'gpt-5.4' ),
+							array( 'id' => 'gpt-5.5' ),
+							array( 'id' => '  ' ),
+							array( 'id' => array( 'invalid' ) ),
+							array( 'created' => 123 ),
 						),
 					)
 				);
@@ -286,7 +372,20 @@ class ProviderHelperTest extends Occ_Titles_Test_Case {
 		$models = Occ_Titles_OpenAI_Helper::validate_openai_api_key( 'secret-key' );
 
 		$this->assertIsArray( $models );
-		$this->assertContains( 'gpt-5.5', $models );
+		$this->assertSame( array( 'gpt-5.4', 'gpt-5.5' ), $models );
+	}
+
+	/**
+	 * Automatic model values resolve without replacing explicit saved choices.
+	 *
+	 * @since 2.1.6
+	 * @return void
+	 */
+	public function test_provider_model_resolution_preserves_explicit_choices() {
+		$this->assertSame( 'gpt-5.5', Occ_Titles_OpenAI_Helper::resolve_model( 'auto' ) );
+		$this->assertSame( 'gpt-saved-custom', Occ_Titles_OpenAI_Helper::resolve_model( 'gpt-saved-custom' ) );
+		$this->assertSame( 'gemini-2.5-flash', Occ_Titles_Google_Helper::resolve_model( 'auto' ) );
+		$this->assertSame( 'gemini-saved-custom', Occ_Titles_Google_Helper::resolve_model( 'gemini-saved-custom' ) );
 	}
 
 	/**
