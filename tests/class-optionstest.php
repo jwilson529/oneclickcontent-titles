@@ -491,29 +491,17 @@ class OptionsTest extends Occ_Titles_Test_Case {
 	}
 
 	/**
-	 * Ensure bundled help assets resolve to local plugin URLs.
+	 * Ensure the help page does not rely on retired screenshot assets.
 	 *
-	 * @since 1.1.2
+	 * @since 2.1.6
 	 * @return void
 	 */
-	public function test_get_help_asset_url_returns_local_plugin_asset() {
-		Functions\when( 'sanitize_file_name' )->alias(
-			function ( $value ) {
-				return basename( (string) $value );
-			}
-		);
+	public function test_help_page_uses_self_contained_training_placeholders() {
+		$source = file_get_contents( dirname( __DIR__ ) . '/admin/class-occ-titles-settings.php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local test fixture.
 
-		Functions\when( 'plugin_dir_url' )->alias(
-			function () {
-				return 'https://example.com/wp-content/plugins/oneclickcontent-titles/';
-			}
-		);
-
-		$result = Occ_Titles_Settings::get_help_asset_url( 'OneClickContentTitles-Block.png' );
-
-		$this->assertSame(
-			'https://example.com/wp-content/plugins/oneclickcontent-titles/assets/OneClickContentTitles-Block.png',
-			$result
-		);
+		$this->assertIsString( $source );
+		$this->assertStringContainsString( "'placeholder' => __( 'Editor launch point preview'", $source );
+		$this->assertStringNotContainsString( 'get_help_asset_url', $source );
+		$this->assertStringNotContainsString( 'OneClickContentTitles-Block.png', $source );
 	}
 }
