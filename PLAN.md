@@ -91,10 +91,10 @@ Publish the current Title Assistant changes as a polished WordPress.org release 
 - Slice 5, package and Plugin Check: complete
 - Slice 6, release documentation: complete
 - Slice 7, final convergence: validation complete; commit, push, tag, publication, and public-directory verification remain
-- Last checkpoint before current uncommitted work: `becee3b`
-- Release candidate: `2.1.6`
+- Last checkpoint before current uncommitted work: `bc3dc8a`
+- Release candidate: `2.1.7`
 - Release ZIP: `dist/oneclickcontent-titles.zip`
-- Release ZIP SHA-256: `8a928b3e4cdf26aa337cf5fc2838980fd6bbfe91ed6121ad7c911608a8b0a954`
+- Release ZIP SHA-256: `40d56e73d269ce2bb43008a76441f16932c9258ee999ff277cc8336e5a14dc9d`
 - Centerstone saved model: `gpt-5.6-terra`, verified unchanged
 
 ## Latest Run

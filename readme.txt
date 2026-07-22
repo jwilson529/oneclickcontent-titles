@@ -4,7 +4,7 @@ Donate link: https://oneclickcontent.com/donate/
 Tags: ai, seo, titles, openai, gemini
 Requires at least: 5.0
 Tested up to: 7.0
-Stable tag: 2.1.6
+Stable tag: 2.1.7
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -105,6 +105,14 @@ API keys and generated title results are stored in your WordPress database. Opti
 
 == Changelog ==
 
+= 2.1.7 =
+
+- Restore the in-canvas Gutenberg launcher after switching from Code Editor back to Visual Editor.
+- Add regression coverage for editor-canvas iframe reloads.
+- Verify the packaged plugin across Classic, Block Visual, and Block Code editor workflows.
+- Refresh the WordPress.org screenshots from the final WordPress 7.0.2 release-candidate UI.
+- Revalidate real OpenAI generation, responsive settings, WordPress stable and nightly tests, Plugin Check, and release packaging.
+
 = 2.1.6 =
 
 - Fix OpenAI title generation for models that reject the `temperature` parameter.
@@ -169,6 +177,9 @@ API keys and generated title results are stored in your WordPress database. Opti
 * Added richer scoring and title comparison experience.
 
 == Upgrade Notice ==
+
+= 2.1.7 =
+Recommended editor reliability update. Restores the Gutenberg launcher after Code-to-Visual switches and refreshes the verified release package and screenshots.
 
 = 2.1.6 =
 Recommended compatibility and editor UX update. Fixes generation with newer OpenAI models and restores reliable launch, details, and title application across supported editors.

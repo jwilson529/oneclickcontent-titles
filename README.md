@@ -2,7 +2,7 @@
 
 ![Plugin Banner](assets/banner-772x250.png)
 
-Version: 2.1.6
+Version: 2.1.7
 
 Free BYO-key AI title assistant for WordPress from the OneClickContent plugin line. Use your own OpenAI or Google Gemini API key to generate, compare, score, and apply post titles directly in the editor.
 
@@ -19,6 +19,13 @@ OneClickContent is the home for free, bring-your-own-key AI plugins for WordPres
 - Load Google Gemini model choices from the API when available.
 - Built-in training and help screens for editorial teams.
 - Keep the workflow inside WordPress instead of bouncing between external AI tools and the editor.
+
+## What Is New In v2.1.7
+
+- Restored the in-canvas Gutenberg launcher after switching from Code Editor back to Visual Editor.
+- Added regression coverage for Gutenberg iframe reloads and completed real-browser verification across Classic, Block Visual, and Block Code editors.
+- Refreshed the WordPress.org screenshots from the final WordPress 7.0.2 release-candidate UI.
+- Reverified OpenAI generation, responsive settings, WordPress stable and nightly compatibility, Plugin Check, and release packaging.
 
 ## What Is New In v2.1.6
 
@@ -138,6 +145,12 @@ API-key validation and model loading send the configured key to the selected pro
 - Google privacy: https://policies.google.com/privacy
 
 ## Changelog
+
+### 2.1.7
+
+- Restore the Gutenberg title launcher after Code-to-Visual editor switches.
+- Add iframe reload regression coverage and complete packaged-plugin browser verification across supported editors.
+- Refresh the release screenshots and revalidate stable, nightly, responsive, provider, and WordPress.org packaging checks.
 
 ### 2.1.6
 

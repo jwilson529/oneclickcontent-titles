@@ -11,14 +11,14 @@ Date: 2026-07-21
 - Preview site: `http://centerstone.local/`
 - Settings screen: `http://centerstone.local/wp-admin/options-general.php?page=occ_titles-settings`
 - Model compatibility and settings work is checkpointed in commit `a678bc8`.
-- The 2.1.6 release candidate work after the model checkpoint is intentional and validated. Do not restore or discard it.
+- The 2.1.7 release candidate work after the model checkpoint is intentional and validated. Do not restore or discard it.
 - Repository hygiene is checkpointed in `d0816d8` (`chore: stop tracking local WordPress harnesses`).
 
 Before editing, read `AGENTS.md`, `SPEC.md`, `MEMORY.md`, `PLAN.md`, `PLAYBOOK.md`, and this file.
 
 ## Centerstone State
 
-- Plugin source is version 2.1.6.
+- Plugin source is version 2.1.7.
 - Selected provider: `openai`.
 - Saved OpenAI model: `gpt-5.6-terra`.
 - That model is an explicit existing choice and must remain unchanged unless James changes it in the UI.
@@ -116,9 +116,9 @@ Official guidance consulted:
 
 ## WordPress.org Release Candidate
 
-- Version metadata is aligned at 2.1.6 in the plugin header, runtime constant, package, GitHub readme, WordPress.org readme, changelog, and POT catalog.
+- Version metadata is aligned at 2.1.7 in the plugin header, runtime constant, package, GitHub readme, WordPress.org readme, changelog, upgrade notice, and POT catalog.
 - `dist/oneclickcontent-titles.zip` now includes the editor bridge and remains a single-root, runtime-only package.
-- Final ZIP SHA-256: `8a928b3e4cdf26aa337cf5fc2838980fd6bbfe91ed6121ad7c911608a8b0a954` (101,608 bytes).
+- Final 2.1.7 ZIP SHA-256: `40d56e73d269ce2bb43008a76441f16932c9258ee999ff277cc8336e5a14dc9d` (101,812 bytes).
 - The ZIP installs and activates on WordPress 7.0.2. A real uninstall cycle removed every plugin option, saved results meta, the Gemini model cache, and log artifacts; reinstall then activated with diagnostics off by default.
 - Every PHP file parses under the declared PHP 7.2 minimum. Composer audit reports no known advisories.
 - `assets/screenshot-1.png` through `screenshot-3.png` are current real-plugin captures from the WordPress 7.0.2 QA site. They match the readme order, expose no API key, omit browser chrome, and show recommendations, guided settings, and the loading workflow.
@@ -128,7 +128,7 @@ Official guidance consulted:
 ## Remaining Release Actions
 
 1. Commit the complete release candidate, push it, and verify the `CI and Release` push workflow.
-2. Create and publish `v2.1.6`; the release workflow will deploy to WordPress.org SVN and attach the ZIP.
+2. Create and publish `v2.1.7`; the release workflow will deploy to WordPress.org SVN and attach the ZIP.
 3. Verify the public WordPress.org page and screenshots after SVN propagation.
 4. Do not change the local saved model unless James explicitly chooses another model.
 
