@@ -114,7 +114,7 @@ Official guidance consulted:
 - Live WordPress 7.0.2 browser QA passed for the Classic, Block Visual, and Block Code launchers; first-click Details; Apply; plugin Undo; and the Code-to-Visual iframe transition on the exact packaged plugin.
 - Isolated Chrome QA performed real OpenAI generation, captured the loading and results states, reported no runtime exceptions, and confirmed the settings page has no horizontal overflow at a 600px viewport.
 
-## WordPress.org Release Candidate
+## Published WordPress.org Release
 
 - Version metadata is aligned at 2.1.7 in the plugin header, runtime constant, package, GitHub readme, WordPress.org readme, changelog, upgrade notice, and POT catalog.
 - `dist/oneclickcontent-titles.zip` now includes the editor bridge and remains a single-root, runtime-only package.
@@ -125,12 +125,16 @@ Official guidance consulted:
 - `.gitignore` now keeps harnesses, reports, browser artifacts, secrets, dependencies, and root-level ad hoc captures out of Git while leaving `assets/screenshot-*.png` trackable. The 4,993 tracked WordPress core/test cache files plus tracked `check.txt` were removed from the index; local copies remain ignored.
 - Release workflow action runtimes are current and Node 24-compatible: checkout v7, setup-node v7, upload-artifact v7, and action-gh-release v3.
 
-## Remaining Release Actions
+## Release Verification
 
-1. Commit the complete release candidate, push it, and verify the `CI and Release` push workflow.
-2. Create and publish `v2.1.7`; the release workflow will deploy to WordPress.org SVN and attach the ZIP.
-3. Verify the public WordPress.org page and screenshots after SVN propagation.
-4. Do not change the local saved model unless James explicitly chooses another model.
+- Release commit: `0b469f29f5d6e221969e95bc9cab03119ea09186`.
+- GitHub release: `https://github.com/jwilson529/oneclickcontent-titles/releases/tag/v2.1.7`.
+- GitHub Actions release run: `https://github.com/jwilson529/oneclickcontent-titles/actions/runs/29881950211` (validation and WordPress.org deployment succeeded).
+- Public WordPress.org page: `https://wordpress.org/plugins/oneclickcontent-titles/`.
+- Public WordPress.org API reports stable version 2.1.7 and download `https://downloads.wordpress.org/plugin/oneclickcontent-titles.2.1.7.zip`.
+- The published WordPress.org ZIP contains plugin version, runtime constant, and stable tag 2.1.7.
+- The three WordPress.org CDN screenshot files match the repository assets byte for byte.
+- Do not change the local saved model unless James explicitly chooses another model.
 
 ## Useful Restart Commands
 

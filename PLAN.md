@@ -90,7 +90,7 @@ Publish the current Title Assistant changes as a polished WordPress.org release 
 - Slice 4, metadata and assets: complete; all three release screenshots are current real-plugin captures from the WordPress 7.0.2 QA site
 - Slice 5, package and Plugin Check: complete
 - Slice 6, release documentation: complete
-- Slice 7, final convergence: validation complete; commit, push, tag, publication, and public-directory verification remain
+- Slice 7, final convergence: complete; 2.1.7 is published on GitHub and WordPress.org and the public artifacts are verified
 - Last checkpoint before current uncommitted work: `bc3dc8a`
 - Release candidate: `2.1.7`
 - Release ZIP: `dist/oneclickcontent-titles.zip`
@@ -100,4 +100,4 @@ Publish the current Title Assistant changes as a polished WordPress.org release 
 ## Latest Run
 
 - Date: 2026-07-21
-- Summary: Completed live browser and isolated-Chrome release QA against the installed ZIP on WordPress 7.0.2. Fixed Gutenberg Code-to-Visual iframe reload handling, verified launchers plus first-click details and Apply/Undo in Classic, Block Visual, and Block Code modes, captured current non-secret release screenshots, and confirmed a 600px settings viewport has no horizontal overflow or runtime exceptions. PHPCS, PHPMD, syntax, Composer audit, 38-test stable and nightly matrices, ZIP integrity, and official Plugin Check standard and experimental update scans all pass.
+- Summary: Published `v2.1.7` from commit `0b469f2`. GitHub Actions run 44 passed validation, deployed the tag and assets to WordPress.org SVN, and attached the generated ZIP to the GitHub release. The WordPress.org API and public page report stable version 2.1.7, the public download contains matching 2.1.7 metadata, and all three public screenshot files match the repository assets byte for byte.
