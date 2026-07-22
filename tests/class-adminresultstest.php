@@ -72,6 +72,8 @@ class AdminResultsTest extends Occ_Titles_Test_Case {
 		$this->assertStringContainsString( "'h1.wp-block-post-title'", $script );
 		$this->assertStringContainsString( "\$( '.editor-header__settings' ).first()", $script );
 		$this->assertStringContainsString( "button_class: 'occ_titles_header_button'", $script );
+		$this->assertStringContainsString( "iframe.addEventListener( 'load'", $script );
+		$this->assertStringContainsString( 'bind_block_editor_canvas_load();', $script );
 	}
 
 	/**

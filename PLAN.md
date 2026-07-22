@@ -36,6 +36,9 @@ Publish the current Title Assistant changes as a polished WordPress.org release 
 - `admin/css/occ-titles-admin.css`
 - `admin/js/occ-titles-admin.js`
 - `admin/js/occ-titles-editor-bridge.js`
+- `assets/screenshot-1.png`
+- `assets/screenshot-2.png`
+- `assets/screenshot-3.png`
 - `bin/build-dist.sh`
 - `bin/docker-tests.sh`
 - `docker-compose.yml`
@@ -82,19 +85,19 @@ Publish the current Title Assistant changes as a polished WordPress.org release 
 ## Run Status
 
 - Slice 1, baseline and plan: complete
-- Slice 2, security and rendering: reopened after editor regression reports; implementation fix and automated regression coverage complete, live browser verification pending
+- Slice 2, security and rendering: complete; the iframe reload regression is fixed and verified in Classic, Block Visual, and Block Code editors
 - Slice 3, harness and compatibility: complete
-- Slice 4, metadata and assets: metadata complete; replacement screenshots pending live browser capture
+- Slice 4, metadata and assets: complete; all three release screenshots are current real-plugin captures from the WordPress 7.0.2 QA site
 - Slice 5, package and Plugin Check: complete
-- Slice 6, release documentation: in progress; a clean WordPress 7.0.2 Playground site was created, but no controllable browser is attached to this session
-- Slice 7, final convergence: pending
-- Last checkpoint before current uncommitted work: `a678bc8`
+- Slice 6, release documentation: complete
+- Slice 7, final convergence: validation complete; commit, push, tag, publication, and public-directory verification remain
+- Last checkpoint before current uncommitted work: `becee3b`
 - Release candidate: `2.1.6`
 - Release ZIP: `dist/oneclickcontent-titles.zip`
-- Release ZIP SHA-256: pending the final screenshot-gated build
+- Release ZIP SHA-256: `8a928b3e4cdf26aa337cf5fc2838980fd6bbfe91ed6121ad7c911608a8b0a954`
 - Centerstone saved model: `gpt-5.6-terra`, verified unchanged
 
 ## Latest Run
 
 - Date: 2026-07-21
-- Summary: Reopened release validation after live reports that the Classic launcher was missing, Gutenberg details required repeated interaction, and Apply did not update the title. Added an editor bridge with five JavaScript regression tests, restored deterministic Classic/Block detection, made Apply verify the Gutenberg store with a field fallback, prevented repeated saved-result reloads, and moved detailed analysis out of the nested disclosure. Verified packaged assets on real WordPress 7.0.2 Block and Classic Editor pages, passed 38 PHP tests on stable and nightly, and removed 4,994 generated harness/report files from Git tracking while preserving their ignored local copies. Fresh browser verification and screenshots remain gated on an available browser attachment.
+- Summary: Completed live browser and isolated-Chrome release QA against the installed ZIP on WordPress 7.0.2. Fixed Gutenberg Code-to-Visual iframe reload handling, verified launchers plus first-click details and Apply/Undo in Classic, Block Visual, and Block Code modes, captured current non-secret release screenshots, and confirmed a 600px settings viewport has no horizontal overflow or runtime exceptions. PHPCS, PHPMD, syntax, Composer audit, 38-test stable and nightly matrices, ZIP integrity, and official Plugin Check standard and experimental update scans all pass.

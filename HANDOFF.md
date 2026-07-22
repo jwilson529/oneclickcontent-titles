@@ -70,6 +70,7 @@ The post editor Title Assistant now uses a compact, editor-only layout:
 - A small editor bridge owns title reads and writes. Gutenberg Apply dispatches exactly once through `core/editor`, verifies the edited title, and falls back to the visible iframe field only when the store did not update. Classic Apply emits both `input` and `change` events.
 - Saved results are requested only once after the results container exists, preventing background rerenders from closing an open Details disclosure.
 - The Classic launcher is anchored inside `#titlewrap` with reserved title-field padding instead of relying on absolute positioning relative to an input sibling.
+- Gutenberg now binds directly to the editor-canvas iframe load lifecycle, so switching from Code Editor back to Visual Editor restarts injection checks and restores the sparkle beside the title after the canvas settles.
 - Settings screens and saved provider/model choices are unchanged.
 - Docker cache validation now compares the actual installed core version with the requested version before reusing a cached WordPress checkout.
 - `npm test` and `npm run test:stable` run the JavaScript editor bridge suite and target exact WordPress 7.0.2. `npm run test:next` runs the same JavaScript coverage plus nightly core and the trunk test suite.
@@ -95,9 +96,9 @@ Official guidance consulted:
 - `npm run check` passed with an empty `check.txt`.
 - `npm run phpmd` passed with an empty `phpmd.txt`.
 - `npm run test:js` passed: 5 tests covering Classic detection, Block detection, Classic title changes, one-shot Gutenberg store updates, and iframe fallback.
-- `npm test` passed in Docker against exact WordPress 7.0.2: 38 PHP tests, 125 assertions, plus the 5 JavaScript tests.
-- `npm run test:next` passed in Docker against WordPress 7.1-beta2-62808: 38 PHP tests, 125 assertions, plus the 5 JavaScript tests.
-- `npm run test:local` passed: 38 tests, 125 assertions.
+- `npm run test:stable` passed in Docker against exact WordPress 7.0.2: 38 PHP tests, 130 assertions, plus the 5 JavaScript tests.
+- `npm run test:next` passed in Docker against WordPress 7.1-beta2-62813: 38 PHP tests, 130 assertions, plus the 5 JavaScript tests.
+- `npm run test:local` passed: 38 tests, 130 assertions.
 - Docker test containers and network were removed with `docker compose down`.
 - WP-CLI confirmed the Centerstone plugin is active and the saved `gpt-5.6-terra` choice remains intact.
 - Live generation passed with valid structured output for saved `gpt-5.6-terra`, automatic `gpt-5.5`, and legacy-tested `gpt-4o-mini` without changing the saved option.
@@ -110,26 +111,26 @@ Official guidance consulted:
 - The active Centerstone editor enqueues the compact assets and localized labels, including Regenerate, Options, Details, and Undo; the saved model remains `gpt-5.6-terra`.
 - A PHPUnit regression now protects the compact editor localization contract.
 - Live Centerstone browser QA reproduced and fixed the missing Block Editor launcher. Code Editor shows the sparkle below the title, switching to Visual Editor keeps a header fallback during canvas loading, and the settled iframe shows the sparkle beside the title.
+- Live WordPress 7.0.2 browser QA passed for the Classic, Block Visual, and Block Code launchers; first-click Details; Apply; plugin Undo; and the Code-to-Visual iframe transition on the exact packaged plugin.
+- Isolated Chrome QA performed real OpenAI generation, captured the loading and results states, reported no runtime exceptions, and confirmed the settings page has no horizontal overflow at a 600px viewport.
 
 ## WordPress.org Release Candidate
 
 - Version metadata is aligned at 2.1.6 in the plugin header, runtime constant, package, GitHub readme, WordPress.org readme, changelog, and POT catalog.
 - `dist/oneclickcontent-titles.zip` now includes the editor bridge and remains a single-root, runtime-only package.
-- The final checksum must be recorded after replacement screenshots pass browser QA and the last build is made.
+- Final ZIP SHA-256: `8a928b3e4cdf26aa337cf5fc2838980fd6bbfe91ed6121ad7c911608a8b0a954` (101,608 bytes).
 - The ZIP installs and activates on WordPress 7.0.2. A real uninstall cycle removed every plugin option, saved results meta, the Gemini model cache, and log artifacts; reinstall then activated with diagnostics off by default.
 - Every PHP file parses under the declared PHP 7.2 minimum. Composer audit reports no known advisories.
-- The existing real WordPress.org screenshot set passed direct dimension, caption, masking, and private-data review, and the GitHub README now embeds it as a product gallery. Replacement screenshots and click-through QA are still required because no browser backend is available in the current session.
+- `assets/screenshot-1.png` through `screenshot-3.png` are current real-plugin captures from the WordPress 7.0.2 QA site. They match the readme order, expose no API key, omit browser chrome, and show recommendations, guided settings, and the loading workflow.
 - `.gitignore` now keeps harnesses, reports, browser artifacts, secrets, dependencies, and root-level ad hoc captures out of Git while leaving `assets/screenshot-*.png` trackable. The 4,993 tracked WordPress core/test cache files plus tracked `check.txt` were removed from the index; local copies remain ignored.
 - Release workflow action runtimes are current and Node 24-compatible: checkout v7, setup-node v7, upload-artifact v7, and action-gh-release v3.
 
 ## Remaining Release Actions
 
-1. Attach a controllable browser, restart the disposable default site, and verify Classic launcher, Block Visual launcher, Block Code launcher, first-click Details, first-click Detailed analysis, Apply, Undo, keyboard focus, and narrow layout.
-2. Capture and inspect replacement screenshots from that clean site, then update `assets/screenshot-1.png` through `screenshot-3.png` and their captions if needed.
-3. Rebuild and record the final ZIP checksum, commit the complete release candidate, push it, and verify the `CI and Release` push workflow.
-4. Create and publish `v2.1.6`; the release workflow will deploy to WordPress.org SVN and attach the ZIP.
-5. Verify the public WordPress.org page after SVN propagation.
-6. Do not change the local saved model unless James explicitly chooses another model.
+1. Commit the complete release candidate, push it, and verify the `CI and Release` push workflow.
+2. Create and publish `v2.1.6`; the release workflow will deploy to WordPress.org SVN and attach the ZIP.
+3. Verify the public WordPress.org page and screenshots after SVN propagation.
+4. Do not change the local saved model unless James explicitly chooses another model.
 
 ## Useful Restart Commands
 

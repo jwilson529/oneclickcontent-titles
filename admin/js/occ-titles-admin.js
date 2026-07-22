@@ -1786,14 +1786,37 @@
         }
 
         /**
+         * Restart editor checks whenever Gutenberg loads or reloads its iframe canvas.
+         *
+         * Parent-document mutation observers cannot see React rendering inside the
+         * iframe, so code-to-visual editor switches need an iframe-local lifecycle
+         * signal to restore the launcher beside the title.
+         */
+        function bind_block_editor_canvas_load() {
+            var iframe = document.querySelector( 'iframe[name="editor-canvas"]' );
+
+            if ( ! iframe || iframe.dataset.occTitlesLoadBound ) {
+                return;
+            }
+
+            iframe.dataset.occTitlesLoadBound = 'true';
+            iframe.addEventListener( 'load', function() {
+                inject_block_editor_elements();
+                schedule_block_editor_refresh( 0 );
+            } );
+        }
+
+        /**
          * Adds elements for the Block Editor.
          */
         function add_block_editor_elements() {
+            bind_block_editor_canvas_load();
             inject_block_editor_elements();
             schedule_block_editor_refresh( 0 );
 
             var observer = new MutationObserver( function( mutations ) {
                 if ( mutations ) {
+                    bind_block_editor_canvas_load();
                     inject_block_editor_elements();
                 }
             } );

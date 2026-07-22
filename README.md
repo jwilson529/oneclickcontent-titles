@@ -104,7 +104,7 @@ It includes:
 - Step-by-step usage guidance.
 - Title quality best practices.
 - Control and label definitions.
-- Self-contained placeholder panels your team can replace with local screenshots later.
+- Built-in visual workflow examples that match the current editor and settings experience.
 
 ## Screenshots
 
