@@ -1,5 +1,5 @@
 {
-  "current_commit": "0b469f29f5d6e221969e95bc9cab03119ea09186",
+  "current_commit": "dbbee429ad540cb17facea2962c8c5945b5a6ba2",
   "working_tree_dirty": true,
   "files": {
     "main_plugin_file": "oneclickcontent-titles.php",
@@ -68,7 +68,8 @@
       "phpcs.xml.dist",
       "phpunit.xml",
       "phpunit.xml.dist",
-      "phpmd.xml"
+      "phpmd.xml",
+      "composer.lock"
     ],
     "handoff": "HANDOFF.md"
   }

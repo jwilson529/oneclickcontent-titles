@@ -4,7 +4,7 @@ Donate link: https://oneclickcontent.com/donate/
 Tags: ai, seo, titles, openai, gemini
 Requires at least: 5.0
 Tested up to: 7.0
-Stable tag: 2.1.7
+Stable tag: 2.1.8
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -105,6 +105,10 @@ API keys and generated title results are stored in your WordPress database. Opti
 
 == Changelog ==
 
+= 2.1.8 =
+* Updated WordPress Coding Standards to 3.4.1 to address CVE-2026-45293 in development and automated code checks.
+* Updated PHP_CodeSniffer to 3.13.6 or later for CVE-2026-67434 and added dependency auditing to CI.
+
 = 2.1.7 =
 
 - Restore the in-canvas Gutenberg launcher after switching from Code Editor back to Visual Editor.
@@ -177,6 +181,9 @@ API keys and generated title results are stored in your WordPress database. Opti
 * Added richer scoring and title comparison experience.
 
 == Upgrade Notice ==
+
+= 2.1.8 =
+Maintenance release updating the development security checks.
 
 = 2.1.7 =
 Recommended editor reliability update. Restores the Gutenberg launcher after Code-to-Visual switches and refreshes the verified release package and screenshots.

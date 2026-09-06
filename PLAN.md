@@ -101,3 +101,9 @@ Publish the current Title Assistant changes as a polished WordPress.org release 
 
 - Date: 2026-07-21
 - Summary: Published `v2.1.7` from commit `0b469f2`. GitHub Actions run 44 passed validation, deployed the tag and assets to WordPress.org SVN, and attached the generated ZIP to the GitHub release. The WordPress.org API and public page report stable version 2.1.7, the public download contains matching 2.1.7 metadata, and all three public screenshot files match the repository assets byte for byte.
+
+## WPCS security maintenance — 2026-09-06
+
+Update WPCS to at least 3.4.1 for CVE-2026-45293, run the existing checks and tests, prepare 2.1.8 metadata and runtime package, validate on NAS plugindev, and publish through the existing GitHub release action. Preserve plugin behavior and existing screenshots.
+
+Validation complete: PHPCS and PHPMD clean; local and WordPress 7.0.2 PHPUnit pass (38 tests, 130 assertions); JavaScript tests pass (5 tests); Composer audit reports no advisories; ZIP contains only runtime files. NAS plugindev activation, full plugin bootstrap, and HTTP 200 smoke checks pass; original inactive state restored. Publication is through the existing GitHub Release workflow.
