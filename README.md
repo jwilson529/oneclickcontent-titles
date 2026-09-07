@@ -2,9 +2,9 @@
 
 ![Plugin Banner](assets/banner-772x250.png)
 
-Version: 2.1.8
+Version: 2.2.0
 
-Free BYO-key AI title assistant for WordPress from the OneClickContent plugin line. Use your own OpenAI or Google Gemini API key to generate, compare, score, and apply post titles directly in the editor.
+Free BYO-key AI title assistant for WordPress from the OneClickContent plugin line. Use your own OpenAI, Google Gemini, or OpenRouter API key to generate, compare, score, and apply post titles directly in the editor.
 
 OneClickContent is the home for free, bring-your-own-key AI plugins for WordPress. `OneClickContent - Titles` gives writers, editors, marketers, and site owners a practical headline workflow without locking them into a bundled AI subscription.
 
@@ -14,11 +14,21 @@ OneClickContent is the home for free, bring-your-own-key AI plugins for WordPres
 - Generate multiple title options from post content inside the WordPress editor.
 - Compare options with scoring, keyword fit, preview width, and title quality signals.
 - Apply winning titles directly in the editor.
-- Support for OpenAI and Google Gemini providers.
+- Support for OpenAI, Google Gemini, and OpenRouter providers.
 - GPT-5.5 is the tested automatic OpenAI choice, with explicit saved model selections preserved.
 - Load Google Gemini model choices from the API when available.
 - Built-in training and help screens for editorial teams.
 - Keep the workflow inside WordPress instead of bouncing between external AI tools and the editor.
+
+## What Is New In v2.2.0
+
+- Verified WordPress 7.1 compatibility.
+
+- Added OpenRouter with a searchable text-model catalog, manual model IDs, and a sample-generation test tied to the selected key/model.
+- Preserved style, keyword, refinement, and brand-voice controls across providers.
+- Added safe errors for unavailable models, account limits, and incomplete responses.
+- Fixed settings autosaves so edits made during an earlier save are retained.
+- Added OpenRouter cleanup, documentation, and automated regression coverage.
 
 ## What Is New In v2.1.8
 
@@ -97,6 +107,10 @@ This plugin is a strong fit for:
 5. Click **Generate Titles**.
 6. Compare results and click **Apply** on the best one.
 
+## OpenRouter Setup
+
+Select **OpenRouter** in Settings -> Title Assistant, enter your key, then click **Load models** to browse text models or enter an exact provider/model ID. Click **Test model**, then **Save Changes**. Testing generates three titles from sample text and may incur a small API charge. The result applies to the tested key/model pair for seven days; changing either requires another test to show a current test status. Existing provider and model selections are preserved when you upgrade.
+
 ## Pricing Model
 
 This plugin is free. OneClickContent's model is simple: bring your own API key, use the provider you prefer, and pay that provider directly only if they charge for usage.
@@ -128,7 +142,7 @@ Generate a ranked set of recommendations from the post you are already editing. 
 
 ### Configure the assistant for your editorial workflow
 
-Connect your preferred provider, choose the editor locations where the assistant appears, keep diagnostics under your control, and add brand-voice guidance from one settings screen.
+Connect your preferred provider, browse OpenRouter text models, and test the selected key and model before saving.
 
 ![OneClickContent Titles guided settings](assets/screenshot-2.png)
 
@@ -140,16 +154,31 @@ The generation state stays inside the editor and provides concise content-aware 
 
 ## External Services and Privacy
 
-This plugin connects to OpenAI or Google Gemini only for provider features you configure. It does not include tracking or send data to OneClickContent.
+OpenRouter: Load models fetches the public text-model catalog without sending a key or post content. Test model sends your key, selected model, and sample text through OpenRouter to the model provider. Generate Titles sends your post content and title instructions through the same service. OpenRouter bills usage to your account. Key/model test results expire after seven days and apply only to the tested configuration. Save Changes keeps your OpenRouter key and model; opening settings does not run an OpenRouter generation request.
 
-API-key validation and model loading send the configured key to the selected provider. Google validation also sends a short test prompt. Title generation sends post content, generation instructions, selected controls, and configured brand-voice guidance. API keys and generated results are stored in WordPress. Optional troubleshooting logs are disabled by default on new installations and redact API keys.
+- OpenRouter terms: https://openrouter.ai/terms
+- OpenRouter privacy policy: https://openrouter.ai/privacy
 
-- OpenAI terms: https://openai.com/policies/terms-of-use/
-- OpenAI privacy: https://openai.com/privacy
+This plugin connects to the OpenAI, Google Gemini, or OpenRouter API only for the provider features you configure. It does not include tracking or send data to OneClickContent.
+
+OpenAI and Google Gemini API-key validation and model loading send the configured key to that provider. Google validation also sends a short test prompt. OpenRouter catalog loading is public and sends neither your key nor your post content. When you choose Generate Titles, the plugin sends the post content, title-generation instructions, selected controls, and any configured brand-voice guidance to the selected provider. The provider may charge for API usage according to your account plan.
+
+API keys and generated title results are stored in your WordPress database. Optional troubleshooting logs are disabled by default on new installations. If you enable them, they can contain request metadata; API keys are redacted. Uninstalling the plugin removes its options, saved title results, and log artifacts.
+
+- OpenAI terms of use: https://openai.com/policies/terms-of-use/
+- OpenAI privacy policy: https://openai.com/privacy
 - Google Gemini API terms: https://ai.google.dev/gemini-api/terms
-- Google privacy: https://policies.google.com/privacy
+- Google privacy policy: https://policies.google.com/privacy
 
 ## Changelog
+
+### 2.2.0
+
+- Added OpenRouter with a searchable text-model catalog, manual model IDs, and a sample-generation test tied to the selected key/model.
+- Preserved style, keyword, refinement, and brand-voice controls across providers.
+- Added safe errors for unavailable models, account limits, and incomplete responses.
+- Fixed settings autosaves so edits made during an earlier save are retained.
+- Added OpenRouter cleanup, documentation, and automated regression coverage.
 
 ### 2.1.8
 

@@ -21,10 +21,10 @@
     function initializeAutoSave() {
         $('.occ_titles-settings-form')
 			.find('input[name], select[name], textarea[name]')
-            .not('[name="occ_titles_openai_api_key"], [name="occ_titles_google_api_key"]')
-            .on('input change', debounce(function() {
+            .not('[type="hidden"], [type="submit"], [name="occ_titles_ai_provider"], [name="occ_titles_openai_api_key"], [name="occ_titles_google_api_key"], [name="occ_titles_openrouter_api_key"], [name="occ_titles_openrouter_model"]')
+            .on('input change', function() {
                 autoSaveField($(this));
-            }, 500));
+            });
     }
 
 	/**
@@ -97,18 +97,32 @@
 		});
 	}
 
-    let isProcessing = false; // Prevent multiple simultaneous AJAX requests
+    function getSettingsString(key, fallback) {
+        const strings = occ_titles_admin_vars.strings || {};
+        return strings[key] || fallback;
+    }
 
-    // Auto-save the field value via AJAX
+    let isProcessing = false;
+    const pendingSaves = new Map();
+    const failedSaves = new Set();
+    let refreshAfterSave = false;
+    let saveTimer;
+
+    // Capture every field immediately; debounce only the shared queue drain.
     function autoSaveField($field) {
-        if (isProcessing) return;
+        const payload = getFieldPayload($field);
+        pendingSaves.set(payload.fieldName, payload);
+        setSaveState(getSettingsString('save_pending', 'Saving...'), 'saving');
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(processSaveQueue, 500);
+    }
 
+    function processSaveQueue() {
+        if (isProcessing || !pendingSaves.size) return;
+        const fieldName = pendingSaves.keys().next().value;
+        const payload = pendingSaves.get(fieldName);
+        pendingSaves.delete(fieldName);
         isProcessing = true;
-        var payload = getFieldPayload($field);
-
-        setSaveState('Saving...', 'saving');
-        showNotification('Saving changes...', 'info');
-
         $.ajax({
             url: occ_titles_admin_vars.ajax_url,
             type: 'POST',
@@ -119,28 +133,30 @@
                 field_name: payload.fieldName,
                 field_value: payload.fieldValue
             }
-        })
-        .done(function(response) {
+        }).done(function(response) {
             if (response.success) {
-                setSaveState('Saved just now', 'saved');
-                showNotification(response.data.message || 'Settings saved successfully.', 'success');
-                if (response.data.refresh) {
-                    setSaveState('Refreshing page...', 'saving');
-                    setTimeout(function() {
-                        location.reload();
-                    }, 500);
-                }
+                failedSaves.delete(fieldName);
+                refreshAfterSave = refreshAfterSave || !!response.data.refresh;
             } else {
-                setSaveState('Save failed', 'error');
-                showNotification(response.data.message || 'Failed to save settings.', 'error');
+                failedSaves.add(fieldName);
+                showNotification(response.data.message || getSettingsString('save_failed', 'Failed to save settings.'), 'error');
             }
-        })
-        .fail(function() {
-            setSaveState('Save failed', 'error');
-            showNotification('Error saving settings.', 'error');
-        })
-        .always(function() {
+        }).fail(function() {
+            failedSaves.add(fieldName);
+            showNotification(getSettingsString('save_network_error', 'Error saving settings.'), 'error');
+        }).always(function() {
             isProcessing = false;
+            if (pendingSaves.size) {
+                processSaveQueue();
+            } else if (failedSaves.size) {
+                setSaveState(getSettingsString('save_retry', 'Save failed. Use Save Changes to retry.'), 'error');
+            } else if (refreshAfterSave) {
+                refreshAfterSave = false;
+                setSaveState(getSettingsString('save_refreshing', 'Refreshing page...'), 'saving');
+                location.reload();
+            } else {
+                setSaveState(getSettingsString('save_complete', 'Saved just now'), 'saved');
+            }
         });
     }
 
@@ -402,19 +418,8 @@
         }
     });
 
-    // Monitor provider field change to refresh the page and validate visible key
     providerField.on('change', function() {
-        const provider = $(this).val();
-        autoSaveField($(this)); // Save the provider change
-
-        // Wait for the page to potentially reload, then validate the visible key
-        setTimeout(function() {
-            if (provider === 'openai' && openAiKeyField.is(':visible') && openAiKeyField.val()) {
-                validateApiKey(openAiKeyField, 'openai');
-            } else if (provider === 'google' && googleKeyField.is(':visible') && googleKeyField.val()) {
-                validateApiKey(googleKeyField, 'google');
-            }
-        }, 1000); // Delay to account for page reload
+        autoSaveField($(this));
     });
 
     function initializeApiKeyStatus() {

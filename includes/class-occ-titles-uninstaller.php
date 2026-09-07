@@ -61,6 +61,7 @@ class Occ_Titles_Uninstaller {
 			delete_option( $option_name );
 		}
 
+		delete_transient( 'occ_titles_openrouter_models' );
 		delete_post_meta_by_key( '_occ_titles_results' );
 	}
 
@@ -81,6 +82,9 @@ class Occ_Titles_Uninstaller {
 			'occ_titles_openai_api_key',
 			'occ_titles_openai_api_key_status',
 			'occ_titles_openai_model',
+			'occ_titles_openrouter_api_key',
+			'occ_titles_openrouter_model',
+			'occ_titles_openrouter_test',
 			'occ_titles_post_types',
 			'occ_titles_post_types_customized',
 			'occ_titles_voice_profile',

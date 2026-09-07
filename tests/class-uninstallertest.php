@@ -99,7 +99,11 @@ class UninstallerTest extends Occ_Titles_Test_Case {
 		$this->assertContains( 'occ_titles_openai_api_key', $deleted_options );
 		$this->assertContains( 'occ_titles_post_types_customized', $deleted_options );
 		$this->assertContains( 'occ_titles_voice_samples', $deleted_options );
-		$this->assertSame( array( 'occ_titles_google_models_' . md5( 'test-google-key' ) ), $deleted_cache );
+		$this->assertContains( 'occ_titles_openrouter_api_key', $deleted_options );
+		$this->assertContains( 'occ_titles_openrouter_model', $deleted_options );
+		$this->assertContains( 'occ_titles_openrouter_test', $deleted_options );
+		$this->assertContains( 'occ_titles_google_models_' . md5( 'test-google-key' ), $deleted_cache );
+		$this->assertContains( 'occ_titles_openrouter_models', $deleted_cache );
 		$this->assertSame( array( '_occ_titles_results' ), $deleted_meta );
 		$this->assertSame( '', $filesystem->get_contents( $log_file ) );
 		$this->assertSame( '', $filesystem->get_contents( '/uploads/occ-titles-logs/index.php' ) );

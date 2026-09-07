@@ -68,7 +68,7 @@ class Occ_Titles {
 		if ( defined( 'OCC_TITLES_VERSION' ) ) {
 			$this->version = OCC_TITLES_VERSION;
 		} else {
-			$this->version = '2.1.6';
+			$this->version = '2.2.0';
 		}
 		$this->plugin_name = 'oneclickcontent-titles';
 
@@ -111,6 +111,7 @@ class Occ_Titles {
 		// The class responsible for defining AI helper actions that occur in the admin area.
 		require_once plugin_dir_path( __DIR__ ) . 'admin/class-occ-titles-openai-helper.php';
 		require_once plugin_dir_path( __DIR__ ) . 'admin/class-occ-titles-google-helper.php';
+		require_once plugin_dir_path( __DIR__ ) . 'admin/class-occ-titles-openrouter-helper.php';
 
 		// The class responsible for defining settings actions that occur in the admin area.
 		require_once plugin_dir_path( __DIR__ ) . 'admin/class-occ-titles-settings.php';
@@ -140,10 +141,11 @@ class Occ_Titles {
 	 * @access private
 	 */
 	private function define_admin_hooks() {
-		$plugin_admin    = new Occ_Titles_Admin( $this->get_plugin_name(), $this->get_version() );
-		$plugin_settings = new Occ_Titles_Settings();
-		$openai_helper   = new Occ_Titles_OpenAI_Helper();
-		$google_helper   = new Occ_Titles_Google_Helper();
+		$plugin_admin      = new Occ_Titles_Admin( $this->get_plugin_name(), $this->get_version() );
+		$plugin_settings   = new Occ_Titles_Settings();
+		$openai_helper     = new Occ_Titles_OpenAI_Helper();
+		$google_helper     = new Occ_Titles_Google_Helper();
+		$openrouter_helper = new Occ_Titles_OpenRouter_Helper();
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles', 5 );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts', 5 );
@@ -159,6 +161,7 @@ class Occ_Titles {
 		$this->loader->add_action( 'wp_ajax_occ_titles_auto_save', $plugin_settings, 'occ_titles_auto_save' );
 		$this->loader->add_action( 'wp_ajax_occ_titles_ajax_validate_openai_api_key', $openai_helper, 'occ_titles_ajax_validate_openai_api_key' );
 		$this->loader->add_action( 'wp_ajax_occ_titles_ajax_validate_google_api_key', $google_helper, 'occ_titles_ajax_validate_google_api_key' );
+		$this->loader->add_action( 'wp_ajax_occ_titles_openrouter', $openrouter_helper, 'ajax_action' );
 	}
 
 	/**

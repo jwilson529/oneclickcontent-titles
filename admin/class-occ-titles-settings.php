@@ -187,6 +187,21 @@ class Occ_Titles_Settings {
 										'callback'    => array( $this, 'occ_titles_openai_model_callback' ),
 									)
 								);
+							} elseif ( 'openrouter' === $provider ) {
+								$openrouter = new Occ_Titles_OpenRouter_Helper();
+								$this->render_settings_field(
+									array(
+										'label'    => __( 'OpenRouter API Key', 'oneclickcontent-titles' ),
+										'callback' => array( $openrouter, 'key_field' ),
+									)
+								);
+								$this->render_settings_field(
+									array(
+										'label'    => __( 'OpenRouter Model', 'oneclickcontent-titles' ),
+										'classes'  => array( 'is-wide' ),
+										'callback' => array( $openrouter, 'model_field' ),
+									)
+								);
 							} else {
 								$this->render_settings_field(
 									array(
@@ -359,6 +374,9 @@ class Occ_Titles_Settings {
 	 * @return string
 	 */
 	private function get_provider_label( $provider ) {
+		if ( 'openrouter' === $provider ) {
+			return 'OpenRouter';
+		}
 		if ( 'google' === $provider ) {
 			return __( 'Google Gemini', 'oneclickcontent-titles' );
 		}
@@ -737,6 +755,11 @@ class Occ_Titles_Settings {
 		// Retrieve the selected provider (default to "openai").
 		$provider = get_option( 'occ_titles_ai_provider', 'openai' );
 
+		if ( 'openrouter' === $provider ) {
+			register_setting( 'occ_titles_settings', 'occ_titles_openrouter_api_key', array( 'sanitize_callback' => 'sanitize_text_field' ) );
+			register_setting( 'occ_titles_settings', 'occ_titles_openrouter_model', array( 'sanitize_callback' => array( 'Occ_Titles_OpenRouter_Helper', 'sanitize_model_option' ) ) );
+		}
+
 		// Conditionally register and add the provider-specific API key and model fields.
 		if ( 'openai' === $provider ) {
 			// Register OpenAI settings.
@@ -927,7 +950,7 @@ class Occ_Titles_Settings {
 	 */
 	public static function occ_titles_sanitize_ai_provider( $input ) {
 		$provider = sanitize_text_field( $input );
-		$allowed  = array( 'openai', 'google' );
+		$allowed  = array( 'openai', 'google', 'openrouter' );
 
 		if ( ! in_array( $provider, $allowed, true ) ) {
 			$provider = 'openai';
@@ -1103,6 +1126,7 @@ class Occ_Titles_Settings {
 		echo '<select class="occ_titles-field-input" id="occ_titles_ai_provider" name="occ_titles_ai_provider">';
 		echo '<option value="openai"' . selected( $selected, 'openai', false ) . '>OpenAI</option>';
 		echo '<option value="google"' . selected( $selected, 'google', false ) . '>Google Gemini</option>';
+		echo '<option value="openrouter"' . selected( $selected, 'openrouter', false ) . '>OpenRouter</option>';
 		echo '</select>';
 	}
 
@@ -1482,6 +1506,8 @@ class Occ_Titles_Settings {
 			'occ_titles_openai_model',
 			'occ_titles_google_api_key',
 			'occ_titles_google_model',
+			'occ_titles_openrouter_api_key',
+			'occ_titles_openrouter_model',
 			'occ_titles_logging_enabled',
 			'occ_titles_voice_profile',
 		);
@@ -1502,7 +1528,16 @@ class Occ_Titles_Settings {
 				wp_send_json_error( array( 'message' => __( 'Invalid field name.', 'oneclickcontent-titles' ) ) );
 			}
 
-			if ( 'occ_titles_logging_enabled' === $field_name ) {
+			if ( 'occ_titles_openrouter_model' === $field_name ) {
+				$field_value = Occ_Titles_OpenRouter_Helper::sanitize_model( $field_value_safe );
+				if ( '' === $field_value && ! empty( $field_value_safe ) ) {
+					wp_send_json_error( array( 'message' => __( 'Enter an OpenRouter model ID in provider/model format.', 'oneclickcontent-titles' ) ) );
+				}
+			} elseif ( 'occ_titles_openrouter_api_key' === $field_name ) {
+				$field_value = is_string( $field_value_safe ) ? $field_value_safe : '';
+			} elseif ( 'occ_titles_ai_provider' === $field_name ) {
+				$field_value = self::occ_titles_sanitize_ai_provider( is_string( $field_value_safe ) ? $field_value_safe : '' );
+			} elseif ( 'occ_titles_logging_enabled' === $field_name ) {
 				$field_value = self::occ_titles_sanitize_logging_enabled( $field_value_safe );
 			} elseif ( 'occ_titles_voice_profile' === $field_name ) {
 				$field_value = self::occ_titles_sanitize_voice_profile( is_array( $field_value_safe ) ? $field_value_safe : array() );
@@ -1585,6 +1620,14 @@ class Occ_Titles_Settings {
 	 * @return array
 	 */
 	private function get_api_key_status_data( $provider ) {
+		if ( 'openrouter' === $provider ) {
+			$test = Occ_Titles_OpenRouter_Helper::get_test_status( (string) get_option( 'occ_titles_openrouter_api_key', '' ), (string) get_option( 'occ_titles_openrouter_model', '' ) );
+			return array(
+				'status'     => 'passed' === $test['state'] ? 'valid' : ( 'failed' === $test['state'] ? 'invalid' : 'unknown' ),
+				'message'    => $test['message'],
+				'checked_at' => '',
+			);
+		}
 		$option = self::get_api_key_status_option( $provider );
 		$data   = $option ? get_option( $option, array() ) : array();
 

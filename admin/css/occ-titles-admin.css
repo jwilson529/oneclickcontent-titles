@@ -3214,3 +3214,16 @@ select#occ_titles_style {
 		display: none;
 	}
 }
+
+/* OpenRouter model search and connection test. */
+.occ_titles-openrouter-picker { display: grid; gap: 8px; margin-bottom: 12px; }
+.occ_titles-openrouter-picker input, .occ_titles-openrouter-picker select { width: 100%; max-width: 100%; }
+.occ_titles-test-badge { display: inline-block; padding: 3px 9px; border-radius: 12px; background: #f0f0f1; }
+.occ_titles-test-badge[data-state="passed"] { background: #e6f5e8; color: #17692c; }
+.occ_titles-test-badge[data-state="failed"] { background: #fce8e8; color: #9a2020; }
+#occ_titles-openrouter-preview { padding-left: 22px; }
+
+#occ_titles-openrouter-select { background-repeat: no-repeat; background-size: 16px 16px; background-position: right 8px center; padding-right: 32px; }
+.occ_titles-openrouter-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+#occ_titles-openrouter-load, #occ_titles-openrouter-test { width: auto; margin: 0; }
+.occ_titles-test-badge { align-self: flex-start; }

@@ -107,3 +107,15 @@ Publish the current Title Assistant changes as a polished WordPress.org release 
 Update WPCS to at least 3.4.1 for CVE-2026-45293, run the existing checks and tests, prepare 2.1.8 metadata and runtime package, validate on NAS plugindev, and publish through the existing GitHub release action. Preserve plugin behavior and existing screenshots.
 
 Validation complete: PHPCS and PHPMD clean; local and WordPress 7.0.2 PHPUnit pass (38 tests, 130 assertions); JavaScript tests pass (5 tests); Composer audit reports no advisories; ZIP contains only runtime files. NAS plugindev activation, full plugin bootstrap, and HTTP 200 smoke checks pass; original inactive state restored. Publication is through the existing GitHub Release workflow.
+
+## OpenRouter 2.2.0 release — 2026-09-07
+
+Scope: import the verified dev-site OpenRouter implementation onto the current 2.1.8 source, review remote errors and secret transport, add permanent PHPUnit and autosave coverage, refresh readmes/POT/version/assets, run release gates, then publish through the existing GitHub Release action and verify SVN plus the directory ZIP.
+
+Files: provider helpers, settings/admin integration, provider/settings JavaScript, CSS, uninstaller, plugin/package/readme metadata, translations, tests, and release records.
+
+Acceptance: clean WPCS; passing PHP and JavaScript regression suites; runtime-only ZIP with consistent 2.2.0 metadata; successful main and release Actions; matching public SVN tag and downloadable package. Local Docker availability will be checked; GitHub Actions provides the canonical Docker gate when unavailable locally.
+
+Status: baseline verified; review and permanent tests in progress. The previously deployed dev build passed 52 contract checks and 24 live-browser checks across Block and Classic editors.
+
+Current 2.2.0 status: review, tests, translations, readmes, assets, packaging, WordPress 7.1 compatibility, and uninstall/reinstall complete. GitHub main CI and publication verification are next. See MEMORY.md for the exact gates and advisory Plugin Check findings.

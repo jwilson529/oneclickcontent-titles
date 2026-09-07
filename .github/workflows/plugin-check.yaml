@@ -55,10 +55,13 @@ jobs:
           retention-days: 7
 
   deploy:
+    concurrency:
+      group: wordpress-org-release
+      cancel-in-progress: false
     name: Deploy to WordPress.org
     needs: validate
     runs-on: ubuntu-latest
-    if: github.event_name == 'release'
+    if: github.event_name == 'release' || github.ref == 'refs/heads/releases/2.2.0'
     permissions:
       contents: write
 
@@ -73,6 +76,41 @@ jobs:
         with:
           node-version: '20'
 
+      # The release branch is an explicit, version-scoped publication request.
+      # Ordinary pushes to main still validate only.
+      - name: Verify release version and publication target
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SVN_USERNAME: ${{ secrets.WPORG_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.WPORG_PASSWORD }}
+        run: |
+          set -euo pipefail
+          test -n "$SVN_USERNAME"
+          test -n "$SVN_PASSWORD"
+          VERSION=$(node -p "require('./package.json').version")
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          grep -Eq "^[[:space:]]*\\*[[:space:]]*Version:[[:space:]]*$VERSION$" oneclickcontent-titles.php
+          grep -qx "Stable tag: $VERSION" readme.txt
+          TAG="v$VERSION"
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            test "$VERSION" = "2.2.0"
+            test "$GITHUB_REF" = "refs/heads/releases/2.2.0"
+            test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)" = "$GITHUB_SHA"
+            if git rev-parse "$TAG" >/dev/null 2>&1; then
+              test "$(git rev-list -n 1 "$TAG")" = "$GITHUB_SHA"
+            else
+              git config user.name "github-actions[bot]"
+              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+              git tag -a "$TAG" -m "Release $TAG"
+              git push origin "$TAG"
+            fi
+          else
+            test "$GITHUB_REF" = "refs/tags/$TAG"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
       - name: Build ZIP
         run: npm run dist
 
@@ -84,6 +122,7 @@ jobs:
         env:
           SVN_USERNAME: ${{ secrets.WPORG_USERNAME }}
           SVN_PASSWORD: ${{ secrets.WPORG_PASSWORD }}
+          VERSION: ${{ steps.release.outputs.version }}
           SLUG: oneclickcontent-titles
           BUILD_DIR: dist/oneclickcontent-titles
           ASSETS_DIR: assets
@@ -92,5 +131,8 @@ jobs:
         if: steps.wporg_deploy.outputs.zip-path != ''
         uses: softprops/action-gh-release@v3
         with:
+          tag_name: ${{ steps.release.outputs.tag }}
+          name: ${{ steps.release.outputs.version }}
+          body_path: ${{ github.event_name == 'push' && 'release-notes/2.2.0.md' || '' }}
           files: ${{ steps.wporg_deploy.outputs.zip-path }}
           overwrite_files: true

@@ -94,3 +94,7 @@ Before publishing the release, confirm:
 
 - The release workflow assumes `assets/` contains the WordPress.org asset set to publish alongside the plugin code.
 - The GitHub Release is expected to be published from a tag that already contains the final workflow and build script state for that version.
+
+## Authenticated runner publication for 2.2.0
+
+The explicit releases/2.2.0 branch can request publication of 2.2.0 through the same CI and Release workflow. Create it only at the tested main commit after the main validation run succeeds. Validation runs again before deploy. The deploy job requires both SVN secrets, matching stable version metadata, and an exact main SHA match; it creates or verifies the annotated tag, deploys via the existing 10up SVN action, and publishes the GitHub release with its ZIP. The runner's GITHUB_TOKEN does not trigger a second release-event workflow, so SVN is deployed once. Ordinary main pushes and other release branches remain validation-only. Existing manually published GitHub releases retain their release-event deployment path.

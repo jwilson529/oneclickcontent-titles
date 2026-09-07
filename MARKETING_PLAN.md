@@ -169,3 +169,7 @@ Move this forward by deciding:
 - draft-only vs posting access
 - which channel starts first
 - what credentials or admin access to provide
+
+## Release 2.2.0
+
+OpenRouter joins OpenAI and Google Gemini as an optional bring-your-own-key provider. The release adds searchable text models, manual model IDs, and an explicit sample test while retaining the existing editor workflow. Existing provider selections remain unchanged. Screenshot 2 now shows the verified OpenRouter connection and model picker; screenshots 1 and 3 retain the current editor workflow.

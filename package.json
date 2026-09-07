@@ -1,11 +1,11 @@
 {
   "name": "oneclickcontent-titles",
-  "version": "2.1.8",
+  "version": "2.2.0",
   "description": "Free AI title assistant for WordPress from the OneClickContent bring-your-own-key AI plugin line.",
   "main": "index.js",
   "scripts": {
     "test": "npm run test:js && docker compose up --abort-on-container-exit --exit-code-from tests tests",
-    "test:stable": "npm run test:js && WP_VERSION=7.0.2 docker compose up --abort-on-container-exit --exit-code-from tests tests",
+    "test:stable": "npm run test:js && WP_VERSION=7.1 docker compose up --abort-on-container-exit --exit-code-from tests tests",
     "test:next": "npm run test:js && WP_VERSION=nightly docker compose up --abort-on-container-exit --exit-code-from tests tests",
     "fix": "vendor/bin/phpcbf -d memory_limit=512M -d error_reporting=\"E_ALL&~E_DEPRECATED\" --standard=phpcs.xml.dist --extensions=php .",
     "check": "vendor/bin/phpcs -d memory_limit=512M -d error_reporting=\"E_ALL&~E_DEPRECATED\" --standard=phpcs.xml.dist --extensions=php . > check.txt",

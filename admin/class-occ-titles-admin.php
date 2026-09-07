@@ -180,6 +180,12 @@ class Occ_Titles_Admin {
 				'badge_unknown'        => __( 'Not validated', 'oneclickcontent-titles' ),
 				'badge_not_checked'    => __( 'Not checked yet.', 'oneclickcontent-titles' ),
 				'model_choose_list'    => __( 'Choose a model from the available account list.', 'oneclickcontent-titles' ),
+				'save_pending'         => __( 'Saving...', 'oneclickcontent-titles' ),
+				'save_failed'          => __( 'Failed to save settings.', 'oneclickcontent-titles' ),
+				'save_network_error'   => __( 'Error saving settings.', 'oneclickcontent-titles' ),
+				'save_retry'           => __( 'Save failed. Use Save Changes to retry.', 'oneclickcontent-titles' ),
+				'save_refreshing'      => __( 'Refreshing page...', 'oneclickcontent-titles' ),
+				'save_complete'        => __( 'Saved just now', 'oneclickcontent-titles' ),
 				'model_saving'         => __( 'Model selected and saving.', 'oneclickcontent-titles' ),
 				/* translators: %s: date/time of last API key validation. */
 				'badge_last_checked'   => __( 'Last checked: %s', 'oneclickcontent-titles' ),
@@ -234,6 +240,27 @@ class Occ_Titles_Admin {
 			);
 
 			wp_localize_script( 'occ-titles-settings', 'occ_titles_admin_vars', $localization );
+			if ( 'openrouter' === get_option( 'occ_titles_ai_provider', 'openai' ) ) {
+				wp_enqueue_script( 'occ-titles-openrouter-settings', plugin_dir_url( __FILE__ ) . 'js/occ-titles-openrouter-settings.js', array( 'jquery', 'occ-titles-settings' ), $this->version, true );
+				wp_localize_script(
+					'occ-titles-openrouter-settings',
+					'occ_titles_openrouter_labels',
+					array(
+						'choose'     => __( 'Choose a model', 'oneclickcontent-titles' ),
+						/* translators: %d: Number of matching models. */
+						'matches'    => __( '%d models found', 'oneclickcontent-titles' ),
+						'noMatches'  => __( 'No matching models. You can enter a model ID manually.', 'oneclickcontent-titles' ),
+						'untested'   => __( 'Untested', 'oneclickcontent-titles' ),
+						'changed'    => __( 'Key or model changed. Test this selection and Save Changes to keep it.', 'oneclickcontent-titles' ),
+						'testing'    => __( 'Testing model…', 'oneclickcontent-titles' ),
+						'loading'    => __( 'Loading models…', 'oneclickcontent-titles' ),
+						'failed'     => __( 'OpenRouter request failed.', 'oneclickcontent-titles' ),
+						'testFailed' => __( 'Test failed', 'oneclickcontent-titles' ),
+						'passed'     => __( 'Test passed', 'oneclickcontent-titles' ),
+						'network'    => __( 'The request failed. Please try again.', 'oneclickcontent-titles' ),
+					)
+				);
+			}
 		}
 
 		// Enqueue scripts on the selected post type edit pages.
@@ -414,6 +441,13 @@ class Occ_Titles_Admin {
 
 			$helper = new Occ_Titles_Google_Helper();
 			$result = $helper->generate_titles_google( $api_key, $content, $style, $request_id, $count, $seed_title, $variation, $keyword, $voice_profile, $voice_samples, $intent, $keywords, $ellipsis );
+		} elseif ( 'openrouter' === $provider ) {
+			if ( ! get_option( 'occ_titles_openrouter_api_key', '' ) || ! Occ_Titles_OpenRouter_Helper::sanitize_model( get_option( 'occ_titles_openrouter_model', '' ) ) ) {
+				wp_send_json_error( array( 'message' => __( 'Set your OpenRouter API key and model in Title Assistant settings.', 'oneclickcontent-titles' ) ) );
+			}
+			$this->enforce_generation_rate_limit( $post_id, $request_id );
+			$openrouter_result = Occ_Titles_OpenRouter_Helper::request_titles( $content, null, null, $style, $request_id, $count, $seed_title, $variation, $keyword, $voice_profile, $voice_samples, $intent, $keywords, $ellipsis );
+			$result            = is_wp_error( $openrouter_result ) ? $openrouter_result->get_error_message() : $openrouter_result['titles'];
 		} else {
 			Occ_Titles_Logger::get_instance()->error(
 				'Unknown AI provider configured.',

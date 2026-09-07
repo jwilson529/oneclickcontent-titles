@@ -1,5 +1,5 @@
 {
-  "current_commit": "dbbee429ad540cb17facea2962c8c5945b5a6ba2",
+  "current_commit": "1e20a3b824ff5e48ee189a7e9d9d3e4fba4cc94b",
   "working_tree_dirty": true,
   "files": {
     "main_plugin_file": "oneclickcontent-titles.php",
@@ -10,7 +10,8 @@
     "logger": "includes/class-occ-titles-logger.php",
     "providers": [
       "admin/class-occ-titles-openai-helper.php",
-      "admin/class-occ-titles-google-helper.php"
+      "admin/class-occ-titles-google-helper.php",
+      "admin/class-occ-titles-openrouter-helper.php"
     ],
     "clients": [],
     "shortcodes": [],
@@ -20,7 +21,8 @@
       "admin/js/occ-titles-admin.js",
       "admin/js/occ-titles-editor-bridge.js",
       "admin/js/occ-titles-settings.js",
-      "admin/css/occ-titles-admin.css"
+      "admin/css/occ-titles-admin.css",
+      "admin/js/occ-titles-openrouter-settings.js"
     ],
     "public_ui": [
       "public/class-occ-titles-public.php",
@@ -40,7 +42,10 @@
       "tests/js/editor-bridge.test.js",
       "tests/class-occ-titles-test-component.php",
       "tests/class-wp-filesystem-base.php",
-      "tests/class-occ-titles-test-filesystem.php"
+      "tests/class-occ-titles-test-filesystem.php",
+      "tests/class-openrouterhelpertest.php",
+      "tests/class-wp-error.php",
+      "tests/js/settings-autosave.test.js"
     ],
     "logging": [
       "includes/class-occ-titles-logger.php",
@@ -54,7 +59,8 @@
       "readme.txt",
       "README.md",
       "RELEASE.md",
-      "MARKETING_PLAN.md"
+      "MARKETING_PLAN.md",
+      "release-notes/2.2.0.md"
     ],
     "build_tooling": [
       ".github/workflows/plugin-check.yaml",

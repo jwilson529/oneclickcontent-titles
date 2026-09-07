@@ -111,103 +111,7 @@ class Occ_Titles_OpenAI_Helper {
 			)
 		);
 
-		// Build the system instruction.
-		$system_instruction  = 'You are an SEO expert and content writer.';
-		$system_instruction .= ' Your task is to generate exactly ' . $count . ' SEO-optimized title';
-		$system_instruction .= 1 === (int) $count ? '' : 's';
-		$system_instruction .= ' for the provided content.';
-		$system_instruction .= ' Each title should be engaging, include relevant keywords, and be between 50-60 characters long. ';
-		$system_instruction .= 'Additionally, analyze the sentiment of each title (Positive, Negative, or Neutral).';
-
-		if ( ! empty( $style ) ) {
-			$system_instruction .= ' Use the following style for all titles: ' . ucfirst( $style ) . '.';
-		} else {
-			$system_instruction .= ' If no style is provided, choose the most suitable style from the following options: How-To, Listicle, Question, Command, ';
-			$system_instruction .= 'Intriguing Statement, News Headline, Comparison, Benefit-Oriented, Storytelling, and Problem-Solution.';
-		}
-
-		if ( is_array( $voice_profile ) && ! empty( $voice_profile ) ) {
-			$tone            = sanitize_text_field( $voice_profile['tone'] ?? '' );
-			$formality       = sanitize_text_field( $voice_profile['formality'] ?? '' );
-			$sentence_length = sanitize_text_field( $voice_profile['sentence_length'] ?? '' );
-			$cta_style       = sanitize_text_field( $voice_profile['cta_style'] ?? '' );
-			$must_use        = isset( $voice_profile['must_use'] ) ? array_map( 'sanitize_text_field', (array) $voice_profile['must_use'] ) : array();
-			$avoid           = isset( $voice_profile['avoid'] ) ? array_map( 'sanitize_text_field', (array) $voice_profile['avoid'] ) : array();
-			$examples        = isset( $voice_profile['examples'] ) ? array_map( 'sanitize_text_field', (array) $voice_profile['examples'] ) : array();
-
-			if ( '' !== $tone ) {
-				$system_instruction .= ' Tone: ' . $tone . '.';
-			}
-			if ( '' !== $formality ) {
-				$system_instruction .= ' Formality: ' . $formality . '.';
-			}
-			if ( '' !== $sentence_length ) {
-				$system_instruction .= ' Sentence length preference: ' . $sentence_length . '.';
-			}
-			if ( '' !== $cta_style ) {
-				$system_instruction .= ' CTA style: ' . $cta_style . '.';
-			}
-			if ( ! empty( $must_use ) ) {
-				$system_instruction .= ' Use these words where possible: ' . implode( ', ', $must_use ) . '.';
-			}
-			if ( ! empty( $avoid ) ) {
-				$system_instruction .= ' Avoid these words: ' . implode( ', ', $avoid ) . '.';
-			}
-
-			$example_titles = array();
-			if ( ! empty( $examples ) ) {
-				$example_titles = array_merge( $example_titles, $examples );
-			}
-			if ( is_array( $voice_samples ) && ! empty( $voice_samples ) ) {
-				$example_titles = array_merge( $example_titles, array_slice( $voice_samples, 0, 3 ) );
-			}
-			$example_titles = array_values( array_unique( array_filter( $example_titles ) ) );
-			$example_titles = array_slice( $example_titles, 0, 5 );
-
-			if ( ! empty( $example_titles ) ) {
-				$system_instruction .= " Match the following example titles for voice consistency:\n- " . implode( "\n- ", $example_titles ) . "\n";
-			}
-		}
-
-		if ( ! empty( $seed_title ) ) {
-			$system_instruction .= ' Base the new title' . ( 1 === (int) $count ? '' : 's' ) . ' on this seed title: "' . $seed_title . '".';
-		}
-
-		if ( ! empty( $variation ) ) {
-			$system_instruction .= ' Variation guidance: ' . ucfirst( $variation ) . '.';
-		}
-
-		if ( ! empty( $keyword ) ) {
-			$system_instruction .= ' Include this keyword if it fits naturally: "' . $keyword . '".';
-		}
-
-		if ( ! empty( $intent ) ) {
-			$system_instruction .= ' Primary goal: ' . $intent . '.';
-		}
-
-		$discover_guidance = $this->get_discover_guidance( $intent );
-		if ( '' !== $discover_guidance ) {
-			$system_instruction .= ' ' . $discover_guidance;
-		}
-
-		if ( $ellipsis ) {
-			$system_instruction .= ' When it helps build curiosity, allow a few titles to end with an ellipsis. Do not end every title with an ellipsis.';
-		}
-
-		if ( ! empty( $keywords ) && is_array( $keywords ) ) {
-			$system_instruction .= ' Target these keywords where possible: ' . implode( ', ', array_map( 'sanitize_text_field', $keywords ) ) . '.';
-		}
-
-		$system_instruction .= " Return the response as valid JSON in the following exact format:\n";
-		$system_instruction .= "[\n";
-
-		$format_lines = array();
-		for ( $i = 1; $i <= $count; $i++ ) {
-			$format_lines[] = "  { \"index\": {$i}, \"text\": \"Title {$i} content\", \"style\": \"Style\", \"sentiment\": \"Sentiment\", \"keywords\": [\"keyword1\", \"keyword2\"] }";
-		}
-
-		$system_instruction .= implode( ",\n", $format_lines );
-		$system_instruction .= "\n]";
+		$system_instruction = $this->build_title_instructions( $count, $style, $seed_title, $variation, $keyword, $voice_profile, $voice_samples, $intent, $keywords, $ellipsis );
 
 		// Use the Responses API for text generation.
 		$endpoint = 'https://api.openai.com/v1/responses';
@@ -338,6 +242,123 @@ class Occ_Titles_OpenAI_Helper {
 			);
 			return 'Unexpected response format.';
 		}
+	}
+
+	/**
+	 * Build shared title instructions for OpenAI and OpenRouter.
+	 *
+	 * @param int    $count Number of titles.
+	 * @param string $style Requested title style.
+	 * @param string $seed_title Title to refine.
+	 * @param string $variation Refinement direction.
+	 * @param string $keyword Primary keyword.
+	 * @param array  $voice_profile Brand voice configuration.
+	 * @param array  $voice_samples Approved example titles.
+	 * @param string $intent Editorial goal.
+	 * @param array  $keywords Additional target keywords.
+	 * @param int    $ellipsis Whether ellipses are allowed.
+	 * @return string
+	 */
+	protected function build_title_instructions( $count, $style, $seed_title, $variation, $keyword, $voice_profile, $voice_samples, $intent, $keywords, $ellipsis ) {
+		// Build the system instruction.
+		$system_instruction  = 'You are an SEO expert and content writer.';
+		$system_instruction .= ' Your task is to generate exactly ' . $count . ' SEO-optimized title';
+		$system_instruction .= 1 === (int) $count ? '' : 's';
+		$system_instruction .= ' for the provided content.';
+		$system_instruction .= ' Each title should be engaging, include relevant keywords, and be between 50-60 characters long. ';
+		$system_instruction .= 'Additionally, analyze the sentiment of each title (Positive, Negative, or Neutral).';
+
+		if ( ! empty( $style ) ) {
+			$system_instruction .= ' Use the following style for all titles: ' . ucfirst( $style ) . '.';
+		} else {
+			$system_instruction .= ' If no style is provided, choose the most suitable style from the following options: How-To, Listicle, Question, Command, ';
+			$system_instruction .= 'Intriguing Statement, News Headline, Comparison, Benefit-Oriented, Storytelling, and Problem-Solution.';
+		}
+
+		if ( is_array( $voice_profile ) && ! empty( $voice_profile ) ) {
+			$tone            = sanitize_text_field( $voice_profile['tone'] ?? '' );
+			$formality       = sanitize_text_field( $voice_profile['formality'] ?? '' );
+			$sentence_length = sanitize_text_field( $voice_profile['sentence_length'] ?? '' );
+			$cta_style       = sanitize_text_field( $voice_profile['cta_style'] ?? '' );
+			$must_use        = isset( $voice_profile['must_use'] ) ? array_map( 'sanitize_text_field', (array) $voice_profile['must_use'] ) : array();
+			$avoid           = isset( $voice_profile['avoid'] ) ? array_map( 'sanitize_text_field', (array) $voice_profile['avoid'] ) : array();
+			$examples        = isset( $voice_profile['examples'] ) ? array_map( 'sanitize_text_field', (array) $voice_profile['examples'] ) : array();
+
+			if ( '' !== $tone ) {
+				$system_instruction .= ' Tone: ' . $tone . '.';
+			}
+			if ( '' !== $formality ) {
+				$system_instruction .= ' Formality: ' . $formality . '.';
+			}
+			if ( '' !== $sentence_length ) {
+				$system_instruction .= ' Sentence length preference: ' . $sentence_length . '.';
+			}
+			if ( '' !== $cta_style ) {
+				$system_instruction .= ' CTA style: ' . $cta_style . '.';
+			}
+			if ( ! empty( $must_use ) ) {
+				$system_instruction .= ' Use these words where possible: ' . implode( ', ', $must_use ) . '.';
+			}
+			if ( ! empty( $avoid ) ) {
+				$system_instruction .= ' Avoid these words: ' . implode( ', ', $avoid ) . '.';
+			}
+
+			$example_titles = array();
+			if ( ! empty( $examples ) ) {
+				$example_titles = array_merge( $example_titles, $examples );
+			}
+			if ( is_array( $voice_samples ) && ! empty( $voice_samples ) ) {
+				$example_titles = array_merge( $example_titles, array_slice( $voice_samples, 0, 3 ) );
+			}
+			$example_titles = array_values( array_unique( array_filter( $example_titles ) ) );
+			$example_titles = array_slice( $example_titles, 0, 5 );
+
+			if ( ! empty( $example_titles ) ) {
+				$system_instruction .= " Match the following example titles for voice consistency:\n- " . implode( "\n- ", $example_titles ) . "\n";
+			}
+		}
+
+		if ( ! empty( $seed_title ) ) {
+			$system_instruction .= ' Base the new title' . ( 1 === (int) $count ? '' : 's' ) . ' on this seed title: "' . $seed_title . '".';
+		}
+
+		if ( ! empty( $variation ) ) {
+			$system_instruction .= ' Variation guidance: ' . ucfirst( $variation ) . '.';
+		}
+
+		if ( ! empty( $keyword ) ) {
+			$system_instruction .= ' Include this keyword if it fits naturally: "' . $keyword . '".';
+		}
+
+		if ( ! empty( $intent ) ) {
+			$system_instruction .= ' Primary goal: ' . $intent . '.';
+		}
+
+		$discover_guidance = $this->get_discover_guidance( $intent );
+		if ( '' !== $discover_guidance ) {
+			$system_instruction .= ' ' . $discover_guidance;
+		}
+
+		if ( $ellipsis ) {
+			$system_instruction .= ' When it helps build curiosity, allow a few titles to end with an ellipsis. Do not end every title with an ellipsis.';
+		}
+
+		if ( ! empty( $keywords ) && is_array( $keywords ) ) {
+			$system_instruction .= ' Target these keywords where possible: ' . implode( ', ', array_map( 'sanitize_text_field', $keywords ) ) . '.';
+		}
+
+		$system_instruction .= " Return the response as valid JSON in the following exact format:\n";
+		$system_instruction .= "[\n";
+
+		$format_lines = array();
+		for ( $i = 1; $i <= $count; $i++ ) {
+			$format_lines[] = "  { \"index\": {$i}, \"text\": \"Title {$i} content\", \"style\": \"Style\", \"sentiment\": \"Sentiment\", \"keywords\": [\"keyword1\", \"keyword2\"] }";
+		}
+
+		$system_instruction .= implode( ",\n", $format_lines );
+		$system_instruction .= "\n]";
+
+		return $system_instruction;
 	}
 
 	/**

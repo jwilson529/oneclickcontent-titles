@@ -133,3 +133,13 @@ Append a brief recap after each run:
 - Date: 2026-09-06
 - Summary: Prepared 2.1.8 security maintenance release with WPCS 3.4.1 and PHP_CodeSniffer 3.13.6, plus their required helper updates. Added Composer dependency auditing to CI.
 - Validation: PHPCS and PHPMD clean; local and WordPress 7.0.2 PHPUnit pass (38 tests, 130 assertions); five JavaScript tests pass; Composer audit clean; runtime-only ZIP verified; NAS activation, bootstrap, and frontend HTTP 200 pass. Original inactive state restored; source and database rollback backups saved on NAS.
+
+## OpenRouter release gate — 2026-09-07
+
+Prepared 2.2.0 from the verified 2.1.8 baseline. OpenRouter setup, request parsing, nonce/capability boundaries, and safe errors were reviewed. Added seven PHPUnit provider regressions and the settings autosave regression, extended uninstall coverage, completed translation annotations and the POT catalog, and refreshed stable metadata/readmes plus the OpenRouter screenshot.
+
+Validation: 45 PHP tests / 199 assertions; six JavaScript tests; PHPCS and PHPMD clean; Composer audit clean; all 19 runtime PHP files parse for PHP 7.2. The 30-file runtime ZIP has a 139-character readme short description. Fresh install and activation passed on WordPress 7.0.2 and 7.1. WordPress 7.1 browser checks passed for settings, catalog, sample test, generation, Apply/Undo, persistence, and Code/Visual launcher restoration using a deterministic HTTP provider fixture. Real OpenRouter requests and both Block and Classic editor flows were verified on the development site before this release pass. Actual uninstall/reinstall removed OpenRouter options and catalog in the isolated 7.1 installation.
+
+Plugin Check: no errors. Six advisory notices recommend the WordPress 7.0 AI Client for the existing direct provider integrations. The direct APIs are retained to preserve the declared WordPress 5.0 minimum. The current stable Docker gate is now WordPress 7.1. Local Docker is unavailable; the canonical Docker/npm test gate will run in GitHub Actions before publication.
+
+Publication: push the prepared main commit, verify the main validation run, then create releases/2.2.0 at the same SHA. The guarded release job verifies versions, main SHA, and nonempty SVN secrets; creates/verifies v2.2.0; publishes SVN; and attaches the ZIP to the GitHub Release. Public SVN, directory metadata, and downloads remain the final verification steps.
